@@ -9,6 +9,7 @@
     "start": "next start -p ${PORT:-3000}"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^7.0.1",
     "@radix-ui/react-accordion": "latest",
