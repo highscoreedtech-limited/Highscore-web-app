@@ -281,7 +281,7 @@ useEffect(() => {
 
           {/* Subtitle */}
           <p className="text-gray-600 text-sm font-bold">
-            Master WAEC & JAMB Subjects with bite-sized tutorials
+            Master, WAEC & JAMB Subjects with bite-sized tutorials
           </p>
 
           {/* Button */}
