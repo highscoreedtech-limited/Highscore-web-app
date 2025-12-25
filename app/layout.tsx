@@ -5,7 +5,7 @@ import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: "HighScore",
-  description: "Master JAMB, SSCE & PTUME with confidence - Your ultimate learning platform",
+  description: "Master.. JAMB, SSCE & PTUME with confidence - Your ultimate learning platform",
   generator: "v0.dev",
 }
 
