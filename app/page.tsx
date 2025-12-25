@@ -217,7 +217,7 @@ export default function HomePage() {
         {/* Content */}
         <div className="container mx-auto text-center relative z-10">
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
-            Master.... JAMB, SSCE, & PTUME
+            Master JAMB, SSCE, & PTUME
             <span className="text-orange-400 block">With Confidence</span>
           </h1>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto drop-shadow-md">
