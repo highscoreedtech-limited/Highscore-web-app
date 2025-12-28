@@ -156,7 +156,7 @@ function page() {
           <button className="bg-gradient-to-br from-purple-500 to-pink-500 p-6 rounded-xl text-white hover:from-purple-600 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 group opacity-75 cursor-not-allowed shadow-lg">
             <Users className="w-8 h-8 mb-3 group-hover:scale-110 transition-transform duration-200" />
             <h3 className="font-bold text-lg mb-1">Friends</h3>
-            <p className="text-sm opacity-90">Coming soon</p>
+            <p className="text-sm opacity-90">Chat With Friends</p>
           </button>
         </div>
 

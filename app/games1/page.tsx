@@ -27,6 +27,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import RankBadge from "@/components/RankBadge";
+import ChatModal from "../chat/page";
 
 export interface User {
     authid: string;
@@ -84,6 +85,9 @@ export default function DashboardPage() {
     const [user, setUser] = useState<User | null>(null);
 
     const [quests, setQuests] = useState<any[]>([]);
+
+    const [chatOpen, setChatOpen] = useState(false);
+
 
 
 
@@ -371,6 +375,25 @@ export default function DashboardPage() {
         }
 
     }, [user, quests]);
+
+
+    const [friends, setFriends] = useState([
+  { id: 1, name: "Alex", online: true },
+  { id: 2, name: "Mary", online: false },
+]);
+
+const [activeFriend, setActiveFriend] = useState<{ id: number; name: string; online: boolean } | null>(null);
+const [messages, setMessages] = useState<{ text: string; fromMe: boolean }[]>([]);
+const [message, setMessage] = useState("");
+
+const sendMessage = (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!message.trim()) return;
+  setMessages([...messages, { text: message, fromMe: true }]);
+  setMessage("");
+};
+
+
 
 
 
@@ -736,26 +759,23 @@ export default function DashboardPage() {
                         </Link>
 
                         {/* FRIENDS */}
-                        <Link href="/friends">
-                            <div
-                                className="rounded-2xl p-0 flex h-[200px] items-stretch overflow-hidden opacity-90 transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:opacity-90 cursor-pointer"
-                                style={{
-                                    background: "linear-gradient(180deg, #37189B 0%, #6B62A2 50%, #9C88E1 100%)"
-                                }}
-                            >
-                                <img
-                                    src="/friends.png"
-                                    alt="Friends"
-                                    className=""
-                                />
-                                <div className="flex flex-col justify-center pl-4 ml-6 text-white whitespace-nowrap">
-                                    <h3 className="text-lg ml-0 sm:-ml-10 -ml-6 font-bold">Friends</h3>
-                                    <p className="text-sm ml-0 sm:-ml-10 -ml-6 opacity-90">Coming Soon</p>
-                                </div>
+                        <div
+                            onClick={() => setChatOpen(true)}
+                            className="rounded-2xl p-0 flex h-[200px] items-stretch overflow-hidden opacity-90 transform transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:opacity-90 cursor-pointer"
+                            style={{ background: "linear-gradient(180deg, #37189B 0%, #6B62A2 50%, #9C88E1 100%)" }}
+                        >
+                            <img src="/friends.png" alt="Friends" className="" />
+                            <div className="flex flex-col justify-center pl-4 ml-6 text-white whitespace-nowrap">
+                                <h3 className="text-lg ml-0 sm:-ml-10 -ml-6 font-bold">Friends</h3>
+                                <p className="text-sm ml-0 sm:-ml-10 -ml-6 opacity-90">Chat with friends</p>
                             </div>
-                        </Link>
+                        </div>
+
 
                     </section>
+
+<ChatModal chatOpen={chatOpen} setChatOpen={setChatOpen} />
+
 
 
 
