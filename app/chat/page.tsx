@@ -235,55 +235,57 @@ export default function ChatModal({
   if (!chatOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-      onClick={() => setChatOpen(false)}
-    >
-      <div
-        className="bg-gradient-to-br from-orange-200 via-white to-purple-200 w-full max-w-5xl h-[650px] rounded-3xl shadow-2xl flex"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* LEFT – FRIEND LIST */}
-        <div className="w-1/3 border-r bg-white/70 rounded-l-3xl backdrop-blur flex flex-col">
-          <div className="p-5 font-bold text-xl border-b bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-tl-3xl">
-            Friends
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {friends.map((f) => (
-              <div
-                key={f.id}
-                onClick={() => setActiveFriend(f)}
-                className={`p-4 flex items-center gap-3 cursor-pointer transition ${
-                  activeFriend?.id === f.id ? "bg-orange-100" : "hover:bg-gray-100"
-                }`}
-              >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white shadow">
-                  <User size={20} />
-                </div>
-                <div className="flex-1">
-                  <div className="font-semibold">{f.name}</div>
-                  <div className="text-sm text-gray-500 flex items-center gap-1">
-                    <Circle
-                      size={10}
-                      className={f.online ? "text-green-500" : "text-gray-400"}
-                      fill={f.online ? "#22c55e" : "#9ca3af"}
-                    />
-                    {f.online ? "Online" : "Offline"}
-                  </div>
+<div
+  className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-0"
+  onClick={() => setChatOpen(false)}
+>
+  <div
+    className="bg-gradient-to-br from-orange-200 via-white to-purple-200 w-full h-full sm:max-w-5xl sm:h-[650px] rounded-3xl shadow-2xl flex flex-col sm:flex-row overflow-hidden"
+    onClick={(e) => e.stopPropagation()}
+  >
+    {/* LEFT – FRIEND LIST */}
+    <div className="w-full sm:w-1/3 border-r bg-white/70 backdrop-blur flex flex-col">
+      <div className="p-5 font-bold text-xl border-b bg-gradient-to-r from-orange-400 to-pink-500 text-white">
+        Friends
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        {friends
+          .filter((f) => f.online) // only online users on mobile
+          .map((f) => (
+            <div
+              key={f.id}
+              onClick={() => setActiveFriend(f)}
+              className={`p-4 flex items-center gap-3 cursor-pointer transition ${
+                activeFriend?.id === f.id ? "bg-orange-100" : "hover:bg-gray-100"
+              }`}
+            >
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white shadow">
+                <User size={20} />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold">{f.name}</div>
+                <div className="text-sm text-gray-500 flex items-center gap-1">
+                  <Circle
+                    size={10}
+                    className={f.online ? "text-green-500" : "text-gray-400"}
+                    fill={f.online ? "#22c55e" : "#9ca3af"}
+                  />
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          ))}
+      </div>
+    </div>
 
-   {/* RIGHT – CHAT WINDOW */}
-<div className="w-2/3 flex flex-col">
-  <div className="p-5 border-b bg-gradient-to-r from-purple-500 to-indigo-500 rounded-tr-3xl text-white flex justify-between items-center">
+    {/* RIGHT – CHAT WINDOW */}
+ {/* RIGHT – CHAT WINDOW */}
+<div className="w-full sm:w-2/3 flex flex-col relative">
+  {/* HEADER */}
+  <div className="p-5 border-b bg-gradient-to-r from-purple-500 to-indigo-500 text-white flex justify-between items-center">
     <div className="text-lg font-semibold flex items-center gap-2">
       {activeFriend ? (
         <>
           <span>{activeFriend.name}</span>
-          {/* Online/Offline dot */}
           <Circle
             size={10}
             className={activeFriend.online ? "text-green-500" : "text-gray-400"}
@@ -302,39 +304,43 @@ export default function ChatModal({
     </button>
   </div>
 
-  <div className="flex-1 overflow-y-auto p-6 space-y-3">
-    {!activeFriend && (
-      <div className="text-center text-gray-500 mt-20">
-        Select a friend to start chatting
+  {/* MESSAGE LIST */}
+{/* MESSAGE LIST */}
+<div className="flex-1 overflow-y-auto p-4 sm:p-6 mb-20 flex flex-col gap-3">
+  {!activeFriend && (
+    <div className="text-center text-gray-500 mt-20">
+      Select a friend to start chatting
+    </div>
+  )}
+  {activeFriend &&
+    messages.map((m) => (
+      <div
+        key={m.id}
+        className={`max-w-xs px-4 py-2 rounded-2xl shadow flex justify-between items-center break-words ${
+          m.fromMe
+            ? "bg-blue-600 text-white ml-auto rounded-br-none"
+            : "bg-white rounded-bl-none"
+        }`}
+      >
+        <span>{m.text}</span>
+        {m.fromMe && (
+          <button
+            onClick={() => deleteMessage(m.id)}
+            className="ml-2 hover:text-red-500"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
       </div>
-    )}
-    {activeFriend &&
-      messages.map((m) => (
-        <div
-          key={m.id}
-          className={`max-w-xs p-3 rounded-2xl shadow flex justify-between items-center ${
-            m.fromMe
-              ? "bg-blue-600 text-white ml-auto rounded-br-none"
-              : "bg-white rounded-bl-none"
-          }`}
-        >
-          <span>{m.text}</span>
-          {m.fromMe && (
-            <button
-              onClick={() => deleteMessage(m.id)}
-              className="ml-2 hover:text-red-500"
-            >
-              <Trash2 size={16} />
-            </button>
-          )}
-        </div>
-      ))}
-  </div>
+    ))}
+</div>
 
+
+  {/* INPUT – FIXED ON MOBILE */}
   {activeFriend && (
     <form
       onSubmit={sendMessage}
-      className="p-4 border-t bg-white rounded-b-3xl flex gap-2"
+      className="fixed bottom-0 left-0 w-full flex gap-2 p-2 sm:static sm:flex sm:p-4 border-t bg-white"
     >
       <input
         value={message}
@@ -352,7 +358,8 @@ export default function ChatModal({
   )}
 </div>
 
-      </div>
-    </div>
+  </div>
+</div>
+
   );
 }
