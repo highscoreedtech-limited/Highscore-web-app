@@ -71,7 +71,7 @@ export default function ChatModal({
         }));
         setFriends(mapped);
       } catch (err) {
-        console.error("Error fetching contacts:", err);
+        console.error("Error fetching contacs:", err);
       }
     };
     fetchContacts();
