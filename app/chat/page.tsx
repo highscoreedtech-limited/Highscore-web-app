@@ -71,7 +71,7 @@ export default function ChatModal({
         }));
         setFriends(mapped);
       } catch (err) {
-        console.error("Error fehi cnacs:", err);
+        console.error("Error fe cnacs:", err);
       }
     };
     fetchContacts();
