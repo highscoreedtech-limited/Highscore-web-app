@@ -73,13 +73,19 @@ export default function LoginPage() {
 
     try {
 
-      
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+const uid = userCredential.user.uid;
+const token = await userCredential.user.getIdToken();
+
+// store both if needed
+localStorage.setItem("firebaseUid", uid);
+localStorage.setItem("token", token);
+
 
 
       
     // Get Firebase ID token
-    const token = await userCredential.user.getIdToken();
     console.log("Firebase ID token (copy for Postman):", token);
 
       toast.success("Login successful! Redirecting...");

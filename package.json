@@ -66,6 +66,7 @@
     "react-responsive": "^10.0.1",
     "recharts": "latest",
     "resend": "^6.5.2",
+    "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "sonner": "latest",
     "tailwind-merge": "^2.5.5",
