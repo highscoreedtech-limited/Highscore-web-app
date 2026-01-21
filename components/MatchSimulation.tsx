@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Users, Zap, Trophy } from 'lucide-react';
 import { supabase } from "@/lib/supabaseClient";
-
-
+import { io, Socket } from "socket.io-client";
 import type { User } from './types';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { getFirebaseToken } from '@/lib/getFirebaseToken';
 
 interface MatchSimulationProps {
   user: User;
@@ -13,7 +13,7 @@ interface MatchSimulationProps {
   authid: string;
   gameMode: string;
   subjects: string[];
-  onGameStart: () => void;
+  onGameStart: (opponentId: number) => void;
   onBack: () => void;
 }
 
@@ -32,89 +32,165 @@ const MatchSimulation: React.FC<MatchSimulationProps> = ({
     avatar: string;
     rank: string;
     rating: number;
+    id?: number;
   }>>([]);
+  const [onlineUsers, setOnlineUsers] = useState<number[]>([]);
+  const [username, setUsername] = useState<string>("");
+  const socketRef = useRef<Socket | null>(null);
+  const [chatId, setChatId] = useState<number | null>(null);
+  const [friends, setFriends] = useState<Array<{ id: number; name: string; email: string }>>([]);
+  const [selectedOpponentId, setSelectedOpponentId] = useState<number | null>(null);
 
 
 
 
-
-  const [username, setUsername] = useState<string | null>(null);
-  
-
-
-  useEffect(() => {
-    const stored =
-      typeof window !== "undefined" ? localStorage.getItem("username") : null;
-    setUsername(stored ?? "ControlEdu");
-  }, []);
-
-
-
-  // 1️⃣ Interval to update progress
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMatchingProgress(prev => Math.min(prev + 10, 100));
-    }, 200);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // 2️⃣ Fetch opponents when progress hits 100
-  useEffect(() => {
-    if (matchingProgress === 100 && !foundMatch) {
-      setFoundMatch(true);
-      fetchRealOpponents(); // will only run once
+  // ---- FETCH NUMERIC CHAT USER ID (same as chat page) ----
+useEffect(() => {
+  const fetchChatId = async () => {
+    try {
+      const token = await getFirebaseToken(); // ✅ gets fresh token, refreshes if expired
+      const res = await fetch("https://chat-back-ymlq.onrender.com/api/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.status && data.id) {
+        setChatId(Number(data.id));
+        console.log("[MatchSimulation] Got chatId from backend:", data.id);
+      }
+    } catch (err) {
+      console.error("[MatchSimulation] Error fetching chat user ID:", err);
     }
-  }, [matchingProgress, foundMatch]);
+  };
+
+  fetchChatId();
+}, []);
+
+
+  // ---- SOCKET.IO REAL-TIME ONLINE USERS (same logic as chat) ----
+  useEffect(() => {
+    if (!chatId) {
+      console.warn("[MatchSimulation] No chatId for socket connection!");
+      return;
+    }
+
+    const socket = io("https://chat-back-ymlq.onrender.com", {
+      transports: ["websocket"],
+    });
+
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      console.log("[MatchSimulation] Socket connected, emitting add-user:", chatId);
+      socket.emit("add-user", chatId);
+    });
+
+    socket.on("online-users", (data) => {
+      console.log("[MatchSimulation] Socket online-users event:", data);
+      if (Array.isArray(data.onlineUsers)) {
+        setOnlineUsers(data.onlineUsers);
+      } else {
+        setOnlineUsers([]);
+        console.warn("[MatchSimulation] online-users event did not return an array:", data.onlineUsers);
+      }
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("[MatchSimulation] Socket disconnected:", reason);
+    });
+    socket.on("reconnect", (attempt) => {
+      console.log("[MatchSimulation] Socket reconnected:", attempt);
+      socket.emit("add-user", chatId);
+    });
+
+    // Log socket initialization for debugging
+    console.log("[MatchSimulation] Socket connection effect initialized. chatId:", chatId);
+
+    return () => {
+      console.log("[MatchSimulation] Disconnecting socket...");
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [chatId]);
+
+  // Show online users for debugging
+  useEffect(() => {
+    console.log("[MatchSimulation] Current online users:", onlineUsers);
+  }, [onlineUsers]);
 
   function formatRank(rank: string) {
   if (!rank) return "Bronze";
   return rank.charAt(0).toUpperCase() + rank.slice(1).toLowerCase();
 }
 
+  // Set opponents directly from online users (excluding self)
+  const socketInitialized = useRef(false);
+useEffect(() => {
+  if (!chatId || socketInitialized.current) return;
+
+  socketInitialized.current = true; // mark socket as initialized
+
+  const socket = io("https://chat-back-ymlq.onrender.com", {
+    transports: ["websocket"],
+  });
+
+  socketRef.current = socket;
+
+  socket.on("connect", () => {
+    console.log("[MatchSimulation] Socket connected, emitting add-user:", chatId);
+    socket.emit("add-user", chatId);
+  });
+
+  socket.on("online-users", (data) => {
+    if (Array.isArray(data.onlineUsers)) {
+      setOnlineUsers(data.onlineUsers);
+    } else {
+      console.warn("[MatchSimulation] online-users event did not return array:", data.onlineUsers);
+      setOnlineUsers([]);
+    }
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("[MatchSimulation] Socket disconnected:", reason);
+  });
+
+  socket.on("reconnect", () => {
+    console.log("[MatchSimulation] Socket reconnected, re-emitting add-user:", chatId);
+    socket.emit("add-user", chatId);
+  });
+
+  return () => {
+    console.log("[MatchSimulation] Disconnecting socket...");
+    socket.disconnect();
+    socketRef.current = null;
+    socketInitialized.current = false;
+  };
+}, [chatId]);
+
+
+useEffect(() => {
+  if (!chatId || onlineUsers.length === 0 || friends.length === 0) return;
+
+  const filtered = onlineUsers
+    .filter(id => id !== chatId)
+    .map(id => {
+      const friend = friends.find(f => f.id === id);
+      return {
+        id,
+        name: friend ? friend.name : `User ID: ${id}`,
+        avatar: "🙂",
+        rank: "Unknown",
+        rating: 0,
+      };
+    });
+
+  setOpponents(filtered);
+  console.log("[MatchSimulation] Mapped opponents from online users:", filtered);
+}, [chatId, onlineUsers, friends]);
 
 
 
-  async function fetchRealOpponents() {
-    const { data, error } = await supabase
-      .from("users")
-      .select("username, displayname, avatar, rank, xp, authid")
-      .neq("authid", user.authid)   // exclude yourself by Firebase UID
-      .limit(10);
-
-    if (error || !data) return;
-
-  const formatted = data.map(u => ({
-  name: u.username,
-  avatar: u.avatar ?? "🙂",
-  rank: getRank(Number(u.xp ?? 0)),  // ⭐ calculate fresh rank
-  rating: Number(u.xp ?? 0),
-}));
-
-    console.log("Fetched opponents:", formatted);
-    console.log("Current user authid:", getRankColor(user.rank));
-    
-
-    const shuffled = formatted.sort(() => 0.5 - Math.random());
-    setOpponents(shuffled.slice(0, 3));
-  }
 
   
-
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("Firebase user:", user);
-      if (user) {
-        const name = user.displayName || user.email?.split("@")[0] || "User";
-        console.log("Resolved username:", name);
-        setUsername(name);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
-
 
   const getRankColor = (rank: string) => {
     switch (rank.toLowerCase()) {
@@ -137,6 +213,33 @@ function getRank(xp: number) {
   if (xp >= 300) return "Silver";
   return "Bronze";
 }
+
+  // Fetch friends (contacts) for mapping chatId to username
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch(
+          "https://chat-back-ymlq.onrender.com/api/auth/get-contacts",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await res.json();
+        const mapped = data.users.U.map((u: any) => ({
+          id: Number(u.id),
+          name: u.email.split("@")[0],
+          email: u.email,
+        }));
+        setFriends(mapped);
+        console.log("[MatchSimulation] Fetched friends for username mapping:", mapped);
+      } catch (err) {
+        console.error("[MatchSimulation] Error fetching friends:", err);
+      }
+    };
+    fetchContacts();
+  }, []);
 
   return (
     <div className="min-h-screen p-4 md:p-6 bg-[#04101F]">
@@ -199,64 +302,76 @@ function getRank(xp: number) {
 
 
 
-        {/* Matchmaking Progress */}
-        {!foundMatch ? (
-          <div className="bg-[#1B1B1B] backdrop-blur-md rounded-2xl p-8 border border-orange-400/30 text-center">
-            <div className="animate-spin w-16 h-16 border-4 border-orange-400 border-t-transparent rounded-full mx-auto mb-6"></div>
-            <h2 className="text-2xl font-bold text-white mb-4">Searching for opponents...</h2>
-            <div className="w-full bg-gray-700 rounded-full h-3 mb-4">
-              <div
-                className="bg-gradient-to-r from-orange-400 to-yellow-400 h-3 rounded-full transition-all duration-200"
-                style={{ width: `${matchingProgress}%` }}
-              ></div>
+        {/* Show online users for debugging (display usernames, not just IDs) */}
+   
+
+        {/* Opponents (now always from online users) */}
+        <div className="bg-[#1B1B1B] backdrop-blur-md rounded-2xl p-8 border border-orange-400/30">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trophy className="w-8 h-8 text-black" />
             </div>
-            <p className="text-gray-300">Finding players with similar skill level...</p>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              {opponents.length > 0 ? "Online Opponents" : "No Opponents Online"}
+            </h2>
+            <p className="text-gray-300">
+              {opponents.length > 0
+                ? "Get ready to battle these online users"
+                : "Waiting for other users to come online..."}
+            </p>
           </div>
-        ) : (
-          <div className="bg-[#1B1B1B] backdrop-blur-md rounded-2xl p-8 border border-orange-400/30">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trophy className="w-8 h-8 text-black" />
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Match Found!</h2>
-              <p className="text-gray-300">Get ready to battle these opponents</p>
-            </div>
 
-            {/* Opponents */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              {opponents.map((opponent, index) => (
-                <div
-                  key={index}
-                  className="bg-[#1B1B1B] rounded-xl p-4 border border-orange-400/30 transform hover:scale-105 transition-all duration-200"
+          {/* Opponents List */}
+          <div className="flex flex-wrap justify-center gap-6 mt-6">
+            {opponents.length > 0 ? (
+              opponents.map((opponent, idx) => (
+                <button
+                  key={idx}
+                  className={`bg-[#232323] rounded-xl p-4 flex flex-col items-center w-40 border transition-all duration-200
+                    border-orange-400/20
+                    ${selectedOpponentId === opponent.id ? 'ring-2 ring-orange-400 scale-105' : ''}`}
+                  onClick={() => setSelectedOpponentId(opponent.id ?? null)}
+                  style={{ cursor: 'pointer' }}
                 >
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center text-2xl mx-auto mb-3">
-                      {opponent.avatar}
-                    </div>
-                    <h3 className="text-white font-bold">{opponent.name}</h3>
-                    <p className={`text-sm ${getRankColor(opponent.rank)} mb-2`}>{opponent.rank}</p>
-                    <div className="flex items-center justify-center space-x-1">
-                      <Zap className="w-4 h-4 text-yellow-400" />
-                      <span className="text-yellow-400 font-bold">{opponent.rating}</span>
-                    </div>
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center text-xl mb-2">
+                    {opponent.avatar}
                   </div>
-                </div>
-              ))}
-            </div>
+                  <p className="text-white font-medium mb-1">{opponent.name}</p>
+                  <p className={`text-sm ${getRankColor(opponent.rank)}`}>{formatRank(opponent.rank)}</p>
+                  <div className="flex items-center space-x-1 mt-2">
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                    <span className="text-yellow-400 font-bold">{opponent.rating}</span>
+                  </div>
+                  <span className="mt-2 text-xs text-orange-400">ID: {opponent.id}</span>
+                  {selectedOpponentId === opponent.id && (
+                    <span className="mt-1 text-green-400 font-bold">Selected</span>
+                  )}
+                </button>
+              ))
+            ) : (
+              <span className="text-gray-400">No opponents online</span>
+            )}
+          </div>
+        </div>
+        
+           
+          </div>
 
-            <div className="text-center">
+           <div className="text-center">
               <button
-                onClick={onGameStart}
-                className="bg-gradient-to-br from-orange-400 to-yellow-400 text-black font-bold py-4 px-8 rounded-xl hover:from-orange-500 hover:to-yellow-500 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-2xl"
+                onClick={() => selectedOpponentId && onGameStart(selectedOpponentId)}
+                className={`bg-gradient-to-br from-orange-400 to-yellow-400 text-black font-bold py-4 px-8 rounded-xl transition-all duration-200 transform shadow-lg hover:scale-105 hover:from-orange-500 hover:to-yellow-500 hover:shadow-2xl ${selectedOpponentId ? '' : 'opacity-50 cursor-not-allowed'}`}
+                disabled={!selectedOpponentId}
               >
-                Start Battle
+                {selectedOpponentId ? 'Start Battle' : 'Select Opponent'}
               </button>
             </div>
-          </div>
-        )}
       </div>
-    </div>
+
   );
-};
+}
 
 export default MatchSimulation;
+
+
+
