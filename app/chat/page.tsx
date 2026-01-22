@@ -51,6 +51,9 @@ export default function ChatModal({
     fetchUserId();
   }, []);
 
+
+
+
   // ---- FETCH FRIENDS ----
   useEffect(() => {
     const fetchContacts = async () => {
