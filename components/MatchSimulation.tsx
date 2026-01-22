@@ -25,8 +25,6 @@ const MatchSimulation: React.FC<MatchSimulationProps> = ({
   onGameStart,
   onBack
 }) => {
-  const [matchingProgress, setMatchingProgress] = useState(0);
-  const [foundMatch, setFoundMatch] = useState(false);
   const [opponents, setOpponents] = useState<Array<{
     name: string;
     avatar: string;
@@ -36,6 +34,10 @@ const MatchSimulation: React.FC<MatchSimulationProps> = ({
   }>>([]);
   const [onlineUsers, setOnlineUsers] = useState<number[]>([]);
   const [username, setUsername] = useState<string>("");
+
+  const [opponentReady, setOpponentReady] = useState<boolean>(false);
+const [battleConfirmed, setBattleConfirmed] = useState(false);
+
   const socketRef = useRef<Socket | null>(null);
   const [chatId, setChatId] = useState<number | null>(null);
   const [friends, setFriends] = useState<Array<{ id: number; name: string; email: string }>>([]);
@@ -49,7 +51,7 @@ useEffect(() => {
   const fetchChatId = async () => {
     try {
       const token = await getFirebaseToken(); // ✅ gets fresh token, refreshes if expired
-      const res = await fetch("https://chat-back-ymlq.onrender.com/api/auth/me", {
+      const res = await fetch("http://localhost:3005/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -66,51 +68,24 @@ useEffect(() => {
 }, []);
 
 
-  // ---- SOCKET.IO REAL-TIME ONLINE USERS (same logic as chat) ----
+
   useEffect(() => {
-    if (!chatId) {
-      console.warn("[MatchSimulation] No chatId for socket connection!");
-      return;
-    }
+  if (selectedOpponentId) {
+    localStorage.setItem(
+      "pendingOpponent",
+      JSON.stringify({
+        opponentId: selectedOpponentId,
+        createdAt: Date.now(),
+      })
+    );
+  }
+}, [selectedOpponentId]);
 
-    const socket = io("https://chat-back-ymlq.onrender.com", {
-      transports: ["websocket"],
-    });
 
-    socketRef.current = socket;
 
-    socket.on("connect", () => {
-      console.log("[MatchSimulation] Socket connected, emitting add-user:", chatId);
-      socket.emit("add-user", chatId);
-    });
 
-    socket.on("online-users", (data) => {
-      console.log("[MatchSimulation] Socket online-users event:", data);
-      if (Array.isArray(data.onlineUsers)) {
-        setOnlineUsers(data.onlineUsers);
-      } else {
-        setOnlineUsers([]);
-        console.warn("[MatchSimulation] online-users event did not return an array:", data.onlineUsers);
-      }
-    });
 
-    socket.on("disconnect", (reason) => {
-      console.log("[MatchSimulation] Socket disconnected:", reason);
-    });
-    socket.on("reconnect", (attempt) => {
-      console.log("[MatchSimulation] Socket reconnected:", attempt);
-      socket.emit("add-user", chatId);
-    });
-
-    // Log socket initialization for debugging
-    console.log("[MatchSimulation] Socket connection effect initialized. chatId:", chatId);
-
-    return () => {
-      console.log("[MatchSimulation] Disconnecting socket...");
-      socket.disconnect();
-      socketRef.current = null;
-    };
-  }, [chatId]);
+ 
 
   // Show online users for debugging
   useEffect(() => {
@@ -125,68 +100,63 @@ useEffect(() => {
   // Set opponents directly from online users (excluding self)
   const socketInitialized = useRef(false);
 useEffect(() => {
-  if (!chatId || socketInitialized.current) return;
+  if (!chatId) {
+    console.warn("[MatchSimulation] No chatId yet");
+    return;
+  }
 
-  socketInitialized.current = true; // mark socket as initialized
+const socket = io("http://localhost:3005", { transports: ["websocket"] });
 
-  const socket = io("https://chat-back-ymlq.onrender.com", {
-    transports: ["websocket"],
-  });
 
   socketRef.current = socket;
 
   socket.on("connect", () => {
-    console.log("[MatchSimulation] Socket connected, emitting add-user:", chatId);
+    console.log("[MatchSimulation] Connected, add-user:", chatId);
     socket.emit("add-user", chatId);
   });
 
   socket.on("online-users", (data) => {
-    if (Array.isArray(data.onlineUsers)) {
-      setOnlineUsers(data.onlineUsers);
-    } else {
-      console.warn("[MatchSimulation] online-users event did not return array:", data.onlineUsers);
-      setOnlineUsers([]);
-    }
+    console.log("[MatchSimulation] online-users:", data);
+    setOnlineUsers(Array.isArray(data.onlineUsers) ? data.onlineUsers : []);
   });
 
   socket.on("disconnect", (reason) => {
-    console.log("[MatchSimulation] Socket disconnected:", reason);
+    console.log("[MatchSimulation] Disconnected:", reason);
   });
 
   socket.on("reconnect", () => {
-    console.log("[MatchSimulation] Socket reconnected, re-emitting add-user:", chatId);
+    console.log("[MatchSimulation] Reconnected");
     socket.emit("add-user", chatId);
   });
 
   return () => {
-    console.log("[MatchSimulation] Disconnecting socket...");
+    console.log("[MatchSimulation] Cleaning up socket");
     socket.disconnect();
     socketRef.current = null;
-    socketInitialized.current = false;
   };
 }, [chatId]);
 
 
-useEffect(() => {
-  if (!chatId || onlineUsers.length === 0 || friends.length === 0) return;
 
-  const filtered = onlineUsers
-    .filter(id => id !== chatId)
+useEffect(() => {
+  if (!friends.length || !onlineUsers.length || !chatId) return;
+
+  // Map online user IDs to opponent objects
+  const newOpponents = onlineUsers
+    .filter(id => id !== chatId) // exclude self
     .map(id => {
       const friend = friends.find(f => f.id === id);
       return {
         id,
-        name: friend ? friend.name : `User ID: ${id}`,
-        avatar: "🙂",
-        rank: "Unknown",
+        name: friend ? friend.name : `User${id}`,
+        avatar: friend ? friend.name[0].toUpperCase() : "?",
+        rank: "Bronze",
         rating: 0,
       };
     });
 
-  setOpponents(filtered);
-  console.log("[MatchSimulation] Mapped opponents from online users:", filtered);
-}, [chatId, onlineUsers, friends]);
-
+  setOpponents(newOpponents);
+}, [onlineUsers, friends, chatId]);
 
 
 
@@ -221,7 +191,7 @@ function getRank(xp: number) {
         const token = localStorage.getItem("token");
         if (!token) return;
         const res = await fetch(
-          "https://chat-back-ymlq.onrender.com/api/auth/get-contacts",
+          "http://localhost:3005/api/auth/get-contacts",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -240,6 +210,45 @@ function getRank(xp: number) {
     };
     fetchContacts();
   }, []);
+
+  useEffect(() => {
+  if (selectedOpponentId && socketRef.current) {
+    socketRef.current.emit("ready-for-battle", {
+      from: chatId,
+      to: selectedOpponentId,
+    });
+  }
+}, [selectedOpponentId, chatId]);
+
+
+useEffect(() => {
+  if (!socketRef.current) return;
+
+  const socket = socketRef.current;
+
+  socket.on("opponent-ready", ({ from }) => {
+    if (from === selectedOpponentId) {
+      console.log("[MatchSimulation] Opponent is ready!");
+      setOpponentReady(true);
+    }
+  });
+
+socket.on("battle-confirmed", ({ players }) => {
+  if (players.includes(chatId) && selectedOpponentId !== null) {
+    setBattleConfirmed(true);
+    onGameStart(selectedOpponentId);
+  }
+});
+
+
+  return () => {
+    socket.off("opponent-ready");
+    socket.off("battle-confirmed");
+  };
+}, [selectedOpponentId]);
+
+
+
 
   return (
     <div className="min-h-screen p-4 md:p-6 bg-[#04101F]">
@@ -356,16 +365,33 @@ function getRank(xp: number) {
         
            
           </div>
+<div className="text-center">
+  {!battleConfirmed ? (
+    <button
+     onClick={() => {
+  if (!socketRef.current || !selectedOpponentId || !chatId) return;
 
-           <div className="text-center">
-              <button
-                onClick={() => selectedOpponentId && onGameStart(selectedOpponentId)}
-                className={`bg-gradient-to-br from-orange-400 to-yellow-400 text-black font-bold py-4 px-8 rounded-xl transition-all duration-200 transform shadow-lg hover:scale-105 hover:from-orange-500 hover:to-yellow-500 hover:shadow-2xl ${selectedOpponentId ? '' : 'opacity-50 cursor-not-allowed'}`}
-                disabled={!selectedOpponentId}
-              >
-                {selectedOpponentId ? 'Start Battle' : 'Select Opponent'}
-              </button>
-            </div>
+  socketRef.current.emit("confirm-battle", {
+    from: chatId,
+    to: selectedOpponentId,
+    gameMode,
+    subjects,
+  });
+}}
+
+      className={`bg-gradient-to-br from-orange-400 to-yellow-400 text-black font-bold py-4 px-8 rounded-xl transition-all duration-200 transform shadow-lg hover:scale-105 hover:from-orange-500 hover:to-yellow-500 hover:shadow-2xl ${
+        selectedOpponentId ? '' : 'opacity-50 cursor-not-allowed'
+      }`}
+    disabled={!selectedOpponentId || !opponentReady}
+
+    >
+      {opponentReady ? "Start Battle" : "Waiting for Opponent"}
+    </button>
+  ) : (
+    <span className="text-green-400 font-bold">Starting Battle...</span>
+  )}
+</div>
+
       </div>
 
   );
