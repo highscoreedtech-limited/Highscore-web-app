@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -44,6 +45,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* LMS Hero Banner */}
+
       {/* Header */}
       <header className="border-b bg-white/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -253,6 +256,40 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
             Everything You Need to Succeed
           </h2>
+
+      {/* LMS Features Section */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12 text-blue-900">Why Choose HighScore LMS?</h2>
+          <div className="grid md:grid-cols-5 gap-8">
+            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
+              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#fbbf24"/><path d="M8 12l2 2 4-4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+              <h3 className="font-semibold text-lg mb-2 text-blue-900">Interactive Lessons</h3>
+              <p className="text-blue-700 text-sm">Engage with video, text, and hands-on activities for every subject.</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
+              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="6" fill="#60a5fa"/><path d="M8 12h8M12 8v8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg></span>
+              <h3 className="font-semibold text-lg mb-2 text-blue-900">Quizzes & Practice</h3>
+              <p className="text-blue-700 text-sm">Test your knowledge with instant feedback and explanations.</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
+              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#34d399"/><path d="M12 6v6l4 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg></span>
+              <h3 className="font-semibold text-lg mb-2 text-blue-900">Progress Tracking</h3>
+              <p className="text-blue-700 text-sm">Monitor your learning journey and celebrate achievements.</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
+              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="6" fill="#f472b6"/><path d="M8 12l4 4 4-4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg></span>
+              <h3 className="font-semibold text-lg mb-2 text-blue-900">Group Study</h3>
+              <p className="text-blue-700 text-sm">Collaborate with peers, join study groups, and learn together.</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
+              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#6366f1"/><path d="M12 8v4l3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg></span>
+              <h3 className="font-semibold text-lg mb-2 text-blue-900">Expert Support</h3>
+              <p className="text-blue-700 text-sm">Get help from certified tutors and access 24/7 support.</p>
+            </div>
+          </div>
+        </div>
+      </section>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 group border-l-4 border-l-blue-600">
               <CardHeader>
@@ -453,6 +490,168 @@ export default function HomePage() {
               Get Started Today
             </Button>
           </Link>
+        </div>
+      </section>
+
+      {/* Payment Section */}
+<section className="py-20 px-4 bg-[#f6f7fb]">
+  <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    {/* STUDENTS CARD */}
+    <div className="relative overflow-hidden rounded-3xl bg-[#2a124a] text-white p-10 shadow-xl">
+      <div className="absolute top-0 right-0 w-48 h-48 bg-orange-300 rounded-full opacity-30 translate-x-16 -translate-y-16" />
+
+      <h4 className="text-sm uppercase tracking-wide text-gray-300 mb-2">
+        The HighScoreApp for Students
+      </h4>
+
+      <h2 className="text-2xl md:text-3xl font-bold text-orange-400 mb-4">
+        Loved by parents and learners with proven academic outcomes
+      </h2>
+
+      <p className="text-gray-300 mb-6 max-w-md">
+        Coming Soon on web and mobile..
+      </p>
+
+      <div className="mb-6">
+        <div className="text-4xl font-extrabold text-white">
+          ₦25,000<span className="text-lg font-medium">/year</span>
+        </div>
+        <div className="text-gray-400 line-through">
+          ₦50,000
+        </div>
+        <div className="text-sm text-orange-300">
+          50% discount
+        </div>
+      </div>
+
+      <button className="mt-4 w-full md:w-auto px-10 py-4 rounded-full bg-orange-400 text-[#2a124a] font-semibold text-lg hover:bg-orange-300 transition">
+        Buy Now
+      </button>
+    </div>
+
+    {/* CLASSROOM CARD */}
+    <div className="relative overflow-hidden rounded-3xl bg-[#2a124a] text-white p-10 shadow-xl">
+      <div className="absolute top-0 right-0 w-48 h-48 bg-green-300 rounded-full opacity-30 translate-x-16 -translate-y-16" />
+
+      <h4 className="text-sm uppercase tracking-wide text-gray-300 mb-2">
+       HighScore Classboard for Classrooms
+      </h4>
+
+      <h2 className="text-2xl md:text-3xl font-bold text-green-300 mb-4">
+        Super human power for teachers. Making school 100× more productive
+      </h2>
+
+      <p className="text-gray-300 mb-6 max-w-md">
+        Harness the power of superior hardware and industry-leading academic
+        content for seamless teaching and learning.
+      </p>
+
+      <div className="mb-6">
+        <p className="text-gray-300 mb-2">
+          Contact a sales agent to purchase
+        </p>
+        <p className="text-2xl font-bold tracking-wide">
+          +234 201 330 3222
+        </p>
+      </div>
+
+      <button className="mt-4 w-full md:w-auto px-10 py-4 rounded-full bg-green-400 text-[#2a124a] font-semibold text-lg hover:bg-green-300 transition">
+        Learn more
+      </button>
+
+      <p className="mt-6 text-sm text-gray-400">
+        Installmental Payment Plans Available
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+      {/* Beautiful Payment Section with Sprinkler Effect and LMS Features */}
+      <section className="relative py-20 px-4 bg-gradient-to-br from-blue-50 to-orange-50 overflow-hidden">
+        {/* Sprinkler SVG Animation */}
+        <svg className="absolute left-0 top-0 w-full h-full pointer-events-none z-0" width="100%" height="100%" viewBox="0 0 1440 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="200" cy="100" r="6" fill="#fbbf24">
+            <animate attributeName="cy" values="100;120;100" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="400" cy="180" r="4" fill="#60a5fa">
+            <animate attributeName="cy" values="180;200;180" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="800" cy="60" r="5" fill="#34d399">
+            <animate attributeName="cy" values="60;90;60" dur="2.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="1200" cy="150" r="7" fill="#f472b6">
+            <animate attributeName="cy" values="150;180;150" dur="2.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="1000" cy="300" r="4" fill="#fbbf24">
+            <animate attributeName="cy" values="300;320;300" dur="2.1s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* STUDENT PREMIUM CARD */}
+          <div className="relative overflow-hidden rounded-3xl bg-blue-900 text-white p-10 shadow-xl flex flex-col">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-orange-300 rounded-full opacity-20 translate-x-16 -translate-y-16" />
+            <h4 className="text-sm uppercase tracking-wide text-blue-200 mb-2">
+              HighScore LMS for Students
+            </h4>
+            <h2 className="text-2xl md:text-3xl font-bold text-orange-400 mb-4">
+              Unlock Interactive Learning & Progress
+            </h2>
+            <ul className="mb-6 space-y-2 text-blue-100 text-base">
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-orange-400 rounded-full"></span> Interactive video lessons & quizzes</li>
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-orange-400 rounded-full"></span> Real-time progress tracking</li>
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-orange-400 rounded-full"></span> Group study & peer collaboration</li>
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-orange-400 rounded-full"></span> Expert tutor support</li>
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-orange-400 rounded-full"></span> Gamified achievements & leaderboards</li>
+            </ul>
+            <div className="mb-6">
+              <div className="text-4xl font-extrabold text-white">
+                ₦2,500<span className="text-lg font-medium">/month</span>
+              </div>
+              <div className="text-blue-200 line-through">₦5,000</div>
+              <div className="text-sm text-orange-300">50% launch discount</div>
+            </div>
+            <button className="mt-4 w-full md:w-auto px-10 py-4 rounded-full bg-orange-500 text-white font-semibold text-lg hover:bg-orange-400 transition">
+              Subscribe Now
+            </button>
+            <div className="flex items-center gap-2 mt-6">
+              <Image src="/visa.svg" alt="Visa" width={32} height={20} />
+              <Image src="/mastercard.svg" alt="Mastercard" width={32} height={20} />
+              <Image src="/verve.svg" alt="Verve" width={32} height={20} />
+              <Image src="/paypal.svg" alt="PayPal" width={32} height={20} />
+            </div>
+            <div className="text-xs text-blue-200 mt-2">SSL Secured Payment</div>
+          </div>
+
+          {/* SCHOOL/CLASSROOM CARD */}
+          <div className="relative overflow-hidden rounded-3xl bg-blue-900 text-white p-10 shadow-xl flex flex-col">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-green-300 rounded-full opacity-20 translate-x-16 -translate-y-16" />
+            <h4 className="text-sm uppercase tracking-wide text-blue-200 mb-2">
+              HighScore LMS for Schools & Groups
+            </h4>
+            <h2 className="text-2xl md:text-3xl font-bold text-green-300 mb-4">
+              Empower Classrooms with Digital Tools
+            </h2>
+            <ul className="mb-6 space-y-2 text-blue-100 text-base">
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-green-300 rounded-full"></span> Bulk student & teacher access</li>
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-green-300 rounded-full"></span> Class management & analytics</li>
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-green-300 rounded-full"></span> Customizable lesson plans</li>
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-green-300 rounded-full"></span> Group assignments & collaboration</li>
+              <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-green-300 rounded-full"></span> Dedicated support & onboarding</li>
+            </ul>
+            <div className="mb-6">
+              <p className="text-blue-100 mb-2">Contact our team for a custom quote</p>
+              <p className="text-2xl font-bold tracking-wide">+234 201 330 3222</p>
+            </div>
+            <button className="mt-4 w-full md:w-auto px-10 py-4 rounded-full bg-green-400 text-blue-900 font-semibold text-lg hover:bg-green-300 transition">
+              Request Demo
+            </button>
+            <p className="mt-6 text-sm text-blue-200">
+              Installment Payment Plans Available
+            </p>
+          </div>
         </div>
       </section>
 
