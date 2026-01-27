@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -173,6 +172,8 @@ export default function HomePage() {
               >
                 Leaderboard
               </Link> */}
+
+
               {user ? (
                 <button
                   className="p-2 rounded-full hover:bg-blue-100 transition-colors w-full"
@@ -257,39 +258,7 @@ export default function HomePage() {
             Everything You Need to Succeed
           </h2>
 
-      {/* LMS Features Section */}
-      <section className="py-16 px-4 bg-white">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-blue-900">Why Choose HighScore LMS?</h2>
-          <div className="grid md:grid-cols-5 gap-8">
-            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
-              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#fbbf24"/><path d="M8 12l2 2 4-4" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
-              <h3 className="font-semibold text-lg mb-2 text-blue-900">Interactive Lessons</h3>
-              <p className="text-blue-700 text-sm">Engage with video, text, and hands-on activities for every subject.</p>
-            </div>
-            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
-              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="6" fill="#60a5fa"/><path d="M8 12h8M12 8v8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg></span>
-              <h3 className="font-semibold text-lg mb-2 text-blue-900">Quizzes & Practice</h3>
-              <p className="text-blue-700 text-sm">Test your knowledge with instant feedback and explanations.</p>
-            </div>
-            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
-              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#34d399"/><path d="M12 6v6l4 2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg></span>
-              <h3 className="font-semibold text-lg mb-2 text-blue-900">Progress Tracking</h3>
-              <p className="text-blue-700 text-sm">Monitor your learning journey and celebrate achievements.</p>
-            </div>
-            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
-              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><rect width="20" height="20" x="2" y="2" rx="6" fill="#f472b6"/><path d="M8 12l4 4 4-4" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg></span>
-              <h3 className="font-semibold text-lg mb-2 text-blue-900">Group Study</h3>
-              <p className="text-blue-700 text-sm">Collaborate with peers, join study groups, and learn together.</p>
-            </div>
-            <div className="flex flex-col items-center text-center p-6 rounded-xl shadow hover:shadow-lg transition border-2 border-blue-100 bg-white">
-              <span className="mb-4"><svg width="40" height="40" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#6366f1"/><path d="M12 8v4l3 3" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg></span>
-              <h3 className="font-semibold text-lg mb-2 text-blue-900">Expert Support</h3>
-              <p className="text-blue-700 text-sm">Get help from certified tutors and access 24/7 support.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 group border-l-4 border-l-blue-600">
               <CardHeader>
@@ -513,21 +482,61 @@ export default function HomePage() {
         Coming Soon on web and mobile..
       </p>
 
-      <div className="mb-6">
-        <div className="text-4xl font-extrabold text-white">
-          ₦25,000<span className="text-lg font-medium">/year</span>
-        </div>
-        <div className="text-gray-400 line-through">
-          ₦50,000
-        </div>
-        <div className="text-sm text-orange-300">
-          50% discount
-        </div>
+
+     
+
+      {/* Pricing Options Tag */}
+      <div className="mb-6 mt-2 bg-white/10 rounded-xl p-4">
+        <ul className="space-y-3 text-sm md:text-base">
+          <li className="flex justify-between items-center">
+            <span>Monthly</span>
+            <span>
+              <span className="line-through text-gray-400 mr-2">₦5,000</span>
+              <span className="font-semibold text-orange-300">₦2,999</span>
+              <span className="text-xs text-green-300 ml-2">(Save ₦2,001)</span>
+            </span>
+          </li>
+          <li className="flex justify-between items-center">
+            <span>2 Months</span>
+            <span>
+              <span className="line-through text-gray-400 mr-2">₦10,000</span>
+              <span className="font-semibold text-orange-300">₦4,999</span>
+              <span className="text-xs text-green-300 ml-2">(Save ₦5,001)</span>
+            </span>
+          </li>
+          <li className="flex justify-between items-center bg-orange-500/20 px-3 py-2 rounded-lg">
+            <span className="font-semibold">3 Months (Most Popular)</span>
+            <span>
+              <span className="line-through text-gray-300 mr-2">₦15,000</span>
+              <span className="font-bold text-orange-400">₦6,999</span>
+              <span className="text-xs text-green-300 ml-2">(Save ₦8,001)</span>
+            </span>
+          </li>
+          <li className="flex justify-between items-center bg-green-500/20 px-3 py-2 rounded-lg">
+            <span className="font-semibold">5 Months (Best Value)</span>
+            <span>
+              <span className="line-through text-gray-300 mr-2">₦25,000</span>
+              <span className="font-bold text-green-300">₦9,999</span>
+              <span className="text-xs text-green-300 ml-2">(Save ₦15,001)</span>
+            </span>
+          </li>
+        </ul>
       </div>
 
       <button className="mt-4 w-full md:w-auto px-10 py-4 rounded-full bg-orange-400 text-[#2a124a] font-semibold text-lg hover:bg-orange-300 transition">
         Buy Now
       </button>
+
+      {/* Contact for Confirmation & WhatsApp */}
+      <div className="mt-4 flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-sm text-white">
+          <span>Contact: <span className="font-bold">08169133552</span> for confirmation</span>
+        </div>
+        <a href="https://wa.me/2348169133552" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-green-400 hover:underline text-sm font-semibold">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.52 3.48A11.87 11.87 0 0 0 12 0C5.37 0 0 5.37 0 12a11.9 11.9 0 0 0 1.64 6.01L0 24l6.18-1.62A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.7 0-3.36-.44-4.8-1.28l-.34-.2-3.67.96.98-3.58-.22-.36A9.93 9.93 0 0 1 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.2-7.8c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.34-.26.27-1 1-.98 2.43.02 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 5.02 4.22.7.24 1.25.38 1.68.49.71.18 1.36.15 1.87.09.57-.07 1.65-.67 1.89-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"/></svg>
+          Chat on WhatsApp
+        </a>
+      </div>
     </div>
 
     {/* CLASSROOM CARD */}
@@ -552,13 +561,28 @@ export default function HomePage() {
           Contact a sales agent to purchase
         </p>
         <p className="text-2xl font-bold tracking-wide">
-          +234 201 330 3222
+          08169133552
         </p>
+        <div className="mt-2 text-left">
+          <div className="text-sm text-gray-300 font-semibold">Account Name: <span className="text-white">HighScore EdTech Limited</span></div>
+          <div className="text-sm text-gray-300 font-semibold">Bank Name: <span className="text-white">Monipoint MFB</span></div>
+        </div>
       </div>
 
       <button className="mt-4 w-full md:w-auto px-10 py-4 rounded-full bg-green-400 text-[#2a124a] font-semibold text-lg hover:bg-green-300 transition">
         Learn more
       </button>
+
+      {/* Contact for Confirmation & WhatsApp */}
+      <div className="mt-4 flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-sm text-white">
+          <span>Contact: <span className="font-bold">08169133552</span> for confirmation</span>
+        </div>
+        <a href="https://wa.me/2348169133552" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-green-400 hover:underline text-sm font-semibold">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.52 3.48A11.87 11.87 0 0 0 12 0C5.37 0 0 5.37 0 12a11.9 11.9 0 0 0 1.64 6.01L0 24l6.18-1.62A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.7 0-3.36-.44-4.8-1.28l-.34-.2-3.67.96.98-3.58-.22-.36A9.93 9.93 0 0 1 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.2-7.8c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.34-.26.27-1 1-.98 2.43.02 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 5.02 4.22.7.24 1.25.38 1.68.49.71.18 1.36.15 1.87.09.57-.07 1.65-.67 1.89-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"/></svg>
+          Chat on WhatsApp
+        </a>
+      </div>
 
       <p className="mt-6 text-sm text-gray-400">
         Installmental Payment Plans Available
@@ -606,12 +630,42 @@ export default function HomePage() {
               <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-orange-400 rounded-full"></span> Expert tutor support</li>
               <li className="flex items-center gap-2"><span className="inline-block w-2 h-2 bg-orange-400 rounded-full"></span> Gamified achievements & leaderboards</li>
             </ul>
-            <div className="mb-6">
-              <div className="text-4xl font-extrabold text-white">
-                ₦2,500<span className="text-lg font-medium">/month</span>
-              </div>
-              <div className="text-blue-200 line-through">₦5,000</div>
-              <div className="text-sm text-orange-300">50% launch discount</div>
+            {/* Detailed Pricing Options */}
+            <div className="mb-6 mt-2 bg-white/10 rounded-xl p-4">
+              <ul className="space-y-3 text-sm md:text-base">
+                <li className="flex justify-between items-center">
+                  <span>Monthly</span>
+                  <span>
+                    <span className="line-through text-blue-200 mr-2">₦5,000</span>
+                    <span className="font-semibold text-orange-300">₦2,500</span>
+                    <span className="text-xs text-green-300 ml-2">(50% launch discount)</span>
+                  </span>
+                </li>
+                <li className="flex justify-between items-center">
+                  <span>2 Months</span>
+                  <span>
+                    <span className="line-through text-blue-200 mr-2">₦10,000</span>
+                    <span className="font-semibold text-orange-300">₦4,999</span>
+                    <span className="text-xs text-green-300 ml-2">(Save ₦5,001)</span>
+                  </span>
+                </li>
+                <li className="flex justify-between items-center bg-orange-500/20 px-3 py-2 rounded-lg">
+                  <span className="font-semibold">3 Months (Most Popular)</span>
+                  <span>
+                    <span className="line-through text-blue-200 mr-2">₦15,000</span>
+                    <span className="font-bold text-orange-400">₦6,999</span>
+                    <span className="text-xs text-green-300 ml-2">(Save ₦8,001)</span>
+                  </span>
+                </li>
+                <li className="flex justify-between items-center bg-green-500/20 px-3 py-2 rounded-lg">
+                  <span className="font-semibold">5 Months (Best Value)</span>
+                  <span>
+                    <span className="line-through text-blue-200 mr-2">₦25,000</span>
+                    <span className="font-bold text-green-300">₦9,999</span>
+                    <span className="text-xs text-green-300 ml-2">(Save ₦15,001)</span>
+                  </span>
+                </li>
+              </ul>
             </div>
             <button className="mt-4 w-full md:w-auto px-10 py-4 rounded-full bg-orange-500 text-white font-semibold text-lg hover:bg-orange-400 transition">
               Subscribe Now
@@ -623,6 +677,17 @@ export default function HomePage() {
               <Image src="/paypal.svg" alt="PayPal" width={32} height={20} />
             </div>
             <div className="text-xs text-blue-200 mt-2">SSL Secured Payment</div>
+
+            {/* Contact for Confirmation & WhatsApp */}
+            <div className="mt-4 flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-sm text-white">
+                <span>Contact: <span className="font-bold">08169133552</span> for confirmation</span>
+              </div>
+              <a href="https://wa.me/2348169133552" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-green-400 hover:underline text-sm font-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M20.52 3.48A11.87 11.87 0 0 0 12 0C5.37 0 0 5.37 0 12a11.9 11.9 0 0 0 1.64 6.01L0 24l6.18-1.62A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.7 0-3.36-.44-4.8-1.28l-.34-.2-3.67.96.98-3.58-.22-.36A9.93 9.93 0 0 1 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.2-7.8c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.34-.26.27-1 1-.98 2.43.02 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 5.02 4.22.7.24 1.25.38 1.68.49.71.18 1.36.15 1.87.09.57-.07 1.65-.67 1.89-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"/></svg>
+                Chat on WhatsApp
+              </a>
+            </div>
           </div>
 
           {/* SCHOOL/CLASSROOM CARD */}
@@ -643,7 +708,7 @@ export default function HomePage() {
             </ul>
             <div className="mb-6">
               <p className="text-blue-100 mb-2">Contact our team for a custom quote</p>
-              <p className="text-2xl font-bold tracking-wide">+234 201 330 3222</p>
+              <p className="text-2xl font-bold tracking-wide">08169133552</p>
             </div>
             <button className="mt-4 w-full md:w-auto px-10 py-4 rounded-full bg-green-400 text-blue-900 font-semibold text-lg hover:bg-green-300 transition">
               Request Demo
@@ -658,7 +723,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12 px-4">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-5 gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-16 h-16 relative">
@@ -713,8 +778,25 @@ export default function HomePage() {
               <h3 className="font-semibold mb-4 text-blue-400">Support</h3>
               <div className="space-y-2">
                 <div className="text-gray-400">Help Center</div>
-                <div className="text-gray-400">Contact Us</div>
+                <a href="mailto:support@highscore.com" className="text-gray-400 hover:text-green-400 transition-colors duration-300">Contact Us</a>
                 <div className="text-gray-400">Privacy Policy</div>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-4 text-blue-400">Follow Us</h3>
+              <div className="flex gap-4 mt-2">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                  <svg width="22" height="22" fill="#1877F3" viewBox="0 0 24 24"><path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.326 24H12.82v-9.294H9.692v-3.622h3.127V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.408 24 22.674V1.326C24 .592 23.406 0 22.675 0"/></svg>
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                  <svg width="22" height="22" fill="#1DA1F2" viewBox="0 0 24 24"><path d="M24 4.557a9.83 9.83 0 0 1-2.828.775 4.932 4.932 0 0 0 2.165-2.724c-.951.564-2.005.974-3.127 1.195a4.916 4.916 0 0 0-8.38 4.482C7.691 8.095 4.066 6.13 1.64 3.161c-.542.929-.856 2.01-.857 3.17 0 2.188 1.115 4.116 2.823 5.247a4.904 4.904 0 0 1-2.229-.616c-.054 2.281 1.581 4.415 3.949 4.89a4.936 4.936 0 0 1-2.224.084c.627 1.956 2.444 3.377 4.6 3.417A9.867 9.867 0 0 1 0 21.543a13.94 13.94 0 0 0 7.548 2.209c9.058 0 14.009-7.513 14.009-14.009 0-.213-.005-.425-.014-.636A10.012 10.012 0 0 0 24 4.557z"/></svg>
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                  <svg width="22" height="22" fill="#E4405F" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.242-1.308-3.608C2.175 15.647 2.163 15.267 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.974-.974 2.242-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.332.013 7.052.072 5.771.131 4.659.414 3.678 1.395c-.98.98-1.263 2.092-1.322 3.374C2.013 5.668 2 6.077 2 12c0 5.923.013 6.332.072 7.613.059 1.282.342 2.394 1.322 3.374.98.98 2.092 1.263 3.374 1.322C8.332 23.987 8.741 24 12 24s3.668-.013 4.948-.072c1.282-.059 2.394-.342 3.374-1.322.98-.98 1.263-2.092 1.322-3.374.059-1.281.072-1.69.072-7.613 0-5.923-.013-6.332-.072-7.613-.059-1.282-.342-2.394-1.322-3.374-.98-.98-2.092-1.263-3.374-1.322C15.668.013 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.998 3.999 3.999 0 0 1 0 7.998zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+                </a>
+                <a href="https://wa.me/2348169133552" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+                  <svg width="22" height="22" fill="#25D366" viewBox="0 0 24 24"><path d="M20.52 3.48A11.87 11.87 0 0 0 12 0C5.37 0 0 5.37 0 12a11.9 11.9 0 0 0 1.64 6.01L0 24l6.18-1.62A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.7 0-3.36-.44-4.8-1.28l-.34-.2-3.67.96.98-3.58-.22-.36A9.93 9.93 0 0 1 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.2-7.8c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.34-.26.27-1 1-.98 2.43.02 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 5.02 4.22.7.24 1.25.38 1.68.49.71.18 1.36.15 1.87.09.57-.07 1.65-.67 1.89-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"/></svg>
+                </a>
               </div>
             </div>
           </div>
