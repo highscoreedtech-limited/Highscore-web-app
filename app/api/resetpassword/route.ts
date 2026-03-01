@@ -1,5 +1,7 @@
 // /api/send-reset-email/reset-password.ts
 import { NextResponse } from "next/server";
+
+export const dynamic = 'force-dynamic';
 import { adminAuth } from "@/lib/firebaseAdmin"; // your initialized Firebase Admin
 import { supabase } from "@/lib/supabaseClient";
 
