@@ -375,7 +375,7 @@ export default function HomePage() {
         </div>
 
         {/* The "Service Bar" at the Bottom */}
-        <div className="absolute bottom-0 left-0 w-full z-20 grid grid-cols-2 md:grid-cols-4 h-32 md:h-24">
+        <div className="absolute bottom-0 left-0 w-full z-20 grid grid-cols-2 md:grid-cols-6 h-32 md:h-24">
           {/* { title: "JAMB / UTME", subtitle: "CBT Simulations", color: "bg-blue-900", href: "/courses/CBT-PRACTICE" },
             { title: "WAEC / SSCE", subtitle: "Practice Mode", color: "bg-indigo-900", href: "/courses" },
             { title: "Post-UTME", subtitle: "Elite Coaching", color: "bg-slate-900", href: "/courses" },
@@ -385,7 +385,9 @@ export default function HomePage() {
             { title: "Mathematics", subtitle: "Algebra", color: "bg-blue-900", href: "/courses/CBT-PRACTICE" },
             { title: "English", subtitle: "Grammar", color: "bg-indigo-900", href: "/courses" },
             { title: "Physics", subtitle: "Mechanics", color: "bg-slate-900", href: "/courses" },
-            { title: "Chemistry", subtitle: "Reactions", color: "bg-blue-800", href: "/courses" }
+            { title: "Chemistry", subtitle: "Reactions", color: "bg-blue-800", href: "/courses" },
+             { title: "Biology", subtitle: "Life", color: "bg-blue-900", href: "/courses" },
+             { title: "Literature", subtitle: "Poetry", color: "bg-slate-900", href: "/courses" }
           ].map((item, idx) => (
             <Link 
               key={idx} 
@@ -498,8 +500,9 @@ export default function HomePage() {
                 <Link href={feat.link}>
                   <Button 
                     variant="ghost" 
-                    className={`p-0 h-auto font-bold text-slate-900 group-hover:text-blue-600 flex items-center gap-2 ${feat.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`p-3 h-auto font-bold text-slate-900 group-hover:text-blue-600 flex items-center gap-2 ${feat.disabled ? 'opacity-50 cursor-not-allowed' : ``}`}
                     disabled={feat.disabled}
+                    style={{border: `1px solid ${feat.bg}`}}
                   >
                     {feat.btnText}
                     {!feat.disabled && <X className="w-4 h-4 rotate-45" />}

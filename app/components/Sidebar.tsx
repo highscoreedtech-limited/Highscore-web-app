@@ -48,24 +48,24 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
           />
         </div>
 
-
+{/* 
         <div className="p-4">
           <input
             type="text"
             placeholder="Search..."
             className="w-full px-3 py-2 rounded-lg bg-white placeholder-gray-300 text-sm focus:outline-none"
           />
-        </div>
+        </div> */}
 
         {/* ✅ Navigation */}
-        <nav className="flex flex-col px-4 space-y-6">
+        <nav className="mt-0 md:mt-4 flex flex-col px-4 space-y-6">
           {[
             { name: "Dashboard", icon: Home, route: "/lms" },
             { name: "Courses", icon: BookOpen, route: "/courses" },
-            { name: "Play", icon: Gamepad2, route: "/games1" },
-            { name: "Community", icon: Users },
             { name: "Certification", icon: Award },
             { name: "Leaderboard", icon: Flame, route: "/leaderboard" },
+            { name: "Community", icon: Users },
+            { name: "Play", icon: Gamepad2, route: "/games1" },
             { name: "Settings", icon: Settings },
             { name: "Profile", icon: User },
           ].map((item, i) => (
@@ -79,7 +79,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                 ${pathname === item.route || pathname.startsWith(`${item.route}/`)
 
                   ? "bg-[#F97316] text-white"
-                  : "text-white hover:bg-[#F97316]/80 hover:text-white"
+                  : "text-white hover:bg-[#F97316]/60 hover:text-white"
                 }`}
             >
               <item.icon className="w-5 h-5" />

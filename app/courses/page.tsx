@@ -14,23 +14,39 @@ import {
   Leaf,
 } from "lucide-react";
 import { useMediaQuery } from "react-responsive";
+import { motion, AnimatePresence } from "framer-motion";
+import { Bell, Trash2, Info, CheckCircle2, AlertCircle } from "lucide-react";
 
 
 import FooterNav from "../components/FooterNav";
 import Sidebar from "../components/Sidebar";
+import { useAuth } from "../hooks/useAuth";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [username, setUsername] = useState<string>("ControlEdu");
   const pathname = usePathname();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const isDesktop = useMediaQuery({ minWidth: 1024 }); // lg breakpoint
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   const isActive = (path: string) => pathname === path;
 
   const [isOpen, setIsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    { id: 1, text: "New message from John", type: "info", time: "2m ago" },
+    { id: 2, text: "Your order has been shipped", type: "success", time: "1h ago" },
+    { id: 3, text: "Update available for your app", type: "warning", time: "3h ago" },
+  ]);
 
  const panelRef = useRef<HTMLDivElement>(null);
 const buttonRef = useRef<HTMLButtonElement>(null);
@@ -51,12 +67,24 @@ const buttonRef = useRef<HTMLButtonElement>(null);
     if (stored) setUsername(stored);
   }, []);
 
-  // Example notifications
-  const notifications = [
-    "New message from John",
-    "Your order has been shipped",
-    "Update available for your app",
-  ];
+  // Protected route logic
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) return null; // Prevent showing protected content
+
+  const clearAll = () => setNotifications([]);
 
 
   const subjects = [
@@ -136,14 +164,14 @@ useEffect(() => {
         <div className="px-6 py-4 text-2xl font-bold text-center border-b border-white/10">
           <span className="text-orange-500">HIGH</span>SCORE
         </div>
-
+{/* 
         <div className="p-4">
           <input
             type="text"
             placeholder="Search..."
             className="w-full px-3 py-2 rounded-lg bg-white placeholder-gray-300 text-sm focus:outline-none"
           />
-        </div>
+        </div> */}
 
 
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -232,31 +260,85 @@ useEffect(() => {
         <span className="text-lg font-semibold">5 🔥</span>
       </div>
 
-         {/* Notification Panel */}
-      {isOpen && (
-        <div 
-           ref={panelRef} // <-- attach ref here
-        
-        className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-md border border-gray-200 z-50">
-          <div className="p-4 border-b border-gray-200 font-semibold">
-            Notifications
-          </div>
-          <ul className="max-h-60 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <li className="p-4 text-gray-500">No notifications</li>
-            ) : (
-              notifications.map((note, index) => (
-                <li
-                  key={index}
-                  className="p-4 hover:bg-gray-100 cursor-pointer"
+      {/* Notification Panel */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            ref={panelRef}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute right-4 top-16 w-80 bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl border border-gray-100 z-50 overflow-hidden"
+          >
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50">
+              <div className="flex items-center gap-2">
+                <Bell className="w-4 h-4 text-orange-500" />
+                <span className="font-bold text-gray-800">Notifications</span>
+              </div>
+              {notifications.length > 0 && (
+                <button 
+                  onClick={clearAll}
+                  className="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1"
                 >
-                  {note}
-                </li>
-              ))
+                  <Trash2 className="w-3 h-3" />
+                  Clear All
+                </button>
+              )}
+            </div>
+            
+            <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+              {notifications.length === 0 ? (
+                <div className="p-10 text-center flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center">
+                    <Bell className="w-6 h-6 text-gray-300" />
+                  </div>
+                  <p className="text-gray-400 text-sm">All caught up!</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-50">
+                  {notifications.map((note) => (
+                    <motion.div
+                      key={note.id}
+                      initial={{ x: 10, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      className="p-4 hover:bg-gray-50/50 cursor-pointer transition-colors group"
+                    >
+                      <div className="flex gap-3">
+                        <div className={`mt-1 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          note.type === 'info' ? 'bg-blue-50 text-blue-500' :
+                          note.type === 'success' ? 'bg-green-50 text-green-500' :
+                          'bg-orange-50 text-orange-500'
+                        }`}>
+                          {note.type === 'info' && <Info className="w-4 h-4" />}
+                          {note.type === 'success' && <CheckCircle2 className="w-4 h-4" />}
+                          {note.type === 'warning' && <AlertCircle className="w-4 h-4" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-700 leading-snug group-hover:text-gray-900 transition-colors">
+                            {note.text}
+                          </p>
+                          <p className="text-[10px] text-gray-400 mt-1 font-medium font-sans">
+                            {note.time}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {notifications.length > 0 && (
+              <div className="p-3 bg-gray-50/50 border-t border-gray-100 text-center">
+                <button className="text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors">
+                  View All History
+                </button>
+              </div>
             )}
-          </ul>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Main Content */}
       <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-64 pb-24 relative">

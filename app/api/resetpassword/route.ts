@@ -2,8 +2,7 @@
 import { NextResponse } from "next/server";
 
 export const dynamic = 'force-dynamic';
-import { adminAuth } from "@/lib/firebaseAdmin"; // your initialized Firebase Admin
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseAdmin } from "@/lib/supabaseClient";
 
 export async function POST(req: Request) {
   const { email, newPassword } = await req.json();
@@ -16,11 +15,22 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Optional: check that the OTP was verified in Supabase
-    // If you stored a 'verified' flag or deleted the OTP after verification, you can skip
+    if (!supabaseAdmin) {
+      throw new Error("Supabase Admin is not initialized. Please ensure SUPABASE_SERVICE_ROLE_KEY is set in your .env file.");
+    }
 
-    const user = await adminAuth.getUserByEmail(email);
-    await adminAuth.updateUser(user.uid, { password: newPassword });
+    // 1️⃣ Find user by email
+    const { data: { users }, error: fetchError } = await supabaseAdmin.auth.admin.listUsers();
+    if (fetchError) throw fetchError;
+    const user = users.find(u => u.email === email);
+    if (!user) throw new Error("User not found in Supabase Auth.");
+
+    // 2️⃣ Update password
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+      user.id,
+      { password: newPassword }
+    );
+    if (updateError) throw updateError;
 
     return NextResponse.json({
       success: true,

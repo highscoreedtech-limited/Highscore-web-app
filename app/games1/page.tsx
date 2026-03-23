@@ -22,10 +22,8 @@ import FooterNav from "../components/FooterNav";
 import Sidebar from "../components/Sidebar";
 
 
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 import RankBadge from "@/components/RankBadge";
 import ChatModal from "../chat/page";
 
@@ -180,31 +178,28 @@ export default function DashboardPage() {
     };
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            // still keep hook order stable
-            if (!firebaseUser) {
-                // no firebase user -> redirect to login
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            const supabaseUser = session?.user;
+            
+            if (!supabaseUser) {
+                // no user -> redirect to login
                 setUser(null);
                 setLoadingUser(false);
                 router.push("/login");
                 return;
             }
 
-            const authid = firebaseUser.uid;
+            const authid = supabaseUser.id;
 
             // fetch profile from supabase 'users' table
             const { data, error } = await supabase
                 .from("users")
                 .select("*")
-
-                .eq("authid", firebaseUser.uid) // only fetch this user
-
+                .eq("authid", authid) // only fetch this user
                 .maybeSingle(); // returns null if no row
 
             if (error) {
                 console.error("Supabase user fetch error:", error);
-                // If there's no profile, send user to setup page
-                // (you can change this behavior to create a profile instead)
                 setLoadingUser(false);
                 router.push("/games1");
                 return;
@@ -215,22 +210,16 @@ export default function DashboardPage() {
                 authid: data.authid, id: data.id?.toString?.() ?? String(data.id),
                 totalKills: Number(data.totalkills ?? 0),
                 minutesPlayed: Number(data.minutesplayed ?? 0), username: data.username ?? "", email: data.email ?? "", displayName: data.displayname ?? data.username ?? "",
-
-
                 rank: getRankProgress(Number(data.xp ?? 0)),
-
-
                 xp: Number(data.xp ?? 0), coins: Number(data.coins ?? 0), avatar: data.avatar ?? "🎮", totalMatches: Number(data.totalmatches ?? 0), wins: Number(data.wins ?? 0), winRate: Number(((data.wins ?? 0) / Math.max(1, data.totalmatches ?? 1)) * 100),
             };
 
             console.log("Supabase user data:", data);
-
-
             setUser(mapped);
             setLoadingUser(false);
         });
 
-        return () => unsubscribe();
+        return () => subscription.unsubscribe();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -274,15 +263,16 @@ export default function DashboardPage() {
 
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            console.log("Firebase user:", user);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            const user = session?.user;
+            console.log("Supabase user:", user);
             if (user) {
-                const name = user.displayName || user.email?.split("@")[0] || "User";
+                const name = user.user_metadata?.display_name || user.email?.split("@")[0] || "User";
                 console.log("Resolved username:", name);
                 setUsername(name);
             }
         });
-        return () => unsubscribe();
+        return () => subscription.unsubscribe();
     }, []);
 
     const RANKS = [

@@ -39,7 +39,13 @@ export default function CourseSubjectPage() {
   const [topics, setTopics] = useState<any[]>([]);
   const [loadingTopics, setLoadingTopics] = useState(true);
 
-  const isDesktop = useMediaQuery({ minWidth: 1024 });
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Lock scroll when sidebar is open
   useEffect(() => {

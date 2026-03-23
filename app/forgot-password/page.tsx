@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Check, X } from "lucide-react";
+import { Check, X, Eye, EyeOff } from "lucide-react";
 
 export default function ResetPage() {
   const router = useRouter();
@@ -16,6 +16,8 @@ export default function ResetPage() {
   const [validEmail, setValidEmail] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<"email" | "otp" | "reset" | "success">("email");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [errors, setErrors] = useState({ email: "", otp: "", password: "", confirmPassword: "" });
   const [passwordValid, setPasswordValid] = useState(false);
@@ -165,16 +167,39 @@ export default function ResetPage() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* LEFT SIDE — Reset Form */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 md:px-20 bg-white pt-16 md:pt-0">
-        <div className="w-full max-w-md">
-          <h3 className="text-2xl mb-8 text-left">
-            {step === "email"
-              ? "Enter your email"
-              : step === "otp"
-                ? "A reset link has been sent to your email. Enter the 4-digit code below."
-                : "Enter your new password"}
+
+      {/* LEFT SIDE — Illustration */}
+      <div className="hidden md:flex w-full md:w-1/2 bg-[#132D46] flex-col justify-center items-center text-center text-white px-8 py-14 relative overflow-hidden">
+        {/* Background Image Flipped */}
+        <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100 z-0" />
+
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-slate-900/40 z-10" />
+
+        {/* Logo at the top left */}
+        <div className="absolute top-0 left-0 w-32 h-32 z-20">
+          <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
+        </div>
+      </div>
+
+      {/* RIGHT SIDE — Reset Form */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 md:px-14 bg-white">
+        {/* Mobile Logo — only visible when illustration is hidden */}
+        <div className="md:hidden relative w-24 h-24 mb-4">
+          <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
+        </div>
+        <div className="w-full max-w-md flex flex-col items-center">
+
+          <h3 className="text-2xl font-bold mb-1 text-center">
+            {step === "email" ? "Forgot Password?" : step === "otp" ? "Verify OTP" : "Reset Password"}
           </h3>
+          <p className="text-sm text-gray-500 mb-6 text-center">
+            {step === "email"
+              ? "Enter your email and we'll send you a reset code."
+              : step === "otp"
+              ? `Enter the 4-digit code sent to ${email}`
+              : "Choose a strong new password."}
+          </p>
 
           <form
             onSubmit={(e) => {
@@ -183,36 +208,31 @@ export default function ResetPage() {
               else if (step === "otp") handleVerifyOtp();
               else if (step === "reset") resetPassword();
             }}
-            className="space-y-6"
+            className="space-y-3 w-full"
           >
             {/* Email Step */}
             {step === "email" && (
-              <div className="relative mt-2">
+              <div className="relative">
                 <input
                   id="email"
                   type="email"
                   placeholder="Email Address"
                   value={email}
                   onChange={(e) => validateEmail(e.target.value)}
-                  className={`w-full h-14 px-4 pr-12 text-lg border-2 rounded-xl outline-none transition-all shadow-none focus:ring-0 focus-visible:ring-0 focus:border-orange-500 ${
-                    validEmail === false
-                      ? "border-red-500"
-                      : validEmail === true
-                        ? "border-green-500"
-                        : "border-gray-300"
+                  className={`w-full h-11 px-4 pr-10 text-base border-2 rounded-xl outline-none transition-all shadow-none focus:ring-0 focus-visible:ring-0 ${
+                    validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
                   }`}
                 />
-                {validEmail === true && <Check className="absolute right-4 top-4 text-green-500 h-6 w-6" />}
-                {validEmail === false && <X className="absolute right-4 top-4 text-red-500 h-6 w-6" />}
-                {errors.email && <p className="text-sm text-red-500 mt-2">{errors.email}</p>}
+                {validEmail === true && <Check className="absolute right-3 top-3 text-green-500 h-5 w-5" />}
+                {validEmail === false && <X className="absolute right-3 top-3 text-red-500 h-5 w-5" />}
+                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
               </div>
             )}
 
             {/* OTP Step */}
             {step === "otp" && (
               <div className="w-full">
-                <p className="text-gray-600 mb-3 text-md">OTP code</p>
-                <div className="flex justify-center md:justify-start gap-3 md:gap-4">
+                <div className="flex justify-center gap-3 mb-2">
                   {otp.map((digit, i) => (
                     <input
                       key={i}
@@ -228,120 +248,82 @@ export default function ResetPage() {
                           newOtp[i] = val;
                           return newOtp;
                         });
-                        if (val && i < 3) {
-                          document.getElementById(`otp-${i + 1}`)?.focus();
-                        }
+                        if (val && i < 3) document.getElementById(`otp-${i + 1}`)?.focus();
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Backspace" && !otp[i] && i > 0) {
                           document.getElementById(`otp-${i - 1}`)?.focus();
                         }
                       }}
-                      className="w-14 h-14 text-center text-lg rounded-xl border-2 border-gray-300 focus:border-orange-500 focus:outline-none bg-[#FFE9DD]"
+                      className="w-12 h-12 text-center text-lg rounded-xl border-2 border-gray-300 focus:border-orange-500 focus:outline-none bg-[#FFE9DD]"
                     />
                   ))}
                 </div>
-                {errors.otp && <p className="text-sm text-red-500 mt-2">{errors.otp}</p>}
-            
+                {errors.otp && <p className="text-xs text-red-500 text-center mt-1">{errors.otp}</p>}
+                <p className="text-center text-sm text-gray-500 mt-2">
+                  Didn&apos;t receive it?{" "}
+                  <button type="button" onClick={sendOtp} disabled={isSubmitting} className="text-orange-500 font-bold hover:underline disabled:opacity-50">
+                    Resend code
+                  </button>
+                </p>
               </div>
             )}
 
             {/* Reset Password Step */}
             {step === "reset" && (
-              <div className="w-full max-w-md space-y-6">
-                {/* New Password */}
+              <div className="space-y-3 w-full">
                 <div className="relative">
                   <input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="New password"
                     value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      validatePassword(e.target.value);
-                    }}
-                    className={`w-full h-14 text-lg px-4 pr-12 rounded-xl border-2 transition-all focus:border-orange-500 focus:outline-none ${
+                    onChange={(e) => { setPassword(e.target.value); validatePassword(e.target.value); }}
+                    className={`w-full h-11 text-base px-4 pr-20 rounded-xl border-2 outline-none focus:border-orange-500 ${
                       passwordValid ? "border-green-500" : errors.password ? "border-red-500" : "border-gray-300"
                     }`}
                   />
-                  {passwordValid && <Check className="absolute right-4 top-4 text-green-500 h-6 w-6" />}
-                  {errors.password && <p className="text-sm text-red-500 mt-2">{errors.password}</p>}
-                  <p className="text-xs text-gray-500 mt-1">
-                   
-                  </p>
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-10 top-3 text-gray-400 hover:text-gray-600">
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                  {passwordValid && <Check className="absolute right-3 top-3 text-green-500 h-5 w-5" />}
+                  {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
                 </div>
 
                 <div className="relative">
                   <input
                     id="confirmPassword"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm new password"
                     value={confirmPassword}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setConfirmPassword(val);
-                      checkConfirmPassword(val, password);
-                    }}
-                    className={`w-full h-14 text-lg px-4 pr-12 rounded-xl border-2 transition-all focus:border-orange-500 focus:outline-none ${
+                    onChange={(e) => { setConfirmPassword(e.target.value); checkConfirmPassword(e.target.value, password); }}
+                    className={`w-full h-11 text-base px-4 pr-20 rounded-xl border-2 outline-none focus:border-orange-500 ${
                       confirmValid ? "border-green-500" : errors.confirmPassword ? "border-red-500" : "border-gray-300"
                     }`}
                   />
-                  {confirmValid && <Check className="absolute right-4 top-4 text-green-500 h-6 w-6" />}
-                  {errors.confirmPassword && <p className="text-sm text-red-500 mt-2">{errors.confirmPassword}</p>}
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-10 top-3 text-gray-400 hover:text-gray-600">
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                  {confirmValid && <Check className="absolute right-3 top-3 text-green-500 h-5 w-5" />}
+                  {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
                 </div>
               </div>
             )}
-            
 
-            {/* Submit Button */}
-            <div className="fixed bottom-0 left-0 w-full bg-white px-6 py-6 border-t md:static md:w-auto md:mt-0 md:px-0 md:py-0 md:border-0 transition-all">
-                  <p className="text-right md:text-left text-sm mt-2 text-gray-500">
-                  Did not receive code?{" "}
-                  <button
-                    type="button"
-                    onClick={sendOtp}
-                    disabled={isSubmitting}
-                    className="text-orange-500 underline disabled:opacity-50"
-                  >
-                    Resend code
-                  </button>
-                </p>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full mt-5 h-[52px] text-base font-semibold rounded-full text-white bg-[linear-gradient(180deg,#FF9053_0%,#DB5206_100%)] hover:opacity-90 disabled:opacity-50 transition-all"
-              >
-                {isSubmitting
-                  ? "Processing..."
-                  : step === "email"
-                    ? "Send OTP"
-                    : step === "otp"
-                      ? "Verify OTP"
-                      : "Reset Password"}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3 text-base font-semibold rounded-full text-white bg-[linear-gradient(180deg,#FF9053_0%,#DB5206_100%)] hover:opacity-90 disabled:opacity-50 transition-all"
+            >
+              {isSubmitting ? "Processing..." : step === "email" ? "Send OTP" : step === "otp" ? "Verify OTP" : "Reset Password"}
+            </button>
+
+            <p className="text-center text-sm text-gray-600 pt-1">
+              Remember your password?{" "}
+              <a href="/login" className="text-orange-500 font-bold hover:underline">Log in</a>
+            </p>
           </form>
         </div>
-      </div>
-
-      {/* RIGHT SIDE — Illustration */}
-      <div className="hidden md:flex w-full md:w-1/2 bg-[#132D46] flex-col justify-center items-center text-center text-white px-8 py-14">
-        <div
-          className="relative w-[22rem] h-[22rem] sm:w-[24rem] sm:h-[24rem] md:w-[30rem] md:h-[28rem] lg:w-[32rem] lg:h-[26rem] xl:w-[38rem] xl:h-[32rem] mb-10 bg-cover bg-center rounded-2xl overflow-hidden transition-all duration-500"
-          style={{ backgroundImage: `url(${currentSlide.bg})` }}
-        >
-          <Image
-            key={currentSlide.img}
-            src={currentSlide.img}
-            alt="Reset Illustration"
-            fill
-            className="object-contain drop-shadow-2xl transform scale-110 sm:scale-125 md:scale-145 lg:scale-165 translate-y-4 md:translate-y-4 -translate-x-6 md:-translate-x-14 transition-all duration-500"
-          />
-        </div>
-        <h2 className="text-lg md:text-2xl font-bold tracking-wide mb-3 leading-snug">LOCKED OUT?</h2>
-        <p className="text-sm md:text-base max-w-md leading-relaxed text-gray-300">
-          Enter your email to receive an OTP and regain access to your account.
-        </p>
       </div>
     </div>
   );

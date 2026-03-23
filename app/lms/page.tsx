@@ -13,8 +13,7 @@ import Sidebar from "../components/Sidebar";
 
 
 
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { supabase } from "@/lib/supabaseClient";
 
 
 
@@ -28,7 +27,13 @@ export default function DashboardPage() {
   
 
 
-  const isDesktop = useMediaQuery({ minWidth: 1024 }); // lg breakpoint
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
 
 
@@ -42,15 +47,16 @@ export default function DashboardPage() {
     const [username, setUsername] = useState("");
 
 useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    console.log("Firebase user:", user);
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const user = session?.user;
+    console.log("Supabase user:", user);
     if (user) {
-      const name = user.displayName || user.email?.split("@")[0] || "User";
+      const name = user.user_metadata?.display_name || user.email?.split("@")[0] || "User";
       console.log("Resolved username:", name);
       setUsername(name);
     }
   });
-  return () => unsubscribe();
+  return () => subscription.unsubscribe();
 }, []);
 
 

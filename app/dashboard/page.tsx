@@ -15,9 +15,11 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 function page() {
   const router = useRouter();
+  const { user: authUser, loading } = useAuth();
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,6 +27,23 @@ function page() {
     const stored = localStorage.getItem("username");
     setUsername(stored);
   }, []);
+
+  // Protected route logic
+  useEffect(() => {
+    if (!loading && !authUser) {
+      router.push("/login");
+    }
+  }, [authUser, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!authUser) return null;
   const getRankProgress = (rank: string, xp: number) => {
     const ranks = [
       "Bronze",

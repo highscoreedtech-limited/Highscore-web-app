@@ -17,8 +17,6 @@ import { Poppins } from "next/font/google";
 import QuestionScreen from "@/components/QuestionScreen";
 import MatchSimulation from "@/components/MatchSimulation";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { supabase } from "@/lib/supabaseClient";
 
 const poppins = Poppins({
@@ -82,17 +80,18 @@ export default function GameModePage() {
   // Firebase auth + Supabase profile load
   // -------------------------
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      // still keep hook order stable
-      if (!firebaseUser) {
-        // no firebase user -> redirect to login
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const supabaseUser = session?.user;
+      
+      if (!supabaseUser) {
+        // no user -> redirect to login
         setUser(null);
         setLoadingUser(false);
         router.push("/login");
         return;
       }
 
-      const authid = firebaseUser.uid;
+      const authid = supabaseUser.id;
 
       // fetch profile from supabase 'users' table
       const { data, error } = await supabase
@@ -103,8 +102,6 @@ export default function GameModePage() {
 
       if (error) {
         console.error("Supabase user fetch error:", error);
-        // If there's no profile, send user to setup page
-        // (you can change this behavior to create a profile instead)
         setLoadingUser(false);
         router.push("/games1");
         return;
@@ -129,12 +126,11 @@ export default function GameModePage() {
 
       console.log("Supabase user data:", data);
 
-
       setUser(mapped);
       setLoadingUser(false);
     });
 
-    return () => unsubscribe();
+    return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

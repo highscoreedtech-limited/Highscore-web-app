@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabaseAdmin } from "@/lib/supabaseClient";
 
 export async function POST(req: Request) {
   try {
@@ -17,7 +12,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data: existingUser } = await supabase
+    const { data: existingUser } = await supabaseAdmin!
       .from("users")
       .select("*")
       .eq("authid", body.authid)
@@ -25,15 +20,13 @@ export async function POST(req: Request) {
 
     if (existingUser) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 });
-
-      
     }
 
     const row = {
       authid: body.authid,
       email: body.email,
       username: body.username || body.email.split("@")[0],
-      displayname: body.displayName || body.email.split("@")[0],
+      displayname: body.display_name || body.displayName || body.email.split("@")[0],
       rank: body.rank || "Bronze",
       xp: body.xp || 0,
       coins: body.coins || 0,
@@ -43,10 +36,7 @@ export async function POST(req: Request) {
       winrate: body.winRate || 0,
     };
 
-    const { data, error } = await supabase.from("users").insert([row]).select(); // 🔹 select() added
-
-console.log(data);
-
+    const { data, error } = await supabaseAdmin!.from("users").insert([row]).select();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

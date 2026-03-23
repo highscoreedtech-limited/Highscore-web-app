@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { Toaster } from 'sonner';
 import { Outfit, Playfair_Display } from 'next/font/google';
+import ProfileSync from "./components/ProfileSync";
 
 const outfit = Outfit({ 
   subsets: ['latin'],
@@ -30,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${outfit.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased">
+        <ProfileSync />
         {children}
         <Toaster richColors position="top-right" />
       </body>
