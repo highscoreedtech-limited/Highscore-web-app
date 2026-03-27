@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { Check, X, Eye, EyeOff } from "lucide-react";
 
@@ -166,34 +167,24 @@ export default function ResetPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="relative min-h-screen overflow-hidden flex items-center justify-center">
+      {/* FULL-SCREEN BACKGROUND */}
+      <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100" />
+      <div className="absolute inset-0 bg-[#132D46]/70" />
 
-      {/* LEFT SIDE — Illustration */}
-      <div className="hidden md:flex w-full md:w-1/2 bg-[#132D46] flex-col justify-center items-center text-center text-white px-8 py-14 relative overflow-hidden">
-        {/* Background Image Flipped */}
-        <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100 z-0" />
+      {/* FORM CARD — centered vertically & horizontally */}
+      <div className="relative z-10 w-full max-w-[400px] mx-4">
+        <div className="bg-white rounded-2xl shadow-2xl px-8 py-6 flex flex-col items-center">
+          
+          {/* Logo — centered inside/above card */}
+          <div className="relative w-20 h-20 mb-1">
+            <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
+          </div>
 
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-slate-900/40 z-10" />
-
-        {/* Logo at the top left */}
-        <div className="absolute top-0 left-0 w-32 h-32 z-20">
-          <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
-        </div>
-      </div>
-
-      {/* RIGHT SIDE — Reset Form */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 md:px-14 bg-white">
-        {/* Mobile Logo — only visible when illustration is hidden */}
-        <div className="md:hidden relative w-24 h-24 mb-4">
-          <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
-        </div>
-        <div className="w-full max-w-md flex flex-col items-center">
-
-          <h3 className="text-2xl font-bold mb-1 text-center">
+          <h3 className="text-xl font-bold mb-1 text-center text-gray-800">
             {step === "email" ? "Forgot Password?" : step === "otp" ? "Verify OTP" : "Reset Password"}
           </h3>
-          <p className="text-sm text-gray-500 mb-6 text-center">
+          <p className="text-base text-gray-500 mb-4 text-center">
             {step === "email"
               ? "Enter your email and we'll send you a reset code."
               : step === "otp"
@@ -219,7 +210,7 @@ export default function ResetPage() {
                   placeholder="Email Address"
                   value={email}
                   onChange={(e) => validateEmail(e.target.value)}
-                  className={`w-full h-11 px-4 pr-10 text-base border-2 rounded-xl outline-none transition-all shadow-none focus:ring-0 focus-visible:ring-0 ${
+                  className={`w-full h-10 px-4 pr-10 text-sm border-2 rounded-xl outline-none transition-all shadow-none focus:ring-0 focus-visible:ring-0 ${
                     validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
                   }`}
                 />
@@ -255,12 +246,12 @@ export default function ResetPage() {
                           document.getElementById(`otp-${i - 1}`)?.focus();
                         }
                       }}
-                      className="w-12 h-12 text-center text-lg rounded-xl border-2 border-gray-300 focus:border-orange-500 focus:outline-none bg-[#FFE9DD]"
+                      className="w-12 h-12 text-center text-lg rounded-xl border-2 border-gray-300 focus:border-orange-500 focus:outline-none bg-orange-50"
                     />
                   ))}
                 </div>
                 {errors.otp && <p className="text-xs text-red-500 text-center mt-1">{errors.otp}</p>}
-                <p className="text-center text-sm text-gray-500 mt-2">
+                <p className="text-center text-xs text-gray-500 mt-4">
                   Didn&apos;t receive it?{" "}
                   <button type="button" onClick={sendOtp} disabled={isSubmitting} className="text-orange-500 font-bold hover:underline disabled:opacity-50">
                     Resend code
@@ -271,7 +262,7 @@ export default function ResetPage() {
 
             {/* Reset Password Step */}
             {step === "reset" && (
-              <div className="space-y-3 w-full">
+              <div className="space-y-4 w-full">
                 <div className="relative">
                   <input
                     id="password"
@@ -313,15 +304,15 @@ export default function ResetPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 text-base font-semibold rounded-full text-white bg-[linear-gradient(180deg,#FF9053_0%,#DB5206_100%)] hover:opacity-90 disabled:opacity-50 transition-all"
+              className="w-full py-3 text-base font-semibold rounded-full text-white bg-[linear-gradient(180deg,#FF9053_0%,#DB5206_100%)] hover:opacity-90 disabled:opacity-50 transition-all shadow-md active:scale-[0.98]"
             >
               {isSubmitting ? "Processing..." : step === "email" ? "Send OTP" : step === "otp" ? "Verify OTP" : "Reset Password"}
             </button>
 
-            <p className="text-center text-sm text-gray-600 pt-1">
+            <div className="text-center text-sm text-gray-600 pt-2">
               Remember your password?{" "}
-              <a href="/login" className="text-orange-500 font-bold hover:underline">Log in</a>
-            </p>
+              <Link href="/login" className="text-orange-500 font-bold hover:underline">Log in</Link>
+            </div>
           </form>
         </div>
       </div>

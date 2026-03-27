@@ -436,6 +436,7 @@ export default function HomePage() {
                 desc: "High-definition video lessons covering the entire JAMB & SSCE syllabus by top-tier educators.",
                 icon: <Play className="w-6 h-6 text-blue-600" />,
                 bg: "bg-blue-50",
+                color: "#2563eb", // blue-600
                 link: "/courses",
                 btnText: "Explore Tutorials"
               },
@@ -444,6 +445,7 @@ export default function HomePage() {
                 desc: "Practice with timed, realistic exam environments that mirror the actual JAMB interface.",
                 icon: <Brain className="w-6 h-6 text-indigo-600" />,
                 bg: "bg-indigo-50",
+                color: "#4f46e5", // indigo-600
                 link: "/courses/CBT-PRACTICE",
                 btnText: "Start Practice"
               },
@@ -452,6 +454,7 @@ export default function HomePage() {
                 desc: "Turn study into play. Compete for high scores and earn rewards while you learn.",
                 icon: <GamepadIcon className="w-6 h-6 text-orange-600" />,
                 bg: "bg-orange-50",
+                color: "#ea580c", // orange-600
                 link: "/games1",
                 btnText: "Play Now"
               },
@@ -460,6 +463,7 @@ export default function HomePage() {
                 desc: "Get instant answers to complex questions and personalized study paths powered by AI.",
                 icon: <Bot className="w-6 h-6 text-emerald-600" />,
                 bg: "bg-emerald-50",
+                color: "#059669", // emerald-600
                 link: "#",
                 btnText: "Coming Soon",
                 disabled: true
@@ -469,6 +473,7 @@ export default function HomePage() {
                 desc: "Collaborate with peers, share notes, and join virtual study rooms in our modern LMS.",
                 icon: <Users className="w-6 h-6 text-violet-600" />,
                 bg: "bg-violet-50",
+                color: "#7c3aed", // violet-600
                 link: "/lms",
                 btnText: "Join Groups"
               },
@@ -477,6 +482,7 @@ export default function HomePage() {
                 desc: "See how you rank against students nationwide in real-time. Stay motivated and sharp.",
                 icon: <Zap className="w-6 h-6 text-amber-600" />,
                 bg: "bg-amber-50",
+                color: "#d97706", // amber-600
                 link: "#",
                 btnText: "Coming Soon",
                 disabled: true
@@ -488,7 +494,8 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="group p-8 rounded-[2rem] bg-slate-50 border border-slate-100 hover:bg-white hover:border-white hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500"
+                className={`group p-8 rounded-[2rem] bg-slate-50 border border-slate-100 hover:bg-white hover:border-white hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500`}
+                style={{ borderLeft: `6px solid ${feat.color}` }}
               >
                 <div className={`w-14 h-14 ${feat.bg} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500`}>
                   {feat.icon}
@@ -500,9 +507,18 @@ export default function HomePage() {
                 <Link href={feat.link}>
                   <Button 
                     variant="ghost" 
-                    className={`p-3 h-auto font-bold text-slate-900 group-hover:text-blue-600 flex items-center gap-2 ${feat.disabled ? 'opacity-50 cursor-not-allowed' : ``}`}
+                    className={`p-3 h-auto font-bold text-slate-900 hover:text-white transition-all rounded-xl flex items-center gap-2 ${feat.disabled ? 'opacity-50 cursor-not-allowed' : ``}`}
                     disabled={feat.disabled}
-                    style={{border: `1px solid ${feat.bg}`}}
+                    style={{ 
+                      border: `2px solid ${feat.color || '#3b82f6'}`,
+                      color: feat.color || '#3b82f6',
+                    }}
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      if (!feat.disabled) (e.currentTarget as HTMLButtonElement).style.backgroundColor = feat.color || '#3b82f6';
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      if (!feat.disabled) (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
+                    }}
                   >
                     {feat.btnText}
                     {!feat.disabled && <X className="w-4 h-4 rotate-45" />}

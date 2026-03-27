@@ -219,101 +219,55 @@ export default function SignupPage() {
 
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="relative min-h-screen overflow-hidden flex items-center justify-center">
+      {/* FULL-SCREEN BACKGROUND */}
+      <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100" />
+      <div className="absolute inset-0 bg-[#132D46]/70" />
 
-
-      {/* LEFT SIDE — Illustration (Same as Login) */}
-
-      <div className="hidden md:flex w-full md:w-1/2 bg-[#132D46] flex-col justify-center items-center text-center text-white px-8 py-14 relative overflow-hidden">
-        {/* Background Image Flipped */}
-        <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100 z-0 opacity-100" />
-        
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-slate-900/40 z-10" />
-
-        {/* Logo at the top left */}
-        <div className="absolute top-0 left-0 w-32 h-32 z-20">
-          <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
-        </div>
-        {/* <div
-          className="relative 
-            w-[22rem] h-[22rem] 
-            sm:w-[24rem] sm:h-[24rem] 
-            md:w-[30rem] md:h-[28rem] 
-            lg:w-[36rem] lg:h-[36rem] 
-            xl:w-[42rem] xl:h-[34rem]
-            bg-cover bg-center 
-            overflow-hidden
-            transition-all duration-500"
-          style={{ backgroundImage: `url(${currentSlide.bg})` }}
-        >
-          <Image
-            key={currentSlide.img}
-            src={currentSlide.img}
-            alt="Signup Illustration"
-            fill
-            className="object-contain drop-shadow-2xl transform 
-              scale-110 sm:scale-125 md:scale-145 lg:scale-165
-              -translate-y-8 md:-translate-y-10
-              transition-all duration-500"
-          />
-        </div> */}
-
-        {/* <h2 className="text-lg md:text-2xl font-bold tracking-wide mb-3 leading-snug">
-          UNLOCK YOUR BEST SCORE
-        </h2>
-
-        <p className="text-sm md:text-base max-w-md leading-relaxed text-gray-300">
-          From Video Lessons To Quiz Battles, Everything You Need To Level Up Your Exam Prep.
-        </p> */}
-
-        {/* Indicator Dots */}
-        {/* <div className="flex space-x-3 mt-8">
-          {slides.map((_, index) => (
-            <div
-              key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-500 ${index === currentIndex ? "bg-orange-500 scale-125" : "bg-white"
-                }`}
-            ></div>
-          ))}
-        </div> */}
-      </div>
-
-            {/* RIGHT SIDE — Signup Form */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 md:px-14 bg-white">
-        {/* Mobile Logo — only visible when illustration is hidden */}
-        <div className="md:hidden relative w-24 h-24 mb-4">
-          <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
-        </div>
-        <div className="w-full max-w-md">
-          <h3 className="text-2xl font-bold mb-4 text-center">Sign up</h3>
-
-          {/* Google Signup Button */}
-          <button
-            onClick={handleGoogleSignup}
-            disabled={isSubmitting}
-            className="w-full h-11 border-2 border-gray-100 rounded-xl mb-4 flex items-center justify-center gap-3 font-semibold text-gray-700 hover:bg-gray-50 transition-all shadow-sm active:scale-[0.98]"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-            </svg>
-            Continue with Google
-          </button>
-
-          <div className="relative mb-4 w-full">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-100"></span>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-4 text-gray-400 font-medium">Or continue with email</span>
-            </div>
+      {/* FORM CARD — centered vertically & horizontally */}
+      <div className="relative z-10 w-full max-w-[420px] mx-4 my-8">
+        <div className="bg-white rounded-2xl shadow-2xl px-8 py-6 flex flex-col items-center">
+          
+          {/* Logo — centered inside/above card */}
+          <div className="relative w-20 h-20 mb-1">
+            <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
           </div>
 
+          <h3 className="text-xl font-bold mb-1 text-center text-gray-800">Sign up</h3>
+          <p className="text-base text-gray-500 mb-4 text-center ">
+            {otpStep ? "Verification required" : "Join the Highscore community today!"}
+          </p>
+
+          {!otpStep && (
+            <>
+              {/* Google Signup Button */}
+              <button
+                onClick={handleGoogleSignup}
+                disabled={isSubmitting}
+                className="w-full h-10 border-2 border-gray-100 rounded-xl mb-4 flex items-center justify-center gap-3 font-semibold text-gray-700 hover:bg-gray-50 transition-all shadow-sm active:scale-[0.98] text-sm"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                </svg>
+                Continue with Google
+              </button>
+
+              <div className="relative mb-4 w-full">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-gray-100"></span>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-4 text-gray-400 font-medium">Or continue with email</span>
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Form */}
-          <form onSubmit={otpStep ? handleVerifyOTP : handleSubmit} className="space-y-3">
+          <form onSubmit={otpStep ? handleVerifyOTP : handleSubmit} className="space-y-3 w-full">
             {!otpStep ? (
               <>
                 {/* Name Inputs */}
@@ -322,7 +276,7 @@ export default function SignupPage() {
                     id="firstName"
                     type="text"
                     placeholder="First Name"
-                    className="w-1/2 h-11 text-base px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-orange-500"
+                    className="w-1/2 h-10 text-sm px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-orange-500"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
@@ -331,7 +285,7 @@ export default function SignupPage() {
                     id="lastName"
                     type="text"
                     placeholder="Last Name"
-                    className="w-1/2 h-11 text-base px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-orange-500"
+                    className="w-1/2 h-10 text-sm px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-orange-500"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
@@ -344,7 +298,7 @@ export default function SignupPage() {
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className={`w-full h-11 text-base px-4 pr-10 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
+                    className={`w-full h-10 text-sm px-4 pr-10 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
                       validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
                     }`}
                     value={email}
@@ -361,7 +315,7 @@ export default function SignupPage() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
-                    className={`w-full h-11 text-base px-4 pr-20 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
+                    className={`w-full h-10 text-sm px-4 pr-20 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
                       validPassword === false ? "border-red-500" : validPassword === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
                     }`}
                     value={password}
@@ -380,35 +334,33 @@ export default function SignupPage() {
                 </div>
               </>
             ) : (
-              <div className="space-y-3">
-                <p className="text-gray-600 text-sm">Enter the 4-digit code sent to <span className="font-semibold">{email}</span></p>
+              <div className="space-y-4">
+                <p className="text-gray-600 text-center text-sm">
+                  Enter the 4-digit code sent to <br />
+                  <span className="font-semibold text-gray-800">{email}</span>
+                </p>
                 <Input
                   id="otpCode"
                   type="text"
-                  placeholder="Enter OTP Code"
+                  placeholder="0000"
                   maxLength={4}
-                  className="w-full h-11 text-2xl tracking-[0.5em] text-center px-4 border-2 rounded-xl border-gray-300 focus:border-orange-500 outline-none"
+                  className="w-full h-12 text-2xl tracking-[0.75em] text-center px-4 border-2 rounded-xl border-gray-300 focus:border-orange-500 outline-none bg-orange-50"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                   required
                 />
-                <div className="flex justify-between items-center">
-                  <Button type="button" onClick={() => setOtpStep(false)} className="text-sm text-gray-500 bg-transparent hover:bg-transparent shadow-none h-auto p-0 border-0" variant="ghost">Change Email</Button>
-                  <Button type="button" onClick={handleSubmit} className="text-sm text-orange-500 font-bold bg-transparent hover:bg-transparent shadow-none h-auto p-0 border-0" variant="ghost">Resend Code</Button>
+                <div className="flex justify-between items-center px-1">
+                  <button type="button" onClick={() => setOtpStep(false)} className="text-xs text-gray-400 hover:text-gray-600 underline">Change Email</button>
+                  <button type="button" onClick={handleSubmit} className="text-xs text-orange-500 font-bold hover:underline">Resend Code</button>
                 </div>
               </div>
             )}
 
             {errors.firebase && <p className="text-sm text-red-500 text-center">{errors.firebase}</p>}
 
-            <div className="text-center text-gray-700 text-sm pt-1">
-              Already have an account?{" "}
-              <Link href="/login" className="text-orange-500 font-bold hover:underline">Log in</Link>
-            </div>
-
             <Button
               type="submit"
-              className={`w-full py-3 text-base font-semibold rounded-full transition-all text-white ${
+              className={`w-full py-3 h-12 text-base font-semibold rounded-full transition-all text-white shadow-md active:scale-[0.98] ${
                 isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 4)
                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                   : "bg-[linear-gradient(180deg,#FF9053_0%,#DB5206_100%)] hover:opacity-90"
@@ -418,10 +370,15 @@ export default function SignupPage() {
               {isSubmitting ? "Processing..." : otpStep ? "Verify & Create Account" : "Submit & Send Code"}
             </Button>
 
-            <p className="text-xs text-center text-gray-500 pt-1">
+            <div className="text-center text-sm text-gray-600 pt-2">
+              Already have an account?{" "}
+              <Link href="/login" className="text-orange-500 font-bold hover:underline">Log in</Link>
+            </div>
+
+            <p className="text-[10px] text-center text-gray-400 mt-4 leading-tight">
               By signing up you agree to our{" "}
-              <Link href="#" className="text-orange-500 font-bold hover:underline">Terms</Link>{" "}and{" "}
-              <Link href="#" className="text-orange-500 font-bold hover:underline">Privacy Policy</Link>
+              <Link href="#" className="text-orange-500 hover:underline">Terms</Link> and{" "}
+              <Link href="#" className="text-orange-500 hover:underline">Privacy Policy</Link>
             </p>
           </form>
         </div>

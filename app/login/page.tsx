@@ -134,92 +134,32 @@ export default function LoginPage() {
       toast.error(error.message || "Google login failed.");
       setIsSubmitting(false);
     }
-  };
+  };  return (
+    <div className="relative min-h-screen overflow-hidden flex items-center justify-center">
+      {/* FULL-SCREEN BACKGROUND */}
+      <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100" />
+      <div className="absolute inset-0 bg-[#132D46]/70" />
 
+      {/* FORM CARD — centered vertically & horizontally */}
+      <div className="relative z-10 w-full max-w-[400px] mx-4">
+        <div className="bg-white rounded-2xl shadow-2xl px-8 py-6 flex flex-col items-center">
+          
+          {/* Logo — centered inside/above card */}
+          <div className="relative w-20 h-20 mb-1">
+            <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
+          </div>
 
-  return (
-    <div className="min-h-screen flex flex-col md:flex-row">
-      {/* LEFT SIDE — Illustration */}
-      <div className="hidden md:flex w-full md:w-1/2 bg-[#132D46] flex-col justify-center items-center text-center text-white px-8 py-14 relative overflow-hidden">
-        {/* Background Image Flipped */}
-        <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100 z-0 opacity-100" />
-
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-slate-900/40 z-10" />
-
-        {/* Logo at the top left */}
-        <div className="absolute top-0 left-0 w-32 h-32 z-20">
-          <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
-        </div>
-
-        {/* <div
-          className="
-      relative 
-      w-[22rem] h-[22rem] 
-      sm:w-[24rem] sm:h-[24rem] 
-      md:w-[30rem] md:h-[28rem] 
-      lg:w-[32rem] lg:h-[26rem] 
-      xl:w-[38rem] xl:h-[32rem]
-      mb-10      
-      bg-cover bg-center 
-      rounded-2xl overflow-hidden
-      transition-all duration-500
-    "
-          style={{ backgroundImage: `url(${currentSlide.bg})` }}
-        >
-          <Image
-            key={currentSlide.img}
-            src={currentSlide.img}
-            alt="Login Illustration"
-            fill
-            className="
-        object-contain 
-        drop-shadow-2xl 
-        transform 
-        scale-110 sm:scale-125 md:scale-145 lg:scale-165
-        -translate-y-8 md:-translate-y-10
-        transition-all duration-500
-      "
-          />
-        </div> */}
-
-        {/* <h2 className="text-lg md:text-2xl font-bold tracking-wide mb-3 leading-snug">
-          UNLOCK YOUR BEST SCORE
-        </h2>
-
-        <p className="text-sm md:text-base max-w-md leading-relaxed text-gray-300">
-          From Video Lessons To Quiz Battles, Everything You Need To Level Up Your Exam Prep.
-        </p> */}
-
-        {/* INDICATOR DOTS */}
-        {/* <div className="flex space-x-3 mt-8">
-          {slides.map((_, index) => (
-            <div
-              key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-500 ${index === currentIndex ? "bg-orange-500 scale-125" : "bg-white"
-                }`}
-            ></div>
-          ))}
-        </div> */}
-      </div>
-
-      {/* RIGHT SIDE — Login Form */}
-      <div className="min-h-screen w-full md:w-1/2 flex flex-col justify-center items-center px-6 md:px-14 bg-white">
-        {/* Mobile Logo — only visible when illustration is hidden */}
-        <div className="md:hidden relative w-24 h-24 mb-4">
-          <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
-        </div>
-        <div className="w-full max-w-md">
-          {/* <h2 className="text-lg text-gray-600 mb-1 text-center">Welcome back to <span className="font-semibold text-gray-800">Highscore</span></h2> */}
-           <h2 className="text-center text-2xl font-bold mb-1">Welcome back to <span className="font-semibold text-gray-800">Highscore</span></h2>
-             <h3 className=" text-center text-gray-600 text-2xl font-bold mb-4">Log in</h3>
-          {/* <h3 className=" text-center text-2xl font-bold mb-4">Log in</h3> */}
+          {/* Form Header */}
+          <h2 className="text-center text-xl font-bold mb-0.5 text-gray-800">
+            Welcome back to <span className="text-orange-500">Highscore</span>
+          </h2>
+          <h3 className="text-center text-gray-500 text-base mb-4">Log in to your account</h3>
 
           {/* Google Login Button */}
           <button
             onClick={handleGoogleLogin}
             disabled={isSubmitting}
-            className="w-full h-11 border-2 border-gray-100 rounded-xl mb-4 flex items-center justify-center gap-3 font-semibold text-gray-700 hover:bg-gray-50 transition-all shadow-sm active:scale-[0.98]"
+            className="w-full h-10 border-2 border-gray-100 rounded-xl mb-4 flex items-center justify-center gap-3 font-semibold text-gray-700 hover:bg-gray-50 transition-all shadow-sm active:scale-[0.98] text-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -230,7 +170,7 @@ export default function LoginPage() {
             Continue with Google
           </button>
 
-          <div className="relative mb-4">
+          <div className="relative mb-4 w-full">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-gray-100"></span>
             </div>
@@ -240,14 +180,13 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Email Input */}
+          <form onSubmit={handleSubmit} className="space-y-3 w-full">
             <div className="relative">
               <Input
                 id="email"
                 type="email"
                 placeholder="Email Address"
-                className={`w-full h-11 text-base px-4 pr-10 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
+                className={`w-full h-10 text-sm px-4 pr-10 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
                   validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
                 }`}
                 value={email}
@@ -258,13 +197,12 @@ export default function LoginPage() {
               {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
             </div>
 
-            {/* Password Input */}
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                className={`w-full h-11 text-base px-4 pr-20 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
+                className={`w-full h-10 text-sm px-4 pr-20 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
                   validPassword === false ? "border-red-500" : validPassword === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
                 }`}
                 value={password}
@@ -288,11 +226,6 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <div className="text-center text-gray-700 text-sm pt-1">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-orange-500 font-bold hover:underline">Sign up</Link>
-            </div>
-
             <button
               type="submit"
               disabled={isSubmitting || !validEmail || !validPassword}
@@ -305,10 +238,15 @@ export default function LoginPage() {
               {isSubmitting ? "Signing in..." : "Login"}
             </button>
 
-            <p className="text-xs text-center text-gray-500 pt-1">
+            <div className="text-center text-sm text-gray-600 pt-2">
+              Don&apos;t have an account?{" "}
+              <Link href="/signup" className="text-orange-500 font-bold hover:underline">Sign up</Link>
+            </div>
+
+            <p className="text-[10px] text-center text-gray-400 mt-4 leading-tight">
               By signing in you agree to our{" "}
-              <Link href="#" className="text-orange-500 font-bold hover:underline">Terms</Link>{" "}and{" "}
-              <Link href="#" className="text-orange-500 font-bold hover:underline">Privacy Policy</Link>
+              <Link href="#" className="text-orange-500 hover:underline">Terms</Link> and{" "}
+              <Link href="#" className="text-orange-500 hover:underline">Privacy Policy</Link>
             </p>
           </form>
         </div>
