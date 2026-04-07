@@ -34,9 +34,9 @@ export const SocketProvider = ({
   useEffect(() => {
     if (!userId) return;
 
-    const socket = io("https://chat-back-ymlq.onrender.com", {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "https://chat-back-ymlq.onrender.com", {
       transports: ["websocket"],
-    });
+    } as any);
 
     socketRef.current = socket;
 

@@ -22,13 +22,16 @@ export async function POST(req: Request) {
     // 1️⃣ Find user by email
     const { data: { users }, error: fetchError } = await supabaseAdmin.auth.admin.listUsers();
     if (fetchError) throw fetchError;
-    const user = users.find(u => u.email === email);
+    const user = users.find(u => u.email?.toLowerCase() === email.toLowerCase());
     if (!user) throw new Error("User not found in Supabase Auth.");
 
     // 2️⃣ Update password
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
       user.id,
-      { password: newPassword }
+      { 
+        password: newPassword,
+        email_confirm: true 
+      }
     );
     if (updateError) throw updateError;
 

@@ -34,6 +34,7 @@ export async function POST(req: Request) {
       totalmatches: body.totalMatches || 0,
       wins: body.wins || 0,
       winrate: body.winRate || 0,
+      email_verified: body.email_verified ?? false,
     };
 
     const { data, error } = await supabaseAdmin!.from("users").insert([row]).select();

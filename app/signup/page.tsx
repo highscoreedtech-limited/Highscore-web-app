@@ -75,7 +75,7 @@ export default function SignupPage() {
   };
 
 
-  // Handle form submit to send OTP
+  // Handle form submit to create account immediately
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validEmail || !validPassword || !firstName || !lastName) {
@@ -86,19 +86,70 @@ export default function SignupPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/send-otp", {
+      // 1️⃣ Create Supabase user (server-side, confirmed: true so they can log in, but verified: false in DB)
+      const createRes = await fetch("/api/create-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, firstName, lastName }),
+      });
+      const createData = await createRes.json();
+      if (!createRes.ok) throw new Error(createData.error || "Failed to create account");
+
+      const supabaseUser = createData.user;
+      if (!supabaseUser) throw new Error("Failed to retrieve user after signup");
+
+      // 2️⃣ Insert user into Supabase profile table with email_verified: false
+      const displayName = `${firstName} ${lastName}`;
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          authid: supabaseUser.id,
+          email: supabaseUser.email,
+          username: '',
+          display_name: displayName,
+          email_verified: false, // ✅ Not verified yet
+          rank: "Bronze",
+          xp: 0,
+          coins: 0,
+          avatar: "🎮",
+          totalMatches: 0,
+          wins: 0,
+          winRate: 0,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to create user in DB");
+      }
+
+      // 3️⃣ Send Verification OTP in the background
+      fetch("/api/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
-      });
+      }).catch(err => console.error("Background OTP send failed:", err));
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to send OTP");
+      localStorage.setItem("username", firstName);
 
-      toast.success("OTP sent to your email!");
-      setOtpStep(true);
+      // 4️⃣ Sign in client-side immediately
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) {
+        console.warn("Auto sign-in failed:", signInError.message);
+      }
+
+      toast.success("Account created! Welcome to Highscore.");
+      
+      setTimeout(() => {
+         router.push("/courses"); // Redirect to courses instead of dashboard
+      }, 1500);
+
     } catch (error: any) {
-      toast.error(error.message || "Failed to send OTP.");
+      console.error("Error in handleSubmit:", error);
+      let errorMessage = error.message || "Something went wrong.";
+      if (error.message?.includes("already registered")) errorMessage = "This email is already in use.";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -120,50 +171,18 @@ export default function SignupPage() {
       const verifyData = await verifyRes.json();
       if (!verifyRes.ok) throw new Error(verifyData.error || "Invalid OTP");
 
-      // 2️⃣ Create Supabase user (server-side, no confirmation email)
-      const createRes = await fetch("/api/create-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, firstName, lastName }),
-      });
-      const createData = await createRes.json();
-      if (!createRes.ok) throw new Error(createData.error || "Failed to create account");
+      // Removed redundant create-user and users calls as user is already created in handleSubmit
 
-      const supabaseUser = createData.user;
-      if (!supabaseUser) throw new Error("Failed to retrieve user after signup");
-
-      // 3️⃣ Insert user into Supabase profile table
-      const displayName = `${firstName} ${lastName}`;
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          authid: supabaseUser.id,
-          email: supabaseUser.email,
-          username: '',
-          display_name: displayName,
-          rank: "Bronze",
-          xp: 0,
-          coins: 0,
-          avatar: "🎮",
-          totalMatches: 0,
-          wins: 0,
-          winRate: 0,
-        }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create user in DB");
-      }
-
-      await res.json();
+      localStorage.setItem("username", firstName);
 
       // 4️⃣ Automatically create user_quests for this user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not found");
+
       const questsRes = await fetch("/api/user-quests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ authid: supabaseUser.id }),
+        body: JSON.stringify({ authid: user.id }),
       });
 
       if (!questsRes.ok) {
@@ -184,7 +203,7 @@ export default function SignupPage() {
       toast.success("Account created! Redirecting...");
       
       setTimeout(() => {
-         router.push("/");
+         router.push("/courses");
       }, 1500);
 
     } catch (error: any) {

@@ -42,10 +42,21 @@ export async function POST(req: Request) {
       );
     }
 
+    // Update the user's email_verified status in the users table
+    const { error: updateError } = await supabaseAdmin!
+      .from("users")
+      .update({ email_verified: true })
+      .eq("email", email);
+
+    if (updateError) {
+      console.error("[verify-otp] failed to update user verification status:", updateError);
+      // We don't necessarily want to fail the whole request if the user is already verified in Auth
+    }
+
     // Delete the OTP so it cannot be reused
     await supabaseAdmin!.from("otps").delete().eq("id", latestOtp.id);
 
-    return NextResponse.json({ success: true, message: "OTP verified successfully!" });
+    return NextResponse.json({ success: true, message: "Email verified successfully!" });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Something went wrong" }, { status: 500 });
   }

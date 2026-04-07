@@ -28,6 +28,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./hooks/useAuth";
+import { supabase } from "@/lib/supabaseClient";
+
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -213,23 +215,46 @@ export default function HomePage() {
 
           {/* Desktop Auth Section - Right aligned via justify-between in container */}
           <div className="hidden lg:flex items-center gap-2 z-10">
-            <Link href="/login">
-              <Button variant="ghost" className={`text-white rounded-xl px-6 font-bold transition-all ${
-                isScrolled ? "text-slate-700 hover:bg-slate-100 " : "hover:text-[#f97316] hover:bg-transparent"
-              }`}>
-                LOG IN
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button className={`rounded-xl py-2 px-6 font-bold tracking-wider transition-all shadow-2xl ${
-                isScrolled 
-                  ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                  : "bg-white text-blue-900 hover:bg-blue-600 hover:text-white"
-              }`}>
-                {/* JOIN NOW */}
-                SIGN UP
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Link href="/dashboard">
+                  <Button variant="ghost" className={`rounded-xl px-6 font-bold transition-all ${
+                    isScrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:text-[#f97316] hover:bg-transparent"
+                  }`}>
+                    DASHBOARD
+                  </Button>
+                </Link>
+                <Button 
+                  onClick={() => supabase.auth.signOut()}
+                  className={`rounded-xl py-2 px-6 font-bold tracking-wider transition-all shadow-2xl ${
+                    isScrolled 
+                      ? "bg-red-600 hover:bg-red-700 text-white" 
+                      : "bg-white text-red-900 hover:bg-red-600 hover:text-white"
+                  }`}
+                >
+                  LOG OUT
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost" className={`text-white rounded-xl px-6 font-bold transition-all ${
+                    isScrolled ? "text-slate-700 hover:bg-slate-100 " : "hover:text-[#f97316] hover:bg-transparent"
+                  }`}>
+                    LOG IN
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button className={`rounded-xl py-2 px-6 font-bold tracking-wider transition-all shadow-2xl ${
+                    isScrolled 
+                      ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                      : "bg-white text-blue-900 hover:bg-blue-600 hover:text-white"
+                  }`}>
+                    SIGN UP
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -273,12 +298,31 @@ export default function HomePage() {
                 })}
                 <hr className="border-slate-100" />
                 <div className="flex flex-col gap-4">
-                  <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                    <Button variant="outline" className="w-full h-14 rounded-xl font-bold">LOG IN</Button>
-                  </Link>
-                  <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
-                    <Button className="w-full h-14 rounded-xl bg-blue-600 font-bold">JOIN NOW</Button>
-                  </Link>
+                  {user ? (
+                    <>
+                      <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <Button variant="outline" className="w-full h-14 rounded-xl font-bold">DASHBOARD</Button>
+                      </Link>
+                      <Button 
+                        onClick={() => {
+                          supabase.auth.signOut();
+                          setIsMenuOpen(false);
+                        }}
+                        className="w-full h-14 rounded-xl bg-red-600 font-bold"
+                      >
+                        LOG OUT
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                        <Button variant="outline" className="w-full h-14 rounded-xl font-bold">LOG IN</Button>
+                      </Link>
+                      <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
+                        <Button className="w-full h-14 rounded-xl bg-blue-600 font-bold">JOIN NOW</Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>

@@ -11,9 +11,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email is required" }, { status: 400 });
   }
 
-  // Generate a 4-digit OTP
-  const otp = Math.floor(1000 + Math.random() * 9000).toString();
+  // Generate a unique token
+  const otp = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes, UTC ISO string
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const verifyUrl = `${baseUrl}/verify?email=${encodeURIComponent(email)}&token=${otp}`;
 
   // Save OTP to Supabase
   const { error: supabaseError } = await supabaseAdmin!
@@ -56,21 +59,21 @@ export async function POST(req: Request) {
                 <td style="padding:40px 30px 20px;color:#333333;">
                   <h2 style="margin:0 0 10px;font-size:24px;font-weight:bold;text-align:center;">Verify Your Email</h2>
                   <p style="font-size:16px;line-height:1.6;text-align:center;margin:0 0 25px;">
-                    Hi there 👋, please use the OTP below to verify your email address to complete your signup. It expires in 5 minutes.
+                    Hi there 👋, please click the button below to verify your email address and complete your signup. This link expires in 10 minutes.
                   </p>
                   <div style="text-align:center;margin-bottom:40px;">
-                    <span style="
+                    <a href="${verifyUrl}" style="
                       display:inline-block;
-                      padding:20px 40px;
+                      padding:15px 30px;
                       background:linear-gradient(180deg,#FF9053 0%,#DB5206 100%);
                       color:#fff;
                       font-weight:bold;
-                      font-size:24px;
+                      font-size:18px;
                       border-radius:10px;
-                      letter-spacing:4px;
+                      text-decoration:none;
                     ">
-                      ${otp}
-                    </span>
+                      Verify Email
+                    </a>
                   </div>
                   <p style="font-size:14px;line-height:1.6;text-align:center;color:#666;">
                     If you didn't request this, you can safely ignore this email.

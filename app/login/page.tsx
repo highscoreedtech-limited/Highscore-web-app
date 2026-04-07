@@ -99,13 +99,15 @@ export default function LoginPage() {
 
       toast.success("Login successful! Redirecting...");
       setTimeout(() => {
-        router.push("/");
+        router.push("/courses");
       }, 1500); // Slight delay so user can see the toast
     } catch (error: any) {
       let errorMessage = error.message || "Login failed.";
 
       if (error.message?.includes("Invalid login credentials")) {
         errorMessage = "Invalid email or password.";
+      } else if (error.message?.includes("Email not confirmed")) {
+        errorMessage = "Email not confirmed. Please check your inbox or sign up again to verify your email.";
       }
 
       console.log(errorMessage);

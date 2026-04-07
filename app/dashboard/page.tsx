@@ -16,17 +16,36 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { supabase } from "@/lib/supabaseClient";
+import { toast } from "sonner";
 
 function page() {
   const router = useRouter();
   const { user: authUser, loading } = useAuth();
-  const [username, setUsername] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [isResending, setIsResending] = useState(false);
 
   useEffect(() => {
-    // runs only in the browser
-    const stored = localStorage.getItem("username");
-    setUsername(stored);
-  }, []);
+    const fetchUserData = async () => {
+      if (authUser) {
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("authid", authUser.id)
+          .maybeSingle();
+
+        if (data) {
+          setUserData(data);
+        } else if (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    };
+
+    if (!loading && authUser) {
+      fetchUserData();
+    }
+  }, [authUser, loading]);
 
   // Protected route logic
   useEffect(() => {
@@ -79,40 +98,83 @@ function page() {
     },
   ];
 
-  const user = {
-    id: "1",
-    username,
-    email: "player@example.com",
-    displayName: username,
+  const currentUser = userData || {
+    username: authUser.email?.split("@")[0],
+    displayname: authUser.user_metadata?.display_name || authUser.email?.split("@")[0],
     rank: "Bronze",
-    xp: 150,
-    coins: 250,
+    xp: 0,
+    coins: 0,
     avatar: "🎮",
-    totalMatches: 15,
-    wins: 12,
-    winRate: 80,
+    totalmatches: 0,
+    wins: 0,
+    winrate: 0,
+    email_verified: true, // Default to true to hide banner if fetch fails or hasn't loaded
   };
+
+  const handleResendEmail = async () => {
+    setIsResending(true);
+    try {
+      const res = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: authUser.email }),
+      });
+      if (res.ok) {
+        toast.success("Verification email sent!");
+      } else {
+        throw new Error("Failed to send email");
+      }
+    } catch (error) {
+      toast.error("Failed to resend email. Please try again.");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
 
   return (
     <div className="min-h-screen p-4 md:p-6 bg-slate-200">
       <div className="max-w-6xl mx-auto">
+        {/* Verification Warning Banner */}
+        {userData && !userData.email_verified && (
+          <div className="bg-orange-100 border-l-4 border-orange-500 p-4 mb-6 rounded-r-xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center">
+              <Zap className="w-5 h-5 text-orange-600 mr-3 animate-pulse" />
+              <div>
+                <p className="text-orange-800 font-bold text-sm md:text-base">Email not confirmed!</p>
+                <p className="text-orange-700 text-xs">Please check your inbox for a verification link to secure your account.</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={handleResendEmail}
+                disabled={isResending}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50"
+              >
+                {isResending ? "Sending..." : "Resend Link"}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="bg-blue-700 backdrop-blur-md rounded-2xl p-6 mb-6 border border-white/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-2xl shadow-lg">
-                {user.avatar}
+                {currentUser.avatar}
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">
-                  Welcome back, {user.displayName}!
+                  Welcome back, {currentUser.displayname}!
                 </h1>
                 <div className="flex items-center space-x-4 mt-2">
-                  <RankBadge rank={user.rank} size="sm" />
+                  <RankBadge rank={currentUser.rank} size="sm" />
                   <div className="flex items-center space-x-2">
                     <Coins className="w-5 h-5 text-yellow-400" />
                     <span className="text-yellow-400 font-bold">
-                      {user.coins.toLocaleString()}
+                      {currentUser.coins.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -132,12 +194,12 @@ function page() {
               <span className="text-sm text-gray-300">
                 Progress to next rank
               </span>
-              <span className="text-sm text-gray-300">{user.xp} XP</span>
+              <span className="text-sm text-gray-300">{currentUser.xp} XP</span>
             </div>
             <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
               <div
                 className="bg-gradient-to-r from-purple-600 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-out shadow-lg"
-                style={{ width: `${getRankProgress(user.rank, user.xp)}%` }}
+                style={{ width: `${getRankProgress(currentUser.rank, currentUser.xp)}%` }}
               ></div>
             </div>
           </div>
@@ -186,7 +248,7 @@ function page() {
               <div>
                 <p className="text-slate-500 text-sm">Total Matches</p>
                 <p className="text-slate-900 font-bold text-2xl ">
-                  {user.totalMatches}
+                  {currentUser.totalmatches}
                 </p>
               </div>
               <Target className="w-8 h-8 text-blue-400" />
@@ -198,7 +260,7 @@ function page() {
               <div>
                 <p className="text-slate-500 text-sm">Win Rate</p>
                 <p className="text-2xl font-bold text-slate-900">
-                  {user.winRate}%
+                  {currentUser.winrate}%
                 </p>
               </div>
               <Zap className="w-8 h-8 text-yellow-400" />

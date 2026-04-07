@@ -349,14 +349,67 @@ useEffect(() => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Section */}
           <div className="space-y-8 hidden sm:block">
-            {/* Streak On Fire */}
-            <p className="font-medium flex font-bold mt-4 items-center justify-start gap-1 ml-4 sm:ml-0">
-              <Flame className="w-4 h-4 text-orange-500" /> Streak On Fire!
-            </p>
 
-            <div className="relative w-40 h-40 sm:w-48 sm:h-48 ml-20">
+            {/* Streak On Fire */}
+                      <div className="mx-auto bg-gradient-to-b from-orange-200 to-orange-400 rounded-2xl p-5 text-center shadow-lg hidden sm:block">
+            <div className="text-orange-600 font-semibold flex items-center justify-center text-lg mb-2">
+              <span className="text-xl mr-1">🔥</span>
+              DAY 5 STREAK
+            </div>
+
+            <p className="text-sm text-gray-700 mb-4">Keep the fire burning!</p>
+
+            {/* Centered and reduced SVG circle */}
+            <div className="relative flex items-center justify-center mx-auto w-28 h-28 mb-4">
               <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 128 128">
                 {/* Background Circle */}
+                <circle
+                  cx="64"
+                  cy="64"
+                  r="55"
+                  stroke="#E5E7EB"
+                  strokeWidth="3"
+                  fill="none"
+                />
+                {/* Progress Circle */}
+                <circle
+                  cx="64"
+                  cy="64"
+                  r="55"
+                  stroke="#F97316"
+                  strokeWidth="3"
+                  fill="none"
+                  strokeDasharray={`${2 * Math.PI * 55}`}
+                  strokeDashoffset={`${2 * Math.PI * 55 * (1 - 0.5)}`}
+                  strokeLinecap="round"
+                  className="transition-all duration-700"
+                />
+              </svg>
+
+              <div className="absolute flex items-center justify-center font-semibold text-gray-700 text-2xl">
+                50%
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-700 mb-5">
+              20 questions to complete today’s goal
+            </p>
+
+            <button
+              className="w-full bg-[#FC7B24] hover:bg-[#e86f20] text-white font-[500] py-2 rounded-xl transition-colors 
+  text-[12px] leading-[20px] tracking-[0.1px] font-poppins text-center align-middle"
+            >
+              Tap to continue your streak
+            </button>
+
+          </div>
+            {/* <p className="font-medium flex font-bold mt-4 items-center justify-start gap-1 ml-4 sm:ml-0">
+              <Flame className="w-4 h-4 text-orange-500" /> Streak On Fire!
+            </p> */}
+{/* 
+            <div className="relative w-40 h-40 sm:w-48 sm:h-48 ml-20">
+              <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 128 128">
+                Background Circle
                 <circle
                   cx="64"
                   cy="64"
@@ -365,7 +418,7 @@ useEffect(() => {
                   strokeWidth="2"  // thinner background stroke
                   fill="none"
                 />
-                {/* Progress Circle */}
+                Progress Circle
                 <circle
                   cx="64"
                   cy="64"
@@ -383,8 +436,8 @@ useEffect(() => {
               <div className="absolute inset-0 flex items-center justify-center font-semibold text-gray-700 text-3xl">
                 50%
               </div>
-            </div>
-
+            </div> */}
+{/* 
             <div className=" rounded-2xl p-6  flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="text-center sm:text-left">
 
@@ -401,7 +454,7 @@ useEffect(() => {
               </div>
 
 
-            </div>
+            </div> */}
 
             {/* only visible on larger screen */}
             <div className="rounded-2xl p-6 bg-white hidden sm:block">
