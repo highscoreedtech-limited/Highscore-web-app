@@ -481,7 +481,7 @@ useEffect(() => {
                     background: "linear-gradient(180deg, #FF9053 0%, #DB5206 100%)",
                   }}
                 >
-                  Start Challenge
+                  Start Challenge Here
                 </button>
 
               </div>
