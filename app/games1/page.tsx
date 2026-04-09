@@ -582,7 +582,7 @@ const sendMessage = (e: React.FormEvent) => {
                                 <h2
                                     className="
     font-poppins font-semibold
-    text-2xl sm:text-3xl md:text-[36px]
+    text-2xl sm:text-3xl md:text-[30px]
     leading-tight tracking-tight
     text-white
     flex flex-wrap items-center gap-2
