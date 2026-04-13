@@ -68,7 +68,7 @@ export default function HomePage() {
     if (user) {
       router.push("/games1");
     } else {
-      router.push("/login");
+      router.push("/login?redirect=/games1");
     }
     setIsMenuOpen(false);
   }
@@ -195,8 +195,9 @@ export default function HomePage() {
           <nav className="hidden lg:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
           {/* absolute left-1/2 -translate-x-1/2 */}
             {["Tutorials", "CBT Practice", "Games"].map((item) => {
-              const href = item === "Tutorials" ? "/courses" : 
+              const dest = item === "Tutorials" ? "/courses" : 
                            item === "CBT Practice" ? "/courses/CBT-PRACTICE" : "/games1";
+              const href = user ? dest : `/login?redirect=${dest}`;
               
               return (
                 <Link

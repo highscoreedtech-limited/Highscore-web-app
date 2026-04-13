@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { toast } from "sonner";
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Check, X, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "../hooks/useAuth";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/lms";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -99,7 +101,7 @@ export default function LoginPage() {
 
       toast.success("Login successful! Redirecting...");
       setTimeout(() => {
-        router.push("/courses");
+        router.push(redirectTo);
       }, 1500); // Slight delay so user can see the toast
     } catch (error: any) {
       let errorMessage = error.message || "Login failed.";
@@ -128,7 +130,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}${redirectTo}`,
         },
       });
       if (error) throw error;
@@ -254,5 +256,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
