@@ -1,456 +1,201 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
-  LogOut,
-  Atom,
-  Book,
-  BookOpenText,
-  FlaskConical,
-  Ruler,
-  Search,
-  BookOpen,
-  Leaf,
+  ArrowLeft, Bell, LayoutGrid, List as ListIcon, TrendingUp,
+  BookOpenText, Calculator, Atom, FlaskConical, Leaf, BookText,
+  LineChart, Landmark, Sprout, Sigma,
 } from "lucide-react";
-import { useMediaQuery } from "react-responsive";
-import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Trash2, Info, CheckCircle2, AlertCircle } from "lucide-react";
+import { SUBJECTS, SubjectInfo } from "@/lib/subjects";
 
+const ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  "English Language": BookOpenText,
+  Mathematics: Calculator,
+  Physics: Atom,
+  Chemistry: FlaskConical,
+  Biology: Leaf,
+  "Literature in English": BookText,
+  Economics: LineChart,
+  Government: Landmark,
+  "Agricultural Science": Sprout,
+  "Further Mathematics": Sigma,
+};
 
-import FooterNav from "../components/FooterNav";
-import Sidebar from "../components/Sidebar";
-import { useAuth } from "../hooks/useAuth";
+type Filter = "all" | "science" | "arts";
 
-export default function DashboardPage() {
+export default function CoursesPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
-  const [username, setUsername] = useState<string>("ControlEdu");
-  const pathname = usePathname();
+  const [filter, setFilter] = useState<Filter>("all");
+  const [grid, setGrid] = useState(true);
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 1024);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  const isActive = (path: string) => pathname === path;
-
-  const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "New message from John", type: "info", time: "2m ago" },
-    { id: 2, text: "Your order has been shipped", type: "success", time: "1h ago" },
-    { id: 3, text: "Update available for your app", type: "warning", time: "3h ago" },
-  ]);
-
- const panelRef = useRef<HTMLDivElement>(null);
-const buttonRef = useRef<HTMLButtonElement>(null);
-
-
-
-
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        panelRef.current &&
-        !panelRef.current.contains(event.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = sidebarOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [sidebarOpen]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("username");
-    if (stored) setUsername(stored);
-  }, []);
-
-  // Protected route logic
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (!user) return null; // Prevent showing protected content
-
-  const clearAll = () => setNotifications([]);
-
-
-  const subjects = [
-    {
-      title: "Mathematics",
-      color: "linear-gradient(180deg, #5EA7E4 0%, #08477C 100%)",
-      icon: <Ruler className="w-24 h-24 text-white m-4" />,
-      path: "/courses/mathematics",
-    },
-    {
-      title: "English Language",
-      color: "linear-gradient(180deg, #55C77F 0%, #006124 100%)",
-      icon: <BookOpenText className="w-24 h-24 text-white m-4" />,
-      path: "/courses/english",
-    },
-    {
-      title: "Physics",
-      color: "linear-gradient(180deg, #E1635E 0%, #80120E 100%)",
-      icon: <Atom className="w-24 h-24 text-white m-4" />,
-      path: "/courses/physics",
-    },
-    {
-      title: "Chemistry",
-      color: "linear-gradient(180deg, #F3AD59 0%, #A65A00 100%)",
-      icon: <FlaskConical className="w-24 h-24 text-white m-4" />,
-      path: "/courses/chemistry",
-    },
-    {
-      title: "Biology",
-      color: "linear-gradient(180deg, #55C77F 0%, #006124 100%)",
-      icon: <Leaf className="w-24 h-24 text-white m-4" />,
-      path: "/courses/biology",
-    },
-    {
-      title: "Literature",
-      color: "linear-gradient(180deg, #897DD2 0%, #211668 100%)",
-      icon: <BookOpenText className="w-24 h-24 text-white m-4" />,
-      path: "/courses/literature",
-    },
-  ];
-
-
-
-  const backgroundStyle = isDesktop
-    ? { background: 'linear-gradient(to bottom, white 7%, #f3f4f6 7%)' } // desktop: larger white top
-    : { background: 'linear-gradient(to bottom, white 3%, #f3f4f6 3%)' }; // mobile: smaller white area
-
-    
-
-
+  const items = SUBJECTS.filter((s) => filter === "all" || s.category === filter);
 
   return (
-    <div
-      className="flex flex-col lg:flex-row min-h-screen"
-      style={backgroundStyle}
-    >
-      {/* Sidebar */}
-      <aside className="hidden lg:flex fixed top-0 left-0 h-full w-64 bg-[#001A33] text-white flex flex-col">
-        <div className="px-6 py-4 text-2xl font-bold text-center border-b border-white/10">
-          <span className="text-orange-500">HIGH</span>SCORE
-        </div>
-{/* 
-        <div className="p-4">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-full px-3 py-2 rounded-lg bg-white placeholder-gray-300 text-sm focus:outline-none"
-          />
-        </div> */}
-
-
-        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-
-        <div className="p-4 border-t border-white/10 mt-auto">
-          <button className="flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-all">
-            <LogOut className="w-5 h-5" />
-            Logout
-          </button>
-        </div>
-      </aside>
-
-      {/* Mobile Sidebar */}
-      <div className="lg:hidden">
-        {sidebarOpen && (
-          <>
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40"
-              onClick={() => setSidebarOpen(false)}
-            />
-            <div className="fixed top-0 left-0 w-64 h-full bg-[#001A33] text-white z-50 transition-transform duration-300 translate-x-0">
-
-              <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-
-              <div className="p-4 border-t border-white/10">
-                <button className="flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md hover:bg-white/10 transition-all">
-                  <LogOut className="w-5 h-5" />
-                  Logout
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      
-
-      {/* Hamburger button for mobile */}
-      <div className="lg:hidden mt-4 ml-4 mb-4">
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="text-gray-700 hover:text-gray-900 focus:outline-none"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="#F97316"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
-
-      <div className="absolute top-4 right-4 flex items-center gap-4 z-10">
-     <button
-        ref={buttonRef}
-        className="relative p-2"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6 text-gray-700"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M14.857 17.082a23.848 23.848 0 005.163-1.31A8.967 8.967 0 0019.5 8.25V7.5a7.5 7.5 0 10-15 0v.75a8.967 8.967 0 00-.52 7.522c1.233.51 2.58.91 4.02 1.203m6.857 0a24.255 24.255 0 01-6.857 0m6.857 0v.918a2.25 2.25 0 11-4.5 0v-.918"
-            />
-          </svg>
-          <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-        </button>
-
-
-
-        <img
-          src="/path/to/icon.png"
-          alt="icon"
-          className="w-8 h-8 rounded-full bg-black"
-        />
-        <span className="text-lg font-semibold">5 🔥</span>
-      </div>
-
-      {/* Notification Panel */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            ref={panelRef}
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute right-4 top-16 w-80 bg-white/80 backdrop-blur-xl shadow-2xl rounded-2xl border border-gray-100 z-50 overflow-hidden"
-          >
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-white/50">
-              <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-orange-500" />
-                <span className="font-bold text-gray-800">Notifications</span>
-              </div>
-              {notifications.length > 0 && (
-                <button 
-                  onClick={clearAll}
-                  className="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1"
-                >
-                  <Trash2 className="w-3 h-3" />
-                  Clear All
-                </button>
-              )}
-            </div>
-            
-            <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
-              {notifications.length === 0 ? (
-                <div className="p-10 text-center flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center">
-                    <Bell className="w-6 h-6 text-gray-300" />
-                  </div>
-                  <p className="text-gray-400 text-sm">All caught up!</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-50">
-                  {notifications.map((note) => (
-                    <motion.div
-                      key={note.id}
-                      initial={{ x: 10, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      className="p-4 hover:bg-gray-50/50 cursor-pointer transition-colors group"
-                    >
-                      <div className="flex gap-3">
-                        <div className={`mt-1 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          note.type === 'info' ? 'bg-blue-50 text-blue-500' :
-                          note.type === 'success' ? 'bg-green-50 text-green-500' :
-                          'bg-orange-50 text-orange-500'
-                        }`}>
-                          {note.type === 'info' && <Info className="w-4 h-4" />}
-                          {note.type === 'success' && <CheckCircle2 className="w-4 h-4" />}
-                          {note.type === 'warning' && <AlertCircle className="w-4 h-4" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-700 leading-snug group-hover:text-gray-900 transition-colors">
-                            {note.text}
-                          </p>
-                          <p className="text-[10px] text-gray-400 mt-1 font-medium font-sans">
-                            {note.time}
-                          </p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            {notifications.length > 0 && (
-              <div className="p-3 bg-gray-50/50 border-t border-gray-100 text-center">
-                <button className="text-xs font-bold text-orange-500 hover:text-orange-600 transition-colors">
-                  View All History
-                </button>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      {/* Main Content */}
-      <main className="flex-1 p-4 sm:p-6 md:p-8 lg:ml-64 pb-24 relative">
-        {/* Greeting Section */}
-        {/* Title Section (only visible on mobile/tablet) */}
-
-
-        <div className="max-w-xl mx-auto mb-8 text-left space-y-4 lg:hidden">
-          {/* Search bar */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search subject or topic..."
-              className="w-full rounded-full border border-gray-200 bg-white shadow-sm py-3 pl-12 pr-4 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-            <Search className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
-          </div>
-
-
-          {/* Title */}
-          <h2 className="text-2xl font-semibold text-gray-800">Videos Tutorials</h2>
-
-          {/* Subtitle */}
-          <p className="text-gray-600 text-sm font-bold">
-            Master WAEC & JAMB Subjects with bite-sized tutorials
-          </p>
-
-          {/* Button */}
-          <button
-            className="text-white text-sm font-medium px-5 py-2 rounded-lg shadow transition-all duration-300 hover:opacity-90"
-            style={{
-              background: "linear-gradient(180deg, #FF9053 0%, #DB5206 100%)",
-            }}
-          >
-            Continue Watching
-          </button>
-
-        </div>
-
-
-        <div className="bg-white p-3 sm:p-9 rounded-lg sm:bg-transparent">
-
-
-
-          {/* Search Bar */}
-          <div className="max-w-xl mx-auto mb-4">
-            <div className="relative  hidden md:block">
-              <input
-                type="text"
-                placeholder="Search subject or topic......"
-                className="w-full rounded-full border border-gray-200 bg-white py-3 pl-12 pr-4 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
-              />
-              <Search className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
-            </div>
-          </div>
-
-          {/* Title Section (hidden on small screens) */}
-          <div className="max-w-xl mx-auto mb-6 text-left hidden md:block">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-1">
-              Videos Tutorials
-            </h2>
-            <p className="text-gray-600 text-sm mb-4">
-              Master WAEC & JAMB Subjects with bite-sized tutorials
-            </p>
+    <div className="min-h-screen bg-hs-bg pb-12">
+      {/* Navy header */}
+      <header className="bg-hs-navy px-4 pb-6 pt-5 lg:px-8 lg:pt-7">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex items-center gap-3">
             <button
-              className="text-white text-sm font-medium px-5 py-2 rounded-lg shadow transition-all duration-300 hover:opacity-90"
-              style={{
-                background: "linear-gradient(180deg, #FF9053 0%, #DB5206 100%)",
-              }}
+              onClick={() => router.push("/dashboard")}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white"
+              aria-label="Back"
             >
-              Continue Watching
+              <ArrowLeft size={16} />
             </button>
-
+            <h1 className="flex-1 text-lg font-bold text-white">My Courses</h1>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white">
+              <Bell size={18} />
+            </span>
           </div>
 
+          <div className="mt-5 flex">
+            <HeaderStat value={`${SUBJECTS.length}`} label="Active" />
+            <Divider />
+            <HeaderStat value="72%" label="Avg Score" />
+            <Divider />
+            <HeaderStat value="210+" label="Topics done" />
+          </div>
+        </div>
+      </header>
 
-          {/* Subject Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto mt-1">
-            {subjects.map((subject, index) => (
-              <div
-                key={index}
-                onClick={() => router.push(subject.path)}
-                className={`rounded-2xl overflow-hidden bg-white shadow-sm border hover:shadow-md transition cursor-pointer ${isActive(subject.path) ? "border-orange-500" : "border-gray-100"
-                  }`}
-              >
-                <div
-                  className="flex items-center justify-center h-32"
-                  style={{
-                    background: subject.color.startsWith("linear-gradient")
-                      ? subject.color
-                      : undefined,
-                    backgroundColor: !subject.color.startsWith("linear-gradient")
-                      ? subject.color
-                      : undefined,
-                  }}
-                >
-                  {subject.icon}
-                </div>
-
-                <div className="py-3 text-center">
-                  <h3 className="text-gray-800 font-medium">{subject.title}</h3>
-                </div>
-              </div>
-
-            ))}
+      {/* Controls */}
+      <div className="mx-auto mt-4 max-w-5xl px-4 lg:px-8">
+        <div className="flex items-center gap-2">
+          <Chip label="All" value="all" active={filter} onTap={setFilter} />
+          <Chip label="Science" value="science" active={filter} onTap={setFilter} />
+          <Chip label="Arts" value="arts" active={filter} onTap={setFilter} />
+          <div className="ml-auto flex rounded-lg border border-hs-border bg-white p-0.5">
+            <button
+              onClick={() => setGrid(true)}
+              className={`rounded-md p-1.5 ${grid ? "bg-hs-blueTint text-hs-blue" : "text-hs-placeholder"}`}
+              aria-label="Grid view"
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button
+              onClick={() => setGrid(false)}
+              className={`rounded-md p-1.5 ${!grid ? "bg-hs-blueTint text-hs-blue" : "text-hs-placeholder"}`}
+              aria-label="List view"
+            >
+              <ListIcon size={16} />
+            </button>
           </div>
         </div>
 
-        {/* Footer Navigation (Mobile Only) */}
-
-        <FooterNav />
-      </main>
+        {/* Subjects */}
+        <div
+          className={
+            grid
+              ? "mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+              : "mt-4 flex flex-col gap-2.5"
+          }
+        >
+          {items.map((s) =>
+            grid ? (
+              <SubjectCard key={s.name} s={s} onClick={() => toast.info(`${s.name} — opening soon`)} />
+            ) : (
+              <SubjectRow key={s.name} s={s} onClick={() => toast.info(`${s.name} — opening soon`)} />
+            )
+          )}
+        </div>
+      </div>
     </div>
+  );
+}
+
+function HeaderStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="flex-1 text-center">
+      <p className="text-lg font-bold text-white">{value}</p>
+      <p className="mt-0.5 text-[11px] text-[#B8CCE0]">{label}</p>
+    </div>
+  );
+}
+function Divider() {
+  return <div className="mx-1 w-px self-stretch bg-white/15" />;
+}
+
+function Chip({ label, value, active, onTap }: { label: string; value: Filter; active: Filter; onTap: (v: Filter) => void }) {
+  const on = active === value;
+  return (
+    <button
+      onClick={() => onTap(value)}
+      className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+        on ? "bg-hs-blue text-white" : "border border-hs-border bg-white text-hs-navy"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function SubjectIcon({ s, size = 22 }: { s: SubjectInfo; size?: number }) {
+  const Icon = ICONS[s.name] ?? BookOpenText;
+  return (
+    <span
+      className="flex items-center justify-center rounded-xl"
+      style={{ backgroundColor: `${s.color}1F`, width: size + 18, height: size + 18 }}
+    >
+      <Icon size={size} style={{ color: s.color }} />
+    </span>
+  );
+}
+
+function ProgressBar({ percent, color }: { percent: number; color: string }) {
+  return (
+    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-hs-border">
+      <div className="h-full rounded-full" style={{ width: `${percent}%`, backgroundColor: color }} />
+    </div>
+  );
+}
+
+function SubjectCard({ s, onClick }: { s: SubjectInfo; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex flex-col rounded-2xl border border-hs-border bg-white p-3.5 text-left shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-transform hover:-translate-y-0.5"
+    >
+      <div className="flex items-start justify-between">
+        <SubjectIcon s={s} />
+        <span className="flex items-center gap-0.5 text-[11px] font-semibold text-hs-blue">
+          <TrendingUp size={12} /> {s.trend}
+        </span>
+      </div>
+      <p className="mt-3 line-clamp-2 text-sm font-bold text-hs-navy">{s.name}</p>
+      <span className="mt-1 inline-block w-fit rounded-full bg-hs-bg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-hs-muted">
+        {s.category}
+      </span>
+      <ProgressBar percent={s.percent} color={s.color} />
+      <div className="mt-1.5 flex items-center justify-between text-[11px] text-hs-muted">
+        <span>{s.topicsLabel}</span>
+        <span className="font-bold text-hs-navy">{s.percent}%</span>
+      </div>
+      <p className="mt-1 text-[10px] text-hs-placeholder">Last studied {s.lastStudied}</p>
+    </button>
+  );
+}
+
+function SubjectRow({ s, onClick }: { s: SubjectInfo; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-3 rounded-2xl border border-hs-border bg-white p-3 text-left shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+    >
+      <SubjectIcon s={s} size={20} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between">
+          <p className="truncate text-sm font-bold text-hs-navy">{s.name}</p>
+          <span className="ml-2 text-sm font-bold text-hs-navy">{s.percent}%</span>
+        </div>
+        <ProgressBar percent={s.percent} color={s.color} />
+        <div className="mt-1.5 flex items-center justify-between text-[11px] text-hs-muted">
+          <span>{s.topicsLabel}</span>
+          <span>Last studied {s.lastStudied}</span>
+        </div>
+      </div>
+    </button>
   );
 }
