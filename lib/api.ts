@@ -232,3 +232,28 @@ export const authApi = {
     session.clear();
   },
 };
+
+// ─── Dashboard / leaderboard (matches mobile dashboard_provider) ───────────────
+export interface LeaderboardEntry {
+  rank: number;
+  first_name: string;
+  last_name: string;
+  initials: string;
+  total_score: number;
+  state: string;
+  badge: string;
+  avatar_color: string;
+}
+
+export const dashApi = {
+  leaderboard(examType: string, limit = 5): Promise<LeaderboardEntry[]> {
+    return api<LeaderboardEntry[]>(
+      `/api/leaderboard?exam_type=${encodeURIComponent(examType)}&limit=${limit}`
+    );
+  },
+  myRank(examType: string): Promise<{ rank: number; badge?: string }> {
+    return api<{ rank: number; badge?: string }>(
+      `/api/leaderboard/my-rank?exam_type=${encodeURIComponent(examType)}`
+    );
+  },
+};

@@ -18,6 +18,22 @@ const config: Config = {
         poppins: ['Poppins', 'sans-serif'],   // ← ADDED THIS
       },
   		colors: {
+  			// HighScore brand palette (matches the Flutter mobile app AppColors)
+  			hs: {
+  				navy: '#042C53',
+  				blue: '#185FA5',
+  				blueTint: '#E6F1FB',
+  				blueDeep: '#0C447C',
+  				amber: '#EF9F27',
+  				amberDark: '#854F0B',
+  				amberBg: '#FAEEDA',
+  				flame: '#FF6624',
+  				bg: '#F4F5F7',
+  				body: '#3A3A3A',
+  				muted: '#8A8A8A',
+  				border: '#E2E2E2',
+  				placeholder: '#B0B0B0',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
