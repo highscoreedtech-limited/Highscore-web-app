@@ -190,7 +190,7 @@ export default function ResetPage() {
                   value={email}
                   onChange={(e) => validateEmail(e.target.value)}
                   className={`w-full h-10 px-4 pr-10 text-sm border-2 rounded-xl outline-none transition-all shadow-none focus:ring-0 focus-visible:ring-0 ${
-                    validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
+                    validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-hs-blue"
                   }`}
                 />
                 {validEmail === true && <Check className="absolute right-3 top-3 text-green-500 h-5 w-5" />}
@@ -225,14 +225,14 @@ export default function ResetPage() {
                           document.getElementById(`otp-${i - 1}`)?.focus();
                         }
                       }}
-                      className="w-12 h-12 text-center text-lg rounded-xl border-2 border-gray-300 focus:border-orange-500 focus:outline-none bg-orange-50"
+                      className="w-12 h-12 text-center text-lg rounded-xl border-2 border-gray-300 focus:border-hs-blue focus:outline-none bg-hs-blueTint"
                     />
                   ))}
                 </div>
                 {errors.otp && <p className="text-xs text-red-500 text-center mt-1">{errors.otp}</p>}
                 <p className="text-center text-xs text-gray-500 mt-4">
                   Didn&apos;t receive it?{" "}
-                  <button type="button" onClick={sendOtp} disabled={isSubmitting} className="text-orange-500 font-bold hover:underline disabled:opacity-50">
+                  <button type="button" onClick={sendOtp} disabled={isSubmitting} className="text-hs-blue font-bold hover:underline disabled:opacity-50">
                     Resend code
                   </button>
                 </p>
@@ -249,7 +249,7 @@ export default function ResetPage() {
                     placeholder="New password"
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); validatePassword(e.target.value); }}
-                    className={`w-full h-11 text-base px-4 pr-20 rounded-xl border-2 outline-none focus:border-orange-500 ${
+                    className={`w-full h-11 text-base px-4 pr-20 rounded-xl border-2 outline-none focus:border-hs-blue ${
                       passwordValid ? "border-green-500" : errors.password ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -267,7 +267,7 @@ export default function ResetPage() {
                     placeholder="Confirm new password"
                     value={confirmPassword}
                     onChange={(e) => { setConfirmPassword(e.target.value); checkConfirmPassword(e.target.value, password); }}
-                    className={`w-full h-11 text-base px-4 pr-20 rounded-xl border-2 outline-none focus:border-orange-500 ${
+                    className={`w-full h-11 text-base px-4 pr-20 rounded-xl border-2 outline-none focus:border-hs-blue ${
                       confirmValid ? "border-green-500" : errors.confirmPassword ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -283,14 +283,14 @@ export default function ResetPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 text-base font-semibold rounded-full text-white bg-[linear-gradient(180deg,#FF9053_0%,#DB5206_100%)] hover:opacity-90 disabled:opacity-50 transition-all shadow-md active:scale-[0.98]"
+              className="w-full py-3 text-base font-semibold rounded-full text-white bg-hs-blue hover:opacity-90 disabled:opacity-50 transition-all shadow-md active:scale-[0.98]"
             >
               {isSubmitting ? "Processing..." : step === "email" ? "Send OTP" : step === "otp" ? "Verify OTP" : "Reset Password"}
             </button>
 
             <div className="text-center text-sm text-gray-600 pt-2">
               Remember your password?{" "}
-              <Link href="/login" className="text-orange-500 font-bold hover:underline">Log in</Link>
+              <Link href="/login" className="text-hs-blue font-bold hover:underline">Log in</Link>
             </div>
           </form>
         </div>

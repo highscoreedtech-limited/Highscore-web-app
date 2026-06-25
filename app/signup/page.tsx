@@ -171,7 +171,7 @@ export default function SignupPage() {
                     id="firstName"
                     type="text"
                     placeholder="First Name"
-                    className="w-1/2 h-10 text-sm px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-orange-500"
+                    className="w-1/2 h-10 text-sm px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-hs-blue"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
@@ -180,7 +180,7 @@ export default function SignupPage() {
                     id="lastName"
                     type="text"
                     placeholder="Last Name"
-                    className="w-1/2 h-10 text-sm px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-orange-500"
+                    className="w-1/2 h-10 text-sm px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-hs-blue"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
@@ -194,7 +194,7 @@ export default function SignupPage() {
                     type="email"
                     placeholder="you@example.com"
                     className={`w-full h-10 text-sm px-4 pr-10 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
-                      validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
+                      validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-hs-blue"
                     }`}
                     value={email}
                     onChange={(e) => validateEmail(e.target.value)}
@@ -211,7 +211,7 @@ export default function SignupPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     className={`w-full h-10 text-sm px-4 pr-20 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
-                      validPassword === false ? "border-red-500" : validPassword === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
+                      validPassword === false ? "border-red-500" : validPassword === true ? "border-green-500" : "border-gray-300 focus:border-hs-blue"
                     }`}
                     value={password}
                     onChange={(e) => validatePassword(e.target.value)}
@@ -239,14 +239,14 @@ export default function SignupPage() {
                   type="text"
                   placeholder="0000"
                   maxLength={4}
-                  className="w-full h-12 text-2xl tracking-[0.75em] text-center px-4 border-2 rounded-xl border-gray-300 focus:border-orange-500 outline-none bg-orange-50"
+                  className="w-full h-12 text-2xl tracking-[0.75em] text-center px-4 border-2 rounded-xl border-gray-300 focus:border-hs-blue outline-none bg-hs-blueTint"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
                   required
                 />
                 <div className="flex justify-between items-center px-1">
                   <button type="button" onClick={() => setOtpStep(false)} className="text-xs text-gray-400 hover:text-gray-600 underline">Change Email</button>
-                  <button type="button" onClick={handleResendOtp} className="text-xs text-orange-500 font-bold hover:underline">Resend Code</button>
+                  <button type="button" onClick={handleResendOtp} className="text-xs text-hs-blue font-bold hover:underline">Resend Code</button>
                 </div>
               </div>
             )}
@@ -258,7 +258,7 @@ export default function SignupPage() {
               className={`w-full py-3 h-12 text-base font-semibold rounded-full transition-all text-white shadow-md active:scale-[0.98] ${
                 isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 4)
                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-[linear-gradient(180deg,#FF9053_0%,#DB5206_100%)] hover:opacity-90"
+                  : "bg-hs-blue hover:opacity-90"
               }`}
               disabled={isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 4)}
             >
@@ -267,13 +267,13 @@ export default function SignupPage() {
 
             <div className="text-center text-sm text-gray-600 pt-2">
               Already have an account?{" "}
-              <Link href="/login" className="text-orange-500 font-bold hover:underline">Log in</Link>
+              <Link href="/login" className="text-hs-blue font-bold hover:underline">Log in</Link>
             </div>
 
             <p className="text-[10px] text-center text-gray-400 mt-4 leading-tight">
               By signing up you agree to our{" "}
-              <Link href="#" className="text-orange-500 hover:underline">Terms</Link> and{" "}
-              <Link href="#" className="text-orange-500 hover:underline">Privacy Policy</Link>
+              <Link href="#" className="text-hs-blue hover:underline">Terms</Link> and{" "}
+              <Link href="#" className="text-hs-blue hover:underline">Privacy Policy</Link>
             </p>
           </form>
         </div>

@@ -121,7 +121,7 @@ function LoginForm() {
 
           {/* Form Header */}
           <h2 className="text-center text-xl font-bold mb-0.5 text-gray-800">
-            Welcome back to <span className="text-orange-500">Highscore</span>
+            Welcome back to <span className="text-hs-blue">Highscore</span>
           </h2>
           <h3 className="text-center text-gray-500 text-base mb-4">Log in to your account</h3>
 
@@ -133,7 +133,7 @@ function LoginForm() {
                 type="email"
                 placeholder="Email Address"
                 className={`w-full h-10 text-sm px-4 pr-10 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
-                  validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
+                  validEmail === false ? "border-red-500" : validEmail === true ? "border-green-500" : "border-gray-300 focus:border-hs-blue"
                 }`}
                 value={email}
                 onChange={(e) => validateEmail(e.target.value)}
@@ -149,7 +149,7 @@ function LoginForm() {
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 className={`w-full h-10 text-sm px-4 pr-20 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 focus:border-transparent shadow-none ${
-                  validPassword === false ? "border-red-500" : validPassword === true ? "border-green-500" : "border-gray-300 focus:border-orange-500"
+                  validPassword === false ? "border-red-500" : validPassword === true ? "border-green-500" : "border-gray-300 focus:border-hs-blue"
                 }`}
                 value={password}
                 onChange={(e) => validatePassword(e.target.value)}
@@ -168,7 +168,7 @@ function LoginForm() {
 
             <div className="text-left text-sm">
               <Link href="/forgot-password" className="text-gray-600">
-                Forgot password? <span className="text-orange-500 hover:underline">Reset here</span>
+                Forgot password? <span className="text-hs-blue hover:underline">Reset here</span>
               </Link>
             </div>
 
@@ -178,7 +178,7 @@ function LoginForm() {
               className={`w-full py-3 text-base font-semibold rounded-full transition-all text-white ${
                 isSubmitting || !validEmail || !validPassword
                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-[linear-gradient(180deg,#FF9053_0%,#DB5206_100%)] hover:opacity-90"
+                  : "bg-hs-blue hover:opacity-90"
               }`}
             >
               {isSubmitting ? "Signing in..." : "Login"}
@@ -186,13 +186,13 @@ function LoginForm() {
 
             <div className="text-center text-sm text-gray-600 pt-2">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-orange-500 font-bold hover:underline">Sign up</Link>
+              <Link href="/signup" className="text-hs-blue font-bold hover:underline">Sign up</Link>
             </div>
 
             <p className="text-[10px] text-center text-gray-400 mt-4 leading-tight">
               By signing in you agree to our{" "}
-              <Link href="#" className="text-orange-500 hover:underline">Terms</Link> and{" "}
-              <Link href="#" className="text-orange-500 hover:underline">Privacy Policy</Link>
+              <Link href="#" className="text-hs-blue hover:underline">Terms</Link> and{" "}
+              <Link href="#" className="text-hs-blue hover:underline">Privacy Policy</Link>
             </p>
           </form>
         </div>

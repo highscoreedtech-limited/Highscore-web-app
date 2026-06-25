@@ -20,6 +20,24 @@ const FEATURES = [
   { icon: Gift, lottie: "/lottie/reward.json", title: "Rewards", desc: "Earn points and streaks as you learn — and turn them into real rewards.", color: "#854F0B", bg: "#FAEEDA" },
 ];
 
+const PLANS = [
+  { label: "Free Trial", price: "₦0", per: "", note: "2 days of full access", cta: "Start free trial", popular: false },
+  { label: "Weekly", price: "₦650", per: "/wk", note: "₦93/day · manual or auto-renew", cta: "Choose weekly", popular: false },
+  { label: "Monthly", price: "₦2,100", per: "/mo", note: "₦70/day · save ₦712 vs weekly", cta: "Choose monthly", popular: true },
+];
+
+const PLAN_FEATURES = [
+  "Access to all 9 subjects",
+  "Unlimited CBT practice questions",
+  "Real-time multiplayer quiz battles",
+  "Detailed performance analytics",
+  "Download study materials (PDF & video)",
+  "Daily streak rewards & points",
+  "JAMB, WAEC, NECO, GCE & Nursing past questions",
+  "Live leaderboard ranking",
+  "Referral rewards & scholarship access",
+];
+
 const LIBRARY = [
   { subject: "English Language", topic: "Comprehension & Summary", img: "/english.jpg" },
   { subject: "Mathematics", topic: "Quadratic Equations", img: "/maths.jpg" },
@@ -39,11 +57,12 @@ export default function MarketingPage() {
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-hs-border bg-white/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
-          <Image src="/highscore-logo-final.png" alt="HighScore" width={150} height={38} className="h-9 w-auto object-contain" priority />
+          <Image src="/highscore-logo-final.png" alt="HighScore" width={200} height={52} className="h-12 w-auto object-contain lg:h-14" priority />
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Features</a>
             <a href="#library" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Video library</a>
             <a href="#pricing" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Pricing</a>
+            <Link href="/blog" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Blog</Link>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
             <Link href="/login" className="rounded-full px-4 py-2 text-sm font-semibold text-hs-navy hover:bg-hs-bg">Log in</Link>
@@ -59,6 +78,7 @@ export default function MarketingPage() {
               <a href="#features" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Features</a>
               <a href="#library" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Video library</a>
               <a href="#pricing" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Pricing</a>
+              <Link href="/blog" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Blog</Link>
               <Link href="/login" className="rounded-full border border-hs-border px-4 py-2 text-center text-sm font-semibold text-hs-navy">Log in</Link>
               <Link href="/signup" className="rounded-full bg-hs-blue px-4 py-2 text-center text-sm font-semibold text-white">Get started</Link>
             </div>
@@ -107,7 +127,7 @@ export default function MarketingPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="overflow-hidden rounded-3xl border border-hs-border shadow-xl">
+            <div className="overflow-hidden rounded-3xl border-4 border-white shadow-[0_30px_70px_-15px_rgba(4,44,83,0.55)] ring-1 ring-hs-border">
               <Image src="/hero-students-computers.png" alt="Students learning with HighScore" width={720} height={540} className="h-full w-full object-cover" priority />
             </div>
             <motion.div
@@ -247,37 +267,33 @@ export default function MarketingPage() {
       <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-20">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-extrabold text-hs-navy lg:text-4xl">Simple, affordable plans</h2>
-          <p className="mt-3 text-hs-muted">Start free. Upgrade when you&apos;re ready to go all-in.</p>
+          <p className="mt-3 text-hs-muted">Same full experience on every plan — no hidden locks. Start with a free trial.</p>
         </Reveal>
-        <div className="mx-auto mt-12 grid max-w-3xl gap-6 sm:grid-cols-2">
-          <Reveal>
-            <div className="h-full rounded-2xl border border-hs-border bg-white p-7">
-              <p className="text-sm font-semibold uppercase tracking-wide text-hs-muted">Free</p>
-              <p className="mt-2 text-3xl font-extrabold text-hs-navy">₦0</p>
-              <ul className="mt-5 space-y-3 text-sm text-hs-body">
-                {["Daily free lessons", "Limited CBT practice", "Join quiz battles", "Leaderboard access"].map((t) => (
-                  <li key={t} className="flex items-center gap-2"><Check size={16} className="text-hs-blue" /> {t}</li>
-                ))}
-              </ul>
-              <Link href="/signup" className="mt-6 block rounded-full border border-hs-border py-3 text-center font-semibold text-hs-navy hover:bg-hs-bg">Get started</Link>
-            </div>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <div className="h-full rounded-2xl border-2 border-hs-blue bg-white p-7 shadow-lg">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold uppercase tracking-wide text-hs-blue">Premium</p>
-                <span className="rounded-full bg-hs-blueTint px-2.5 py-1 text-xs font-bold text-hs-blue">Most popular</span>
+
+        <div className="mx-auto mt-12 grid max-w-5xl items-stretch gap-6 sm:grid-cols-3">
+          {PLANS.map((p, i) => (
+            <Reveal key={p.label} delay={i * 0.08} className="h-full">
+              <div className={`relative flex h-full flex-col rounded-2xl bg-white p-7 ${p.popular ? "border-2 border-hs-blue shadow-[0_18px_40px_-12px_rgba(24,95,165,0.35)]" : "border border-hs-border shadow-[0_8px_24px_-10px_rgba(4,44,83,0.12)]"}`}>
+                {p.popular && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-hs-blue px-3 py-1 text-xs font-bold text-white">Best value</span>
+                )}
+                <p className="text-sm font-semibold uppercase tracking-wide text-hs-blue">{p.label}</p>
+                <p className="mt-2 text-3xl font-extrabold text-hs-navy">{p.price}<span className="text-base font-medium text-hs-muted">{p.per}</span></p>
+                <p className="mt-1 text-xs text-hs-muted">{p.note}</p>
+                <Link href="/signup" className={`mt-6 block rounded-full py-3 text-center font-semibold ${p.popular ? "bg-hs-blue text-white hover:bg-hs-blueDeep" : "border border-hs-border text-hs-navy hover:bg-hs-bg"}`}>{p.cta}</Link>
               </div>
-              <p className="mt-2 text-3xl font-extrabold text-hs-navy">₦2,500<span className="text-base font-medium text-hs-muted">/mo</span></p>
-              <ul className="mt-5 space-y-3 text-sm text-hs-body">
-                {["Unlimited lessons & CBT", "All subjects unlocked", "Detailed analytics", "Downloads for offline study", "Priority rewards"].map((t) => (
-                  <li key={t} className="flex items-center gap-2"><Check size={16} className="text-hs-blue" /> {t}</li>
-                ))}
-              </ul>
-              <Link href="/signup" className="mt-6 block rounded-full bg-hs-blue py-3 text-center font-semibold text-white hover:bg-hs-blueDeep">Go Premium</Link>
-            </div>
-          </Reveal>
+            </Reveal>
+          ))}
         </div>
+
+        <Reveal className="mx-auto mt-10 max-w-3xl rounded-2xl border border-hs-border bg-hs-bg p-6">
+          <p className="text-center text-sm font-bold text-hs-navy">Every plan unlocks the full experience</p>
+          <ul className="mt-4 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
+            {PLAN_FEATURES.map((t) => (
+              <li key={t} className="flex items-center gap-2 text-sm text-hs-body"><Check size={16} className="shrink-0 text-hs-blue" /> {t}</li>
+            ))}
+          </ul>
+        </Reveal>
       </section>
 
       {/* CTA band */}
@@ -296,7 +312,7 @@ export default function MarketingPage() {
       {/* Footer */}
       <footer className="border-t border-hs-border bg-white">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-hs-muted sm:flex-row lg:px-8">
-          <Image src="/highscore-logo-final.png" alt="HighScore" width={130} height={32} className="h-8 w-auto object-contain" />
+          <Image src="/highscore-logo-final.png" alt="HighScore" width={170} height={42} className="h-11 w-auto object-contain" />
           <p>© {new Date().getFullYear()} HighScore EdTech. All rights reserved.</p>
           <div className="flex gap-5">
             <Link href="/login" className="hover:text-hs-blue">Log in</Link>
