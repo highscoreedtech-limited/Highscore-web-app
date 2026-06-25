@@ -1,308 +1,195 @@
 "use client";
-import React, { useState } from 'react';
-import { ArrowLeft, Coins, Gift, Star, Zap, ShoppingBag, Trophy, Crown } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
-export interface User {
-  authid: string;
-  id: string;
-  username: string;
-  email: string;
-  displayName: string;
-  rank: string;
-  xp: number;
-  coins: number;
-  avatar: string;
-  totalMatches: number;
-  wins: number;
-  winRate: number;
-}
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { ArrowLeft, Coins, ArrowRightLeft, Sparkles, Check } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
+import { api } from "@/lib/api";
+import LottieIcon from "@/components/LottieIcon";
+import { stagger, item } from "@/components/Reveal";
 
+interface EarnItem { icon: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; }
 
-interface RewardCenterProps {
-  user: User;
-  onBack: () => void;
-  onUpdateUser: (user: User) => void;
-}
+const EARN: EarnItem[] = [
+  { icon: "⚔️", title: "Win a PVP Battle", pts: "+200", sub: "Beat an opponent — credited automatically when the match ends", auto: true },
+  { icon: "🎯", title: "Solo Quiz", pts: "+10", sub: "Each correct answer adds 10 pts automatically", auto: true },
+  { icon: "📚", title: "CBT Practice", pts: "+5", sub: "Per correct answer — claim from the result screen", auto: true },
+  { icon: "🔥", title: "Daily Streak", pts: "+10", sub: "Come back every day to keep your streak alive", auto: true },
+  { icon: "🏆", title: "Week Streak Milestone", pts: "+70", sub: "7 days in a row — claim your special bonus!" },
+  { icon: "📈", title: "Reach Top 10 Leaderboard", pts: "+50", sub: "Land in the top 10 this week to claim" },
+  { icon: "💡", title: "Perfect Score (10/10)", pts: "+100", sub: "Get every question right in a quiz", auto: true },
+  { icon: "▶️", title: "Subscribe on YouTube", pts: "+50", sub: "Open the channel, subscribe, then claim", url: "https://www.youtube.com/@HighScore" },
+  { icon: "📸", title: "Follow on Instagram", pts: "+40", sub: "Follow our page, then claim your points", url: "https://www.instagram.com/highscore" },
+  { icon: "💬", title: "Join WhatsApp community", pts: "+30", sub: "Join the group, then claim your points", url: "https://chat.whatsapp.com" },
+];
 
-const RewardCenter: React.FC<RewardCenterProps> = ({ user, onBack, onUpdateUser }) => {
+const PRESETS = [100, 250, 500, 1000];
+
+export default function RewardsPage() {
   const router = useRouter();
-  const [animatingCoins, setAnimatingCoins] = useState<number[]>([]);
-  const [dailyRewardsState, setDailyRewardsState] = useState([
-    { id: 1, type: 'coins', amount: 50, claimed: true, day: 1, available: true },
-    { id: 2, type: 'coins', amount: 75, claimed: true, day: 2, available: true },
-    { id: 3, type: 'xp', amount: 100, claimed: true, day: 3, available: true },
-    { id: 4, type: 'coins', amount: 100, claimed: false, day: 4, available: true },
-    { id: 5, type: 'xp', amount: 150, claimed: false, day: 5, available: false },
-    { id: 6, type: 'coins', amount: 200, claimed: false, day: 6, available: false },
-    { id: 7, type: 'special', amount: 500, claimed: false, day: 7, available: false, special: true }
-  ]);
+  const { user, refreshProfile } = useAuth();
+  const [tab, setTab] = useState<"earn" | "convert">("earn");
+  const [preset, setPreset] = useState<number | null>(null);
+  const [converting, setConverting] = useState(false);
 
-  const [shopItemsState, setShopItemsState] = useState([
-    { id: 1, name: 'Avatar Pack - Animals', description: 'Unlock 10 animal avatars', cost: 500, icon: '🐺', category: 'avatars', available: true },
-    { id: 2, name: 'Avatar Pack - Space', description: 'Unlock 8 space-themed avatars', cost: 750, icon: '🚀', category: 'avatars', available: true },
-    { id: 3, name: 'Double XP Boost', description: '2x XP for next 5 games', cost: 300, icon: '⚡', category: 'boosts', available: true },
-    { id: 4, name: 'Hint Master', description: '3 hints for difficult questions', cost: 200, icon: '💡', category: 'boosts', available: true },
-    { id: 5, name: 'Premium Badge', description: 'Exclusive golden badge', cost: 1000, icon: '👑', category: 'badges', available: true },
-    { id: 6, name: 'Time Freeze', description: 'Pause timer for 10 seconds', cost: 150, icon: '⏰', category: 'boosts', available: true }
-  ]);
+  const hst = user?.hst_balance ?? 0;
+  const points = user?.referral_points ?? 0;
+  const streak = user?.streak_count ?? 0;
+  const done = streak % 7;
 
-  const [achievementsState, setAchievementsState] = useState([
-    { id: 1, title: 'First Victory', description: 'Win your first match', reward: 100, type: 'coins', completed: true, claimed: true },
-    { id: 2, title: 'Perfect Score', description: 'Score 100% in any quiz', reward: 150, type: 'coins', completed: true, claimed: false },
-    { id: 3, title: 'Speed Demon', description: 'Answer 10 questions in under 5 seconds each', reward: 200, type: 'xp', completed: false, claimed: false }
-  ]);
-
-  const animateCoinReward = (amount: number) => {
-    if (amount === 0) return;
-    const count = Math.min(Math.abs(amount) / 25, 8);
-    const newAnimations = Array.from({ length: count }, (_, i) => Date.now() + i);
-    setAnimatingCoins(newAnimations);
-
-    setTimeout(() => setAnimatingCoins([]), 1000);
-  };
-
-  const claimDailyReward = (reward: any) => {
-    if (!reward.available || reward.claimed) return;
-
-    const newUser = { ...user };
-    if (reward.type === 'coins' || reward.type === 'special') {
-      newUser.coins += reward.amount;
-      animateCoinReward(reward.amount);
-    } else if (reward.type === 'xp') {
-      newUser.xp += reward.amount;
+  const convert = async () => {
+    if (!preset) return;
+    if (preset > hst) { toast.error("Not enough HST balance."); return; }
+    setConverting(true);
+    try {
+      await api("/api/user/wallet/convert", { method: "POST", body: { amount: preset } });
+      toast.success(`Converted ${preset} HST to points!`);
+      setPreset(null);
+      refreshProfile().catch(() => {});
+    } catch (e: any) {
+      toast.error(e?.message || "Conversion failed.");
+    } finally {
+      setConverting(false);
     }
-
-    setDailyRewardsState(prev => prev.map(r => r.id === reward.id ? { ...r, claimed: true } : r));
-    onUpdateUser(newUser);
-  };
-
-  const purchaseItem = (item: any) => {
-    if (!item.available || user.coins < item.cost) return;
-
-    const newUser = { ...user, coins: user.coins - item.cost };
-    onUpdateUser(newUser);
-
-    // Optionally mark the item as purchased
-    setShopItemsState(prev => prev.map(i => i.id === item.id ? { ...i, available: false } : i));
-
-    // Animate spending coins
-    animateCoinReward(-item.cost);
-  };
-
-  const claimAchievement = (achievement: any) => {
-    if (!achievement.completed || achievement.claimed) return;
-
-    const newUser = { ...user };
-    if (achievement.type === 'coins') {
-      newUser.coins += achievement.reward;
-      animateCoinReward(achievement.reward);
-    } else if (achievement.type === 'xp') {
-      newUser.xp += achievement.reward;
-    }
-
-    setAchievementsState(prev => prev.map(a => a.id === achievement.id ? { ...a, claimed: true } : a));
-    onUpdateUser(newUser);
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-6 relative overflow-hidden">
-      {/* Animated Coins */}
-      {animatingCoins.map((id) => (
-        <div
-          key={id}
-          className="absolute animate-ping"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDuration: '2s',
-            zIndex: 50
-          }}
-        >
-          <Coins className="w-8 h-8 text-yellow-400" />
-        </div>
-      ))}
+    <div className="min-h-screen bg-hs-bg pb-12">
+      {/* Header */}
+      <header className="relative overflow-hidden bg-hs-navy px-4 pb-8 pt-5 lg:px-8 lg:pt-7">
+        <div className="mx-auto max-w-2xl">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.push("/dashboard")} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white" aria-label="Back">
+              <ArrowLeft size={16} />
+            </button>
+            <h1 className="text-lg font-bold text-white">Rewards</h1>
+            <div className="ml-auto h-12 w-12">
+              <LottieIcon src="/lottie/reward.json" className="h-12 w-12" fallback={<Coins className="text-hs-amber" />} />
+            </div>
+          </div>
 
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <button
-
-            onClick={() => router.push("/lms")}
-            className="flex items-center space-x-2 text-black hover:text-purple-300 transition-colors duration-200"
+          <motion.div
+            className="mt-4 grid grid-cols-2 gap-3"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            <ArrowLeft className="w-6 h-6" /><span className="hidden sm:inline font-medium">
-  Back to Dashboard
-</span>
+            <div className="rounded-2xl bg-white/10 p-4">
+              <p className="text-[11px] text-[#B8CCE0]">Points balance</p>
+              <p className="mt-1 text-2xl font-extrabold text-hs-amber">{points.toLocaleString()}</p>
+            </div>
+            <div className="rounded-2xl bg-white/10 p-4">
+              <p className="text-[11px] text-[#B8CCE0]">HST wallet</p>
+              <p className="mt-1 text-2xl font-extrabold text-white">{hst.toLocaleString()} HST</p>
+            </div>
+          </motion.div>
+        </div>
+      </header>
 
-          </button>
-          <h1 className="text-3xl font-bold text-black">Reward Center</h1>
-          <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-lg px-4 py-2 border border-white/20">
-            <Coins className="w-6 h-6 text-yellow-400" />
-            {user ? (user.coins ?? 0).toLocaleString() : '0'}
+      <div className="mx-auto max-w-2xl px-4 lg:px-8">
+        {/* Streak card */}
+        <motion.div
+          className="-mt-4 rounded-2xl border border-hs-border bg-white p-4 shadow-sm"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+        >
+          <div className="flex items-center gap-2">
+            <LottieIcon src="/lottie/fire.json" className="h-7 w-7" fallback={<span>🔥</span>} />
+            <p className="text-sm font-bold text-hs-navy">{streak}-day streak</p>
+            <span className="ml-auto text-xs text-hs-muted">{7 - done} day{7 - done === 1 ? "" : "s"} to bonus</span>
           </div>
+          <div className="mt-3 flex gap-1.5">
+            {Array.from({ length: 7 }).map((_, i) => {
+              const filled = i < done;
+              return (
+                <motion.div
+                  key={i}
+                  className={`h-2 flex-1 rounded-full ${filled ? "bg-hs-flame" : "bg-hs-border"}`}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.2 + i * 0.05, duration: 0.4 }}
+                  style={{ originX: 0 }}
+                />
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* Tabs */}
+        <div className="mt-5 flex rounded-full border border-hs-border bg-white p-1">
+          {(["earn", "convert"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`relative flex-1 rounded-full py-2 text-sm font-semibold ${tab === t ? "text-white" : "text-hs-muted"}`}
+            >
+              {tab === t && (
+                <motion.span layoutId="rewardTab" className="absolute inset-0 rounded-full bg-hs-blue" transition={{ type: "spring", stiffness: 400, damping: 32 }} />
+              )}
+              <span className="relative z-10">{t === "earn" ? "Earn more" : "Convert"}</span>
+            </button>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Daily Rewards */}
-          <div className="lg:col-span-2">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-8 border border-[#FCD34D]">
-              <h2 className="text-xl font-bold text-black mb-6 flex items-center">
-                <Gift className="w-6 h-6 mr-3 text-purple-400" />
-                Daily Rewards
-              </h2>
-
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-3">
-
-                {dailyRewardsState.map((reward) => {
-                  const isClaimable = reward.available && !reward.claimed;
-                  const isClaimed = reward.claimed;
-
-                  return (
-                    <div
-                      key={reward.id}
-                      onClick={() => isClaimable && claimDailyReward(reward)}
-                      className={`
-    relative
-    h-24 sm:h-28
-    flex flex-col items-center justify-center
-    rounded-xl border-2
-    transition-all duration-200
-    text-center
-    select-none
-    ${isClaimed
-                          ? "border-green-400 bg-green-100"
-                          : isClaimable
-                            ? "border-yellow-400 bg-yellow-100 cursor-pointer hover:scale-105"
-                            : "border-gray-300 bg-gray-100 opacity-60"
-                        }
-  `}
-                    >
-                      <p className="text-xs font-medium text-gray-700 mb-1">
-                        Day {reward.day}
-                      </p>
-
-                      <div className="text-2xl mb-1">
-                        {reward.type === "coins" ? "🪙" : reward.type === "xp" ? "⚡" : "🎁"}
-                      </div>
-
-                      <p className="text-sm font-bold text-black">
-                        {reward.amount}
-                      </p>
-
-                      {reward.special && (
-                        <Crown className="w-4 h-4 text-yellow-400 absolute -top-1 -right-1" />
-                      )}
-                      {isClaimed && (
-                        <div className="absolute inset-0 bg-black/10 rounded-xl flex items-center justify-center">
-                          <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                            ✓
-                          </div>
-                        </div>
-                      )}
-
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Shop */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-[#FCD34D]">
-              <h2 className="text-xl font-bold text-black mb-6 flex items-center">
-                <ShoppingBag className="w-6 h-6 mr-3 text-blue-400" />
-                Coin Shop
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {shopItemsState.map((item) => (
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-xl">
-                      {item.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-black mb-1">{item.name}</h3>
-                      <p className="text-xs text-gray-700 mb-2">{item.description}</p>
-                      <div className="flex items-center space-x-2">
-                        <Coins className="w-4 h-4 text-yellow-400" />
-
-                      </div>
-                    </div>
+        {tab === "earn" ? (
+          <motion.div className="mt-4 space-y-2.5" variants={stagger} initial="hidden" animate="show">
+            {EARN.map((e) => (
+              <motion.div
+                key={e.title}
+                variants={item}
+                className="flex items-center gap-3 rounded-2xl border border-hs-border bg-white p-3.5"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-hs-bg text-xl">{e.icon}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-bold text-hs-navy">{e.title}</p>
+                    <span className="shrink-0 rounded-full bg-hs-amberBg px-2 py-0.5 text-[11px] font-bold text-hs-amberDark">{e.pts}</span>
                   </div>
-                ))}
+                  <p className="mt-0.5 line-clamp-2 text-[11px] text-hs-muted">{e.sub}</p>
+                </div>
+                {e.auto ? (
+                  <span className="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-semibold text-green-600"><Check size={12} /> Auto</span>
+                ) : e.url ? (
+                  <button onClick={() => { window.open(e.url, "_blank"); toast.success("Come back and claim your points!"); }} className="rounded-full bg-hs-blue px-3.5 py-1.5 text-xs font-semibold text-white">Open</button>
+                ) : (
+                  <button onClick={() => toast.info("Not eligible yet — keep going!")} className="rounded-full border border-hs-border px-3.5 py-1.5 text-xs font-semibold text-hs-navy">Claim</button>
+                )}
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div className="mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="rounded-2xl border border-hs-border bg-white p-5">
+              <div className="flex items-center gap-2 text-hs-navy">
+                <ArrowRightLeft size={18} className="text-hs-blue" />
+                <p className="text-sm font-bold">Convert HST to points</p>
               </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Achievement Rewards */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-[#FCD34D]">
-              <h2 className="text-lg font-bold text-black mb-4 flex items-center">
-                <Trophy className="w-5 h-5 mr-2 text-orange-400" />
-                Achievement Rewards
-              </h2>
-              <div className="space-y-3">
-                {achievementsState.map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className={`p-3 rounded-lg border transition-all duration-200 ${achievement.completed && !achievement.claimed
-                      ? 'border-green-400/50 bg-green-500/20 cursor-pointer hover:scale-105'
-                      : achievement.claimed
-                        ? 'border-gray-500/50 bg-gray-500/20 opacity-50'
-                        : 'border-blue-400/50 bg-blue-500/10'
-                      }`}
-                    onClick={() => achievement.completed && !achievement.claimed && claimAchievement(achievement)}
+              <p className="mt-1 text-xs text-hs-muted">Turn your HST wallet balance into leaderboard points.</p>
+              <div className="mt-4 grid grid-cols-4 gap-2">
+                {PRESETS.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPreset(p)}
+                    className={`rounded-xl border py-3 text-sm font-bold ${preset === p ? "border-hs-blue bg-hs-blueTint text-hs-blue" : "border-hs-border bg-white text-hs-navy"}`}
                   >
-                    <h3 className="font-bold text-black text-sm mb-1">{achievement.title}</h3>
-                    <p className="text-xs text-gray-700 mb-2">{achievement.description}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-1">
-                        {achievement.type === 'coins' ? (
-                          <Coins className="w-3 h-3 text-yellow-400" />
-                        ) : (
-                          <Zap className="w-3 h-3 text-purple-400" />
-                        )}
-                        <span className="text-xs font-bold text-yellow-400">+{achievement.reward}</span>
-                      </div>
-                      {achievement.claimed && <span className="text-xs text-green-400">Claimed</span>}
-                      {achievement.completed && !achievement.claimed && (
-                        <span className="text-xs text-green-400 animate-pulse">Claim!</span>
-                      )}
-                    </div>
-                  </div>
+                    {p}
+                  </button>
                 ))}
               </div>
+              <button
+                disabled={!preset || converting}
+                onClick={convert}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-hs-blue py-3 font-semibold text-white disabled:opacity-40"
+              >
+                <Sparkles size={18} /> {converting ? "Converting…" : preset ? `Convert ${preset} HST` : "Select an amount"}
+              </button>
             </div>
-
-            {/* Quick Stats */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-[#FCD34D]">
-              <h2 className="text-lg font-bold text-black mb-4">Your Stats</h2>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Total Earned:</span>
-                  <div className="flex items-center space-x-1">
-                    <Coins className="w-4 h-4 text-yellow-400" />
-                    <span className="text-yellow-400 font-bold">2,450</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">This Week:</span>
-                  <div className="flex items-center space-x-1">
-                    <Coins className="w-4 h-4 text-yellow-400" />
-                    <span className="text-yellow-400 font-bold">350</span>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Streak:</span>
-                  <span className="text-green-400 font-bold">7 days</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );
-};
-
-export default RewardCenter;
+}

@@ -3,12 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import {
   PlayCircle, Laptop, Gamepad2, Medal, LineChart, Gift,
-  ArrowRight, Check, Menu, X, GraduationCap,
+  ArrowRight, Check, Menu, X, GraduationCap, Play,
 } from "lucide-react";
-
-const SUBJECTS = ["English", "Mathematics", "Physics", "Chemistry", "Biology", "Economics", "Government", "Literature"];
+import { Reveal, stagger, item } from "@/components/Reveal";
 
 const FEATURES = [
   { icon: PlayCircle, title: "Video lessons", desc: "Bite-sized lessons for every JAMB, WAEC & NECO topic, taught by top teachers.", color: "#185FA5", bg: "#E6F1FB" },
@@ -19,27 +19,33 @@ const FEATURES = [
   { icon: Gift, title: "Rewards", desc: "Earn points and streaks as you learn — and turn them into real rewards.", color: "#854F0B", bg: "#FAEEDA" },
 ];
 
+const LIBRARY = [
+  { subject: "English Language", topic: "Comprehension & Summary", img: "/english.jpg" },
+  { subject: "Mathematics", topic: "Quadratic Equations", img: "/maths.jpg" },
+  { subject: "Physics", topic: "The Velocity–Time Graph", img: "/physics.jpg" },
+  { subject: "Chemistry", topic: "The Mole Concept", img: "/chem.jpg" },
+  { subject: "Biology", topic: "Immunity & Defence", img: "/study-background.jpg" },
+  { subject: "Economics", topic: "Demand & Supply", img: "/ai.jpg" },
+];
+
 export default function MarketingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white font-sans text-hs-body">
       {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-hs-border bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-hs-border bg-white/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
           <Image src="/highscore-logo-final.png" alt="HighScore" width={150} height={38} className="h-9 w-auto object-contain" priority />
-
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Features</a>
-            <a href="#subjects" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Subjects</a>
+            <a href="#library" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Video library</a>
             <a href="#pricing" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Pricing</a>
           </nav>
-
           <div className="hidden items-center gap-3 md:flex">
             <Link href="/login" className="rounded-full px-4 py-2 text-sm font-semibold text-hs-navy hover:bg-hs-bg">Log in</Link>
-            <Link href="/signup" className="rounded-full bg-hs-blue px-5 py-2 text-sm font-semibold text-white hover:bg-hs-blueDeep">Get started</Link>
+            <Link href="/signup" className="rounded-full bg-hs-blue px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-hs-blueDeep">Get started</Link>
           </div>
-
           <button className="md:hidden" onClick={() => setMenuOpen((v) => !v)} aria-label="Menu">
             {menuOpen ? <X /> : <Menu />}
           </button>
@@ -48,7 +54,7 @@ export default function MarketingPage() {
           <div className="border-t border-hs-border bg-white px-4 py-4 md:hidden">
             <div className="flex flex-col gap-3">
               <a href="#features" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Features</a>
-              <a href="#subjects" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Subjects</a>
+              <a href="#library" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Video library</a>
               <a href="#pricing" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Pricing</a>
               <Link href="/login" className="rounded-full border border-hs-border px-4 py-2 text-center text-sm font-semibold text-hs-navy">Log in</Link>
               <Link href="/signup" className="rounded-full bg-hs-blue px-4 py-2 text-center text-sm font-semibold text-white">Get started</Link>
@@ -60,7 +66,11 @@ export default function MarketingPage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 lg:grid-cols-2 lg:px-8 lg:py-20">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
             <span className="inline-flex items-center gap-1.5 rounded-full bg-hs-blueTint px-3 py-1 text-xs font-semibold text-hs-blue">
               <GraduationCap size={14} /> JAMB · WAEC · NECO · Post-UTME
             </span>
@@ -72,9 +82,11 @@ export default function MarketingPage() {
               and leaderboards, all in one place. Study smarter and score higher.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-6 py-3 font-semibold text-hs-amberDark hover:opacity-90">
-                Start learning free <ArrowRight size={18} />
-              </Link>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-6 py-3 font-semibold text-hs-amberDark">
+                  Start learning free <ArrowRight size={18} />
+                </Link>
+              </motion.div>
               <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-hs-border px-6 py-3 font-semibold text-hs-navy hover:bg-hs-bg">
                 I have an account
               </Link>
@@ -84,74 +96,122 @@ export default function MarketingPage() {
               <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-blue" /> Thousands of past questions</span>
               <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-blue" /> Learn anywhere</span>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="relative">
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
             <div className="overflow-hidden rounded-3xl border border-hs-border shadow-xl">
               <Image src="/hero-students-computers.png" alt="Students learning with HighScore" width={720} height={540} className="h-full w-full object-cover" priority />
             </div>
-            <div className="absolute -bottom-4 -left-4 hidden items-center gap-2 rounded-2xl bg-hs-navy px-4 py-3 text-white shadow-lg sm:flex">
+            <motion.div
+              className="absolute -bottom-4 -left-4 hidden items-center gap-2 rounded-2xl bg-hs-navy px-4 py-3 text-white shadow-lg sm:flex"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+            >
               <span className="text-xl">🔥</span>
               <div>
                 <p className="text-sm font-bold">7-day streak</p>
                 <p className="text-[11px] text-[#B8CCE0]">keep it going!</p>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Stats strip */}
       <section className="border-y border-hs-border bg-hs-bg">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-8 text-center sm:grid-cols-4 lg:px-8">
-          {[["50k+", "Past questions"], ["10", "Core subjects"], ["1-v-1", "Quiz battles"], ["24/7", "Learn anytime"]].map(([v, l]) => (
-            <div key={l}>
+          {[["50k+", "Past questions"], ["10", "Core subjects"], ["1-v-1", "Quiz battles"], ["24/7", "Learn anytime"]].map(([v, l], i) => (
+            <Reveal key={l} delay={i * 0.06}>
               <p className="text-2xl font-extrabold text-hs-navy lg:text-3xl">{v}</p>
               <p className="mt-1 text-sm text-hs-muted">{l}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* Features */}
       <section id="features" className="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-20">
-        <div className="mx-auto max-w-2xl text-center">
+        <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-extrabold text-hs-navy lg:text-4xl">Everything you need to ace it</h2>
           <p className="mt-3 text-hs-muted">One app for lessons, practice, competition and tracking — built for Nigerian students.</p>
-        </div>
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        </Reveal>
+        <motion.div
+          className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+        >
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.title} className="rounded-2xl border border-hs-border bg-white p-6 shadow-[0_4px_14px_rgba(0,0,0,0.04)]">
+              <motion.div
+                key={f.title}
+                variants={item}
+                whileHover={{ y: -6 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="rounded-2xl border border-hs-border bg-white p-6 shadow-[0_4px_14px_rgba(0,0,0,0.04)]"
+              >
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl" style={{ backgroundColor: f.bg }}>
                   <Icon size={24} style={{ color: f.color }} />
                 </span>
                 <h3 className="mt-4 text-lg font-bold text-hs-navy">{f.title}</h3>
                 <p className="mt-1.5 text-sm text-hs-muted">{f.desc}</p>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </section>
 
-      {/* Subjects */}
-      <section id="subjects" className="bg-hs-navy py-16 lg:py-20">
+      {/* Video library */}
+      <section id="library" className="bg-hs-navy py-16 lg:py-20">
         <div className="mx-auto max-w-6xl px-4 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-extrabold text-white lg:text-4xl">Every subject, covered</h2>
-            <p className="mt-3 text-[#B8CCE0]">From English to Further Maths — full curricula aligned to your exam.</p>
-          </div>
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            {SUBJECTS.map((s) => (
-              <span key={s} className="rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white">
-                {s}
-              </span>
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-hs-amber">
+              <Play size={13} /> Video library
+            </span>
+            <h2 className="mt-4 text-3xl font-extrabold text-white lg:text-4xl">Dive into our vast video library</h2>
+            <p className="mt-3 text-[#B8CCE0]">Animated, exam-focused lessons across every subject we cover — from English to Further Maths.</p>
+          </Reveal>
+
+          <motion.div
+            className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-80px" }}
+          >
+            {LIBRARY.map((v) => (
+              <motion.div key={v.subject} variants={item} whileHover={{ y: -6 }} className="group cursor-pointer">
+                <Link href="/signup" className="block overflow-hidden rounded-2xl bg-white shadow-lg">
+                  <div className="relative aspect-video overflow-hidden">
+                    <Image src={v.img} alt={v.subject} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+                    <motion.span
+                      className="absolute inset-0 m-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-hs-blue shadow-lg"
+                      whileHover={{ scale: 1.12 }}
+                    >
+                      <Play size={24} className="ml-0.5 fill-hs-blue" />
+                    </motion.span>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-base font-bold text-hs-blue">{v.subject}</p>
+                    <p className="mt-0.5 text-sm text-hs-muted">{v.topic}</p>
+                  </div>
+                </Link>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
+
           <div className="mt-10 text-center">
             <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-6 py-3 font-semibold text-hs-amberDark hover:opacity-90">
-              Explore all subjects <ArrowRight size={18} />
+              Watch the full library <ArrowRight size={18} />
             </Link>
           </div>
         </div>
@@ -159,46 +219,52 @@ export default function MarketingPage() {
 
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-20">
-        <div className="mx-auto max-w-2xl text-center">
+        <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-extrabold text-hs-navy lg:text-4xl">Simple, affordable plans</h2>
           <p className="mt-3 text-hs-muted">Start free. Upgrade when you&apos;re ready to go all-in.</p>
-        </div>
+        </Reveal>
         <div className="mx-auto mt-12 grid max-w-3xl gap-6 sm:grid-cols-2">
-          <div className="rounded-2xl border border-hs-border bg-white p-7">
-            <p className="text-sm font-semibold uppercase tracking-wide text-hs-muted">Free</p>
-            <p className="mt-2 text-3xl font-extrabold text-hs-navy">₦0</p>
-            <ul className="mt-5 space-y-3 text-sm text-hs-body">
-              {["Daily free lessons", "Limited CBT practice", "Join quiz battles", "Leaderboard access"].map((t) => (
-                <li key={t} className="flex items-center gap-2"><Check size={16} className="text-hs-blue" /> {t}</li>
-              ))}
-            </ul>
-            <Link href="/signup" className="mt-6 block rounded-full border border-hs-border py-3 text-center font-semibold text-hs-navy hover:bg-hs-bg">Get started</Link>
-          </div>
-          <div className="rounded-2xl border-2 border-hs-blue bg-white p-7 shadow-lg">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold uppercase tracking-wide text-hs-blue">Premium</p>
-              <span className="rounded-full bg-hs-blueTint px-2.5 py-1 text-xs font-bold text-hs-blue">Most popular</span>
+          <Reveal>
+            <div className="h-full rounded-2xl border border-hs-border bg-white p-7">
+              <p className="text-sm font-semibold uppercase tracking-wide text-hs-muted">Free</p>
+              <p className="mt-2 text-3xl font-extrabold text-hs-navy">₦0</p>
+              <ul className="mt-5 space-y-3 text-sm text-hs-body">
+                {["Daily free lessons", "Limited CBT practice", "Join quiz battles", "Leaderboard access"].map((t) => (
+                  <li key={t} className="flex items-center gap-2"><Check size={16} className="text-hs-blue" /> {t}</li>
+                ))}
+              </ul>
+              <Link href="/signup" className="mt-6 block rounded-full border border-hs-border py-3 text-center font-semibold text-hs-navy hover:bg-hs-bg">Get started</Link>
             </div>
-            <p className="mt-2 text-3xl font-extrabold text-hs-navy">₦2,500<span className="text-base font-medium text-hs-muted">/mo</span></p>
-            <ul className="mt-5 space-y-3 text-sm text-hs-body">
-              {["Unlimited lessons & CBT", "All subjects unlocked", "Detailed analytics", "Downloads for offline study", "Priority rewards"].map((t) => (
-                <li key={t} className="flex items-center gap-2"><Check size={16} className="text-hs-blue" /> {t}</li>
-              ))}
-            </ul>
-            <Link href="/signup" className="mt-6 block rounded-full bg-hs-blue py-3 text-center font-semibold text-white hover:bg-hs-blueDeep">Go Premium</Link>
-          </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="h-full rounded-2xl border-2 border-hs-blue bg-white p-7 shadow-lg">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold uppercase tracking-wide text-hs-blue">Premium</p>
+                <span className="rounded-full bg-hs-blueTint px-2.5 py-1 text-xs font-bold text-hs-blue">Most popular</span>
+              </div>
+              <p className="mt-2 text-3xl font-extrabold text-hs-navy">₦2,500<span className="text-base font-medium text-hs-muted">/mo</span></p>
+              <ul className="mt-5 space-y-3 text-sm text-hs-body">
+                {["Unlimited lessons & CBT", "All subjects unlocked", "Detailed analytics", "Downloads for offline study", "Priority rewards"].map((t) => (
+                  <li key={t} className="flex items-center gap-2"><Check size={16} className="text-hs-blue" /> {t}</li>
+                ))}
+              </ul>
+              <Link href="/signup" className="mt-6 block rounded-full bg-hs-blue py-3 text-center font-semibold text-white hover:bg-hs-blueDeep">Go Premium</Link>
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* CTA band */}
       <section className="bg-hs-blueTint">
-        <div className="mx-auto max-w-6xl px-4 py-14 text-center lg:px-8">
+        <Reveal className="mx-auto max-w-6xl px-4 py-14 text-center lg:px-8">
           <h2 className="text-3xl font-extrabold text-hs-navy lg:text-4xl">Ready to score higher?</h2>
           <p className="mt-3 text-hs-muted">Join thousands of Nigerian students already learning on HighScore.</p>
-          <Link href="/signup" className="mt-7 inline-flex items-center gap-2 rounded-full bg-hs-blue px-7 py-3.5 font-semibold text-white hover:bg-hs-blueDeep">
-            Create your free account <ArrowRight size={18} />
-          </Link>
-        </div>
+          <motion.div className="mt-7 inline-block" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+            <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-blue px-7 py-3.5 font-semibold text-white">
+              Create your free account <ArrowRight size={18} />
+            </Link>
+          </motion.div>
+        </Reveal>
       </section>
 
       {/* Footer */}
