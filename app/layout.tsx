@@ -2,25 +2,20 @@ import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
 import { Toaster } from 'sonner';
-import { Outfit, Playfair_Display } from 'next/font/google';
-import ProfileSync from "./components/ProfileSync";
+import { Poppins } from 'next/font/google';
+import { AuthProvider } from "@/lib/providers/AuthProvider";
 
-const outfit = Outfit({ 
+// HighScore brand font (matches the mobile app)
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-outfit',
-  display: 'swap',
-});
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair',
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-poppins',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
   title: "HighScore",
   description: "Master JAMB, SSCE & Post-UTME with confidence - Your ultimate learning platform",
-  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -29,10 +24,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${outfit.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${poppins.variable}`}>
       <body className="font-sans antialiased">
-        <ProfileSync />
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <Toaster richColors position="top-right" />
       </body>
     </html>

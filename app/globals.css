@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-outfit), sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 .font-serif {
-  font-family: var(--font-playfair), serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 .font-sans {
-  font-family: var(--font-outfit), sans-serif;
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');

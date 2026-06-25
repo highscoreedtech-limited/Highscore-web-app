@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Check, X, Eye, EyeOff } from "lucide-react";
+import { authApi } from "@/lib/api";
 
 export default function ResetPage() {
   const router = useRouter();
@@ -66,21 +67,14 @@ export default function ResetPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/send-reset-email/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      await authApi.forgotPassword(email);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to send OTP");
-
-      toast.success("OTP generated! Check your email.");
+      toast.success("Reset code sent! Check your email.");
       setStep("otp");
       setOtp(["", "", "", ""]); // reset OTP inputs
     } catch (error: any) {
-      toast.error(error.message || "Something went wrong.");
-      setErrors(prev => ({ ...prev, email: error.message }));
+      toast.error(error?.message || "Something went wrong.");
+      setErrors(prev => ({ ...prev, email: error?.message || "" }));
     } finally {
       setIsSubmitting(false);
     }
@@ -99,27 +93,10 @@ export default function ResetPage() {
       return;
     }
 
-    if (isSubmitting) return; // prevent multiple verification requests
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch("/api/send-reset-email/verify-reset-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: otpString }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Invalid OTP");
-
-      toast.success("OTP verified! You can now reset your password.");
-      setStep("reset");
-    } catch (error: any) {
-      toast.error(error.message || "Invalid OTP");
-      setErrors(prev => ({ ...prev, otp: error.message }));
-    } finally {
-      setIsSubmitting(false);
-    }
+    // The backend validates the code together with the new password in the
+    // reset-password call, so here we just move on to the reset step.
+    setErrors(prev => ({ ...prev, otp: "" }));
+    setStep("reset");
   };
 
   // ===== Reset Password =====
@@ -135,18 +112,20 @@ export default function ResetPage() {
       return;
     }
 
+    if (!passwordValid) {
+      toast.error("Choose a stronger password (8+ chars, upper/lower/number/symbol).");
+      return;
+    }
+    if (!confirmValid) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
     if (isSubmitting) return; // prevent double submit
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("/api/resetpassword", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, newPassword: password }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to reset password");
+      await authApi.resetPassword(email, otp.join(""), password);
 
       toast.success("Password reset successfully! Redirecting to login...");
       setStep("success");

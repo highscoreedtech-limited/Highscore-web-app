@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Check, X, Eye, EyeOff } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 import { useAuth } from "../hooks/useAuth";
+import { authApi } from "@/lib/api";
 
 
 export default function SignupPage() {
@@ -36,7 +36,7 @@ export default function SignupPage() {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, setUser } = useAuth();
 
   // Rotate slides every 3 seconds
   useEffect(() => {
@@ -48,10 +48,10 @@ export default function SignupPage() {
 
   // Redirect if already logged in (but not while we are signing up!)
   useEffect(() => {
-    if (!authLoading && user && !isSubmitting) {
-      router.push("/");
+    if (!authLoading && user && !isSubmitting && !otpStep) {
+      router.push("/dashboard");
     }
-  }, [user, authLoading, router, isSubmitting]);
+  }, [user, authLoading, router, isSubmitting, otpStep]);
 
   const currentSlide = slides[currentIndex];
 
@@ -75,7 +75,8 @@ export default function SignupPage() {
   };
 
 
-  // Handle form submit to create account immediately
+  // Step 1 — register on the Go backend. Backend emails an OTP; we then show
+  // the verification step.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validEmail || !validPassword || !firstName || !lastName) {
@@ -86,75 +87,27 @@ export default function SignupPage() {
     setIsSubmitting(true);
 
     try {
-      // 1️⃣ Create Supabase user (server-side, confirmed: true so they can log in, but verified: false in DB)
-      const createRes = await fetch("/api/create-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, firstName, lastName }),
-      });
-      const createData = await createRes.json();
-      if (!createRes.ok) throw new Error(createData.error || "Failed to create account");
-
-      const supabaseUser = createData.user;
-      if (!supabaseUser) throw new Error("Failed to retrieve user after signup");
-
-      // 2️⃣ Insert user into Supabase profile table with email_verified: false
-      const displayName = `${firstName} ${lastName}`;
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          authid: supabaseUser.id,
-          email: supabaseUser.email,
-          username: '',
-          display_name: displayName,
-          email_verified: false, // ✅ Not verified yet
-          rank: "Bronze",
-          xp: 0,
-          coins: 0,
-          avatar: "🎮",
-          totalMatches: 0,
-          wins: 0,
-          winRate: 0,
-        }),
+      await authApi.register({
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password,
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to create user in DB");
-      }
-
-      // 3️⃣ Send Verification OTP in the background
-      fetch("/api/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      }).catch(err => console.error("Background OTP send failed:", err));
-
-      localStorage.setItem("username", firstName);
-
-      // 4️⃣ Sign in client-side immediately
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        console.warn("Auto sign-in failed:", signInError.message);
-      }
-
-      toast.success("Account created! Welcome to Highscore.");
-      
-      setTimeout(() => {
-         router.push("/courses"); // Redirect to courses instead of dashboard
-      }, 1500);
-
+      toast.success("Account created! Check your email for the code.");
+      setOtpStep(true);
     } catch (error: any) {
-      console.error("Error in handleSubmit:", error);
-      let errorMessage = error.message || "Something went wrong.";
-      if (error.message?.includes("already registered")) errorMessage = "This email is already in use.";
+      let errorMessage = error?.message || "Something went wrong.";
+      if (/already|exist|registered/i.test(errorMessage))
+        errorMessage = "This email is already in use.";
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Step 2 — verify the emailed OTP. The backend returns tokens + user, so the
+  // user is logged straight into the web app.
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpCode) return;
@@ -162,79 +115,30 @@ export default function SignupPage() {
     setIsSubmitting(true);
 
     try {
-      // 1️⃣ Verify OTP
-      const verifyRes = await fetch("/api/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otps: otpCode }),
-      });
-      const verifyData = await verifyRes.json();
-      if (!verifyRes.ok) throw new Error(verifyData.error || "Invalid OTP");
+      const verifiedUser = await authApi.verifyEmail(email, otpCode);
+      setUser(verifiedUser);
 
-      // Removed redundant create-user and users calls as user is already created in handleSubmit
-
-      localStorage.setItem("username", firstName);
-
-      // 4️⃣ Automatically create user_quests for this user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not found");
-
-      const questsRes = await fetch("/api/user-quests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ authid: user.id }),
-      });
-
-      if (!questsRes.ok) {
-        const data = await questsRes.json();
-        console.error("Error creating user quests:", data);
-        toast.error("Failed to create initial quests.");
-      }
-
-      localStorage.setItem("username", firstName);
-
-      // 5️⃣ Sign in client-side so the session is active immediately
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        // User was created — just redirect, they can log in manually
-        console.warn("Auto sign-in failed:", signInError.message);
-      }
-
-      toast.success("Account created! Redirecting...");
-      
+      toast.success("Email verified! Redirecting...");
       setTimeout(() => {
-         router.push("/courses");
-      }, 1500);
-
+        router.push("/dashboard");
+      }, 1200);
     } catch (error: any) {
-      console.error("Error in handleSubmit:", error);
-      
-      let errorMessage = error.message || "Something went wrong.";
-      if (error.message?.includes("already registered")) errorMessage = "This email is already in use.";
-      toast.error(errorMessage);
+      toast.error(error?.message || "Invalid or expired code.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-
-
-
-  const handleGoogleSignup = async () => {
-    setIsSubmitting(true);
+  const handleResendOtp = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        },
-      });
-      if (error) throw error;
+      await authApi.resendOtp(email);
+      toast.success("A new code has been sent to your email.");
     } catch (error: any) {
-      toast.error(error.message || "Google signup failed.");
-      setIsSubmitting(false);
+      toast.error(error?.message || "Could not resend code.");
     }
   };
+
+
 
 
   return (
@@ -256,34 +160,6 @@ export default function SignupPage() {
           <p className="text-base text-gray-500 mb-4 text-center ">
             {otpStep ? "Verification required" : "Join the Highscore community today!"}
           </p>
-
-          {!otpStep && (
-            <>
-              {/* Google Signup Button */}
-              <button
-                onClick={handleGoogleSignup}
-                disabled={isSubmitting}
-                className="w-full h-10 border-2 border-gray-100 rounded-xl mb-4 flex items-center justify-center gap-3 font-semibold text-gray-700 hover:bg-gray-50 transition-all shadow-sm active:scale-[0.98] text-sm"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                </svg>
-                Continue with Google
-              </button>
-
-              <div className="relative mb-4 w-full">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-gray-100"></span>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-4 text-gray-400 font-medium">Or continue with email</span>
-                </div>
-              </div>
-            </>
-          )}
 
           {/* Form */}
           <form onSubmit={otpStep ? handleVerifyOTP : handleSubmit} className="space-y-3 w-full">
@@ -370,7 +246,7 @@ export default function SignupPage() {
                 />
                 <div className="flex justify-between items-center px-1">
                   <button type="button" onClick={() => setOtpStep(false)} className="text-xs text-gray-400 hover:text-gray-600 underline">Change Email</button>
-                  <button type="button" onClick={handleSubmit} className="text-xs text-orange-500 font-bold hover:underline">Resend Code</button>
+                  <button type="button" onClick={handleResendOtp} className="text-xs text-orange-500 font-bold hover:underline">Resend Code</button>
                 </div>
               </div>
             )}
