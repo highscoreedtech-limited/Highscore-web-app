@@ -54,6 +54,9 @@ export const session = {
     localStorage.setItem(ACCESS_KEY, access);
     localStorage.setItem(REFRESH_KEY, refresh);
     if (user) localStorage.setItem(USER_KEY, JSON.stringify(user));
+    // Non-sensitive UX flag so middleware can gate app routes. Real security is
+    // the backend requiring a valid JWT on every /api call.
+    document.cookie = `hs_auth=1; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
   },
   saveUser(user: User) {
     if (typeof window === "undefined") return;
@@ -64,6 +67,7 @@ export const session = {
     localStorage.removeItem(ACCESS_KEY);
     localStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(USER_KEY);
+    document.cookie = "hs_auth=; path=/; max-age=0; samesite=lax";
   },
   get isAuthenticated() {
     return !!this.access;
