@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
   GraduationCap, ChevronDown, Bell, Search, PlayCircle, Gamepad2,
@@ -260,7 +261,7 @@ function StatTile({ value, label, amber }: { value: string; label: string; amber
 interface Cat {
   name: string; subtitle: string; bg: string; fg: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
-  lottie?: string; href?: string;
+  lottie?: string; href?: string; big?: boolean;
 }
 const CATEGORIES: Cat[] = [
   { name: "My Courses", subtitle: "6 active", bg: "#E6F1FB", fg: "#185FA5", icon: PlayCircle, lottie: "/lottie/video-player.json", href: "/courses" },
@@ -268,9 +269,9 @@ const CATEGORIES: Cat[] = [
   { name: "CBT practice", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: Laptop, lottie: "/lottie/cbt.json", href: "/cbt" },
   { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, lottie: "/lottie/graph.json", href: "/analytics" },
   { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal },
-  { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, lottie: "/lottie/reward.json", href: "/rewards" },
+  { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, lottie: "/lottie/reward.json", href: "/rewards", big: true },
   { name: "News", subtitle: "JAMB updates", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, href: "/news" },
-  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json", href: "/referral" },
+  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json", href: "/referral", big: true },
 ];
 
 function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
@@ -278,13 +279,13 @@ function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="flex aspect-[1.75] flex-col items-start rounded-xl p-3 text-left shadow-[0_4px_12px_rgba(0,0,0,0.13)] transition-transform hover:-translate-y-0.5 active:scale-95"
+      className="flex aspect-[1.75] flex-col items-start overflow-hidden rounded-xl p-3 text-left shadow-[0_4px_12px_rgba(0,0,0,0.13)] transition-transform hover:-translate-y-0.5 active:scale-95"
       style={{ backgroundColor: cat.bg }}
     >
       {cat.lottie ? (
         <LottieIcon
           src={cat.lottie}
-          className="h-12 w-12"
+          className={cat.big ? "-my-1.5 -ml-1 h-[68px] w-[68px]" : "h-12 w-12"}
           fallback={
             <span className="rounded-lg p-1.5" style={{ backgroundColor: `${cat.fg}26` }}>
               <Icon size={22} style={{ color: cat.fg }} />
@@ -390,11 +391,11 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
             <MenuItem icon={UserIcon} color="#185FA5" title="Edit profile" subtitle="Update your name, exam type & state" onClick={() => router.push("/profile/edit")} />
           </MenuSection>
           <MenuSection>
-            <MenuItem icon={Bell} color="#D97706" title="Notifications" subtitle="Streak reminders, battle invites & more" />
-            <MenuItem icon={Shield} color="#7C3AED" title="Privacy" subtitle="Your data, legal policies & account deletion" />
+            <MenuItem icon={Bell} color="#D97706" title="Notifications" subtitle="Streak reminders, battle invites & more" onClick={() => router.push("/profile/notifications")} />
+            <MenuItem icon={Shield} color="#7C3AED" title="Privacy" subtitle="Your data, legal policies & account deletion" onClick={() => router.push("/profile/privacy")} />
           </MenuSection>
           <MenuSection>
-            <MenuItem icon={HelpCircle} color="#059669" title="Help & support" subtitle="FAQs, report a bug, contact us" />
+            <MenuItem icon={HelpCircle} color="#059669" title="Help & support" subtitle="FAQs, report a bug, contact us" onClick={() => router.push("/profile/help")} />
             <MenuItem icon={Star} color="#D97706" title="Rate the app" subtitle="Enjoying HighScore? Leave a review" />
             <MenuItem icon={Info} color="#8A8A8A" title="About" subtitle="Version 1.0.0 · HighScore EdTech Limited" />
           </MenuSection>
@@ -454,41 +455,82 @@ function AvatarPickerModal({ open, current, onClose, onSaved }: { open: boolean;
 }
 
 function RedeemModal({ open, balance, onClose }: { open: boolean; balance: number; onClose: () => void; }) {
+  const NAIRA_PER_HST = 5;
   const options = [
-    { icon: "📱", title: "Airtime", desc: "Convert HST to airtime", min: 100 },
-    { icon: "🌐", title: "Data bundle", desc: "Convert HST to mobile data", min: 150 },
-    { icon: "🎓", title: "Scholarship entry", desc: "Enter the termly scholarship draw", min: 500 },
-    { icon: "💵", title: "Cash payout", desc: "Withdraw to your bank account", min: 1000 },
+    { icon: "📱", title: "Airtime top-up", desc: "Any network, sent instantly", min: 100, color: "#185FA5", bg: "#E6F1FB" },
+    { icon: "🌐", title: "Data bundle", desc: "Browse and study on us", min: 150, color: "#7C3AED", bg: "#EEEDFE" },
+    { icon: "🎓", title: "Scholarship entry", desc: "Enter the termly draw", min: 500, color: "#EF9F27", bg: "#FAEEDA" },
+    { icon: "💵", title: "Cash payout", desc: "Withdraw to your bank", min: 1000, color: "#059669", bg: "#EAF3DE" },
   ];
-  if (!open) return null;
+
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50" onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-t-3xl bg-white p-6" onClick={(e) => e.stopPropagation()}>
-        <div className="mx-auto h-1 w-10 rounded-full bg-hs-border" />
-        <div className="mt-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-hs-navy">Redeem HST</h2>
-          <span className="rounded-full bg-hs-amberBg px-3 py-1 text-sm font-bold text-hs-amberDark">{balance} HST</span>
-        </div>
-        <p className="mt-1 text-sm text-hs-muted">Turn your HighScore Tokens into real rewards.</p>
-        <div className="mt-4 space-y-2.5">
-          {options.map((o) => {
-            const can = balance >= o.min;
-            return (
-              <button key={o.title} disabled={!can}
-                onClick={() => { toast.success(`Redemption request for ${o.title} submitted!`); onClose(); }}
-                className="flex w-full items-center gap-3 rounded-2xl border border-hs-border bg-white p-3.5 text-left disabled:opacity-50">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-hs-bg text-xl">{o.icon}</span>
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-hs-navy">{o.title}</p>
-                  <p className="text-[11px] text-hs-muted">{o.desc}</p>
-                </div>
-                <span className="text-[11px] font-semibold text-hs-muted">{can ? "Redeem" : `${o.min}+ HST`}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+    <AnimatePresence>
+      {open && (
+        <motion.div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50" onClick={onClose}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-white p-6 pb-8" onClick={(e) => e.stopPropagation()}
+            initial={{ y: 80 }} animate={{ y: 0 }} exit={{ y: 80 }} transition={{ type: "spring", stiffness: 300, damping: 32 }}>
+            <div className="mx-auto h-1 w-10 rounded-full bg-hs-border" />
+
+            {/* Balance hero */}
+            <div className="mt-5 rounded-3xl bg-hs-navy p-5 text-white">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-[#B8CCE0]">Your HST balance</p>
+                <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-[#B8CCE0]">1 HST ≈ ₦{NAIRA_PER_HST}</span>
+              </div>
+              <div className="mt-2 flex items-end gap-2">
+                <p className="text-4xl font-extrabold text-hs-amber">{balance.toLocaleString()}</p>
+                <p className="pb-1 text-lg font-bold text-hs-amber">HST</p>
+              </div>
+              <p className="mt-1 text-xs text-[#B8CCE0]">≈ ₦{(balance * NAIRA_PER_HST).toLocaleString()} in rewards</p>
+            </div>
+
+            <h2 className="mt-6 text-base font-bold text-hs-navy">Redeem for</h2>
+            <p className="text-xs text-hs-muted">Pick a reward — we&apos;ll process it within 24 hours.</p>
+
+            <div className="mt-4 space-y-3">
+              {options.map((o) => {
+                const can = balance >= o.min;
+                const pct = Math.min(100, Math.round((balance / o.min) * 100));
+                return (
+                  <motion.button
+                    key={o.title}
+                    whileTap={can ? { scale: 0.99 } : undefined}
+                    disabled={!can}
+                    onClick={() => { toast.success(`Redemption request for ${o.title} submitted! 🎉`); onClose(); }}
+                    className={`flex w-full items-center gap-3.5 rounded-2xl border bg-white p-4 text-left transition-shadow ${can ? "border-hs-border shadow-[0_6px_18px_-10px_rgba(4,44,83,0.25)] hover:shadow-[0_12px_28px_-12px_rgba(4,44,83,0.35)]" : "border-hs-border/70"}`}
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-2xl" style={{ backgroundColor: o.bg }}>{o.icon}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold text-hs-navy">{o.title}</p>
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: o.bg, color: o.color }}>{o.min} HST</span>
+                      </div>
+                      <p className="mt-0.5 text-[11px] text-hs-muted">{o.desc}</p>
+                      {!can && (
+                        <div className="mt-2">
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-hs-bg">
+                            <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: o.color }} />
+                          </div>
+                          <p className="mt-1 text-[10px] text-hs-muted">{o.min - balance} more HST to unlock</p>
+                        </div>
+                      )}
+                    </div>
+                    {can ? (
+                      <span className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-white" style={{ backgroundColor: o.color }}>Redeem</span>
+                    ) : (
+                      <span className="shrink-0 text-hs-placeholder">🔒</span>
+                    )}
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            <p className="mt-4 text-center text-[11px] text-hs-muted">Earn more HST by converting your points in Rewards.</p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

@@ -49,7 +49,7 @@ export default function ReferralPage() {
               <ArrowLeft size={16} />
             </button>
             <h1 className="text-lg font-bold text-white">Refer & Earn</h1>
-            <div className="ml-auto h-12 w-12"><LottieIcon src="/lottie/refer-and-earn.json" className="h-12 w-12" fallback={<Users className="text-hs-amber" />} /></div>
+            <div className="ml-auto h-16 w-16"><LottieIcon src="/lottie/refer-and-earn.json" className="h-16 w-16" fallback={<Users className="text-hs-amber" />} /></div>
           </div>
           <h2 className="mt-3 text-2xl font-extrabold leading-tight text-white">Invite friends,<br />earn free points!</h2>
           <p className="mt-2 text-sm text-[#B8CCE0]">Share your code — when a friend signs up and verifies, you both earn 100 pts.</p>

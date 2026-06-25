@@ -65,8 +65,8 @@ export default function RewardsPage() {
               <ArrowLeft size={16} />
             </button>
             <h1 className="text-lg font-bold text-white">Rewards</h1>
-            <div className="ml-auto h-12 w-12">
-              <LottieIcon src="/lottie/reward.json" className="h-12 w-12" fallback={<Coins className="text-hs-amber" />} />
+            <div className="ml-auto h-16 w-16">
+              <LottieIcon src="/lottie/reward.json" className="h-16 w-16" fallback={<Coins className="text-hs-amber" />} />
             </div>
           </div>
 
