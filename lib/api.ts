@@ -257,3 +257,28 @@ export const dashApi = {
     );
   },
 };
+
+// ─── Multiplayer / Find Players (matches mobile game_provider) ─────────────────
+export const WS_BASE = API_BASE.replace(/^http/, "ws");
+export const presenceWsUrl = (userId: string) => `${WS_BASE}/ws/user/${userId}`;
+
+export interface OnlineUser {
+  id: string;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  initials?: string;
+  badge: string;
+  total_score: number;
+  avatar_color?: string;
+  is_friend?: boolean;
+}
+
+export const gameApi = {
+  onlineUsers: () => api<OnlineUser[]>("/api/users/online"),
+  friends: () => api<OnlineUser[]>("/api/friends"),
+  searchUsers: (q: string) => api<OnlineUser[]>(`/api/users/search?q=${encodeURIComponent(q)}`),
+  addFriend: (userId: string) => api("/api/friends/add", { method: "POST", body: { user_id: userId } }),
+  sendChallenge: (toUserId: string, subject: string) =>
+    api("/api/challenge/send", { method: "POST", body: { to_user_id: toUserId, subject } }),
+};

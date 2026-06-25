@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
-import { api } from "@/lib/api";
+import { api, presenceWsUrl } from "@/lib/api";
 import { useAuth } from "../hooks/useAuth";
+import FindPlayers from "./FindPlayers";
 
 // ── Arena palette (matches mobile quiz_constants.dart) ─────────────────────────
 const C = {
@@ -28,13 +29,27 @@ function shuffle<T>(a: T[]): T[] {
   return r;
 }
 
-type Phase = "lobby" | "countdown" | "battle" | "result";
+// Deterministic shuffle so both players in a room get the same question order.
+function seededShuffle<T>(a: T[], seed: number): T[] {
+  let s = seed || 1;
+  const rng = () => {
+    s |= 0; s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const r = [...a];
+  for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; }
+  return r;
+}
+
+type Phase = "lobby" | "find" | "countdown" | "battle" | "result";
 
 export default function QuizPage() {
   const router = useRouter();
   const { user } = useAuth();
   const myName = user?.first_name ? `${user.first_name}${user.last_name ? " " + user.last_name[0] : ""}` : "You";
-  const oppName = "CPU";
+  const [oppName, setOppName] = useState("CPU");
 
   const [phase, setPhase] = useState<Phase>("lobby");
   const [subject, setSubject] = useState(SUBJECTS[0]);
@@ -71,13 +86,45 @@ export default function QuizPage() {
   useEffect(() => () => clearTimers(), []);
 
   // ── Start / countdown ───────────────────────────────────────────────────────
-  const startSolo = () => {
-    setQuestions(shuffle(QUIZ_BANK[subject]).slice(0, 10));
+  const resetGame = () => {
     setCurrentQ(0); setMyScore(0); setOppScore(0); setStreak(0); setMaxCombo(0);
     correctArr.current = []; ptsArr.current = []; timesArr.current = [];
     claimed.current = false; setDidClaim(false);
     setCount(5); setPhase("countdown");
   };
+
+  const startSolo = () => {
+    setOppName("CPU");
+    setQuestions(shuffle(QUIZ_BANK[subject]).slice(0, 10));
+    resetGame();
+  };
+
+  // Start a real match when an opponent accepts your challenge (via presence WS).
+  const startPvp = useCallback((opponentName: string, subj: string, seed: number) => {
+    const bank = QUIZ_BANK[subj] || QUIZ_BANK[Object.keys(QUIZ_BANK)[0]];
+    setSubject(subj);
+    setOppName(opponentName || "Opponent");
+    setQuestions(seededShuffle(bank, seed).slice(0, 10));
+    resetGame();
+  }, []);
+
+  // Presence WebSocket: listen for the opponent accepting the challenge.
+  useEffect(() => {
+    if (!user?.id) return;
+    let ws: WebSocket | null = null;
+    try {
+      ws = new WebSocket(presenceWsUrl(user.id));
+      ws.onmessage = (ev) => {
+        try {
+          const d = JSON.parse(ev.data);
+          if (d.type === "challenge_accepted") {
+            startPvp(d.from_name || d.to_name || "Opponent", d.subject || "Mathematics", Number(d.seed) || 0);
+          }
+        } catch { /* ignore */ }
+      };
+    } catch { /* presence WS is optional */ }
+    return () => { try { ws?.close(); } catch { /* noop */ } };
+  }, [user?.id, startPvp]);
 
   useEffect(() => {
     if (phase !== "countdown") return;
@@ -168,7 +215,10 @@ export default function QuizPage() {
     <div className="min-h-screen" style={{ backgroundColor: C.bg, color: C.text, fontFamily: "var(--font-poppins), Poppins, sans-serif" }}>
       <div className="mx-auto max-w-xl">
         {phase === "lobby" && (
-          <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onBack={() => router.push("/dashboard")} />
+          <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onFind={() => setPhase("find")} onBack={() => router.push("/dashboard")} />
+        )}
+        {phase === "find" && (
+          <FindPlayers subject={subject} onBack={() => setPhase("lobby")} />
         )}
         {phase === "countdown" && (
           <Countdown count={count} myName={myName} oppName={oppName} subject={subject} />
@@ -221,7 +271,7 @@ export default function QuizPage() {
 }
 
 // ── Lobby ─────────────────────────────────────────────────────────────────────
-function Lobby({ subject, setSubject, myName, onSolo, onBack }: { subject: string; setSubject: (s: string) => void; myName: string; onSolo: () => void; onBack: () => void; }) {
+function Lobby({ subject, setSubject, myName, onSolo, onFind, onBack }: { subject: string; setSubject: (s: string) => void; myName: string; onSolo: () => void; onFind: () => void; onBack: () => void; }) {
   return (
     <div className="px-4 pb-6 pt-4">
       {/* Nav row */}
@@ -281,7 +331,7 @@ function Lobby({ subject, setSubject, myName, onSolo, onBack }: { subject: strin
       <p className="mt-5 text-[10px] font-bold tracking-[1.2px]" style={{ color: C.text2 }}>HOW DO YOU WANT TO PLAY?</p>
       <button className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-extrabold text-white"
         style={{ background: "linear-gradient(135deg,#7C3AED,#9F67FF)", boxShadow: "0 6px 16px rgba(124,58,237,0.4)" }}
-        onClick={onSolo}>
+        onClick={onFind}>
         🌐 Find Players Online ›
       </button>
       <motion.button whileTap={{ scale: 0.98 }} onClick={onSolo}
