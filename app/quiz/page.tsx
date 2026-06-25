@@ -110,9 +110,11 @@ export default function QuizPage() {
     }, delay);
   }, []);
 
-  useEffect(() => { if (phase === "battle") loadQ(); }, [phase, loadQ]);
+  // Single deterministic loader: fires once when the battle starts (currentQ 0)
+  // and once each time we advance to a new question. No duplicate timers/AI.
+  useEffect(() => { if (phase === "battle") loadQ(); }, [phase, currentQ, loadQ]);
 
-  // advance to next question on time changes handled via timeLeft hitting 0
+  // Auto-submit when the per-question timer runs out.
   useEffect(() => {
     if (phase !== "battle" || answered) return;
     if (timeLeft === 0) timeOut();
@@ -130,8 +132,6 @@ export default function QuizPage() {
       return q + 1;
     });
   }, []);
-
-  useEffect(() => { if (phase === "battle" && currentQ > 0) loadQ(); }, [currentQ]); // eslint-disable-line
 
   const pick = (idx: number) => {
     if (answered) return;
@@ -179,6 +179,7 @@ export default function QuizPage() {
             timeLeft={timeLeft} answered={answered} selectedIdx={selectedIdx}
             oppAnswered={oppAnswered} oppCorrect={oppCorrect} streak={streak}
             myName={myName} oppName={oppName} subject={subject} flash={flash} onPick={pick}
+            onQuit={() => { clearTimers(); if (window.confirm("Quit the battle? No points will be awarded.")) router.push("/dashboard"); }}
           />
         )}
         {phase === "result" && (
@@ -193,7 +194,7 @@ export default function QuizPage() {
               catch { claimed.current = false; }
               finally { setClaiming(false); }
             }}
-            onRematch={() => setPhase("lobby")}
+            onRematch={startSolo}
             onHome={() => router.push("/dashboard")}
           />
         )}
@@ -346,16 +347,21 @@ function MiniAva({ init, name, you }: { init: string; name: string; you?: boolea
 }
 
 // ── Battle ────────────────────────────────────────────────────────────────────
-function Battle({ q, currentQ, myScore, oppScore, timeLeft, answered, selectedIdx, oppAnswered, oppCorrect, streak, myName, oppName, subject, flash, onPick }: {
+function Battle({ q, currentQ, myScore, oppScore, timeLeft, answered, selectedIdx, oppAnswered, oppCorrect, streak, myName, oppName, subject, flash, onPick, onQuit }: {
   q: QuizQuestion; currentQ: number; myScore: number; oppScore: number; timeLeft: number; answered: boolean; selectedIdx: number | null;
-  oppAnswered: boolean; oppCorrect: boolean; streak: number; myName: string; oppName: string; subject: string; flash: "my" | "opp" | null; onPick: (i: number) => void;
+  oppAnswered: boolean; oppCorrect: boolean; streak: number; myName: string; oppName: string; subject: string; flash: "my" | "opp" | null; onPick: (i: number) => void; onQuit: () => void;
 }) {
   const correctIdx = q.ans;
   const circ = 2 * Math.PI * 24;
   return (
     <div>
       {/* Header */}
-      <div className="px-4 pb-3 pt-4" style={{ backgroundColor: C.surf }}>
+      <div className="px-4 pb-3 pt-3" style={{ backgroundColor: C.surf }}>
+        <div className="mb-2 flex justify-end">
+          <button onClick={onQuit} className="flex h-7 items-center gap-1 rounded-full px-2.5 text-[11px] font-bold" style={{ backgroundColor: C.surf2, color: C.text2, border: "1px solid rgba(255,255,255,0.08)" }}>
+            ✕ Quit
+          </button>
+        </div>
         <div className="flex items-center">
           {/* My score */}
           <div className="flex flex-1 items-center gap-2.5">
