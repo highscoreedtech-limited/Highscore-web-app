@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
   ArrowLeft, Bell, LayoutGrid, List as ListIcon, TrendingUp,
   BookOpenText, Calculator, Atom, FlaskConical, Leaf, BookText,
@@ -95,9 +94,9 @@ export default function CoursesPage() {
         >
           {items.map((s) =>
             grid ? (
-              <SubjectCard key={s.name} s={s} onClick={() => toast.info(`${s.name} — opening soon`)} />
+              <SubjectCard key={s.name} s={s} onClick={() => router.push(`/courses/${encodeURIComponent(s.name)}`)} />
             ) : (
-              <SubjectRow key={s.name} s={s} onClick={() => toast.info(`${s.name} — opening soon`)} />
+              <SubjectRow key={s.name} s={s} onClick={() => router.push(`/courses/${encodeURIComponent(s.name)}`)} />
             )
           )}
         </div>
