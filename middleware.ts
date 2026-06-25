@@ -12,6 +12,9 @@ const PROTECTED = [
   "/rewards",
   "/chat",
   "/profile",
+  "/analytics",
+  "/referral",
+  "/news",
   "/admin",
 ];
 

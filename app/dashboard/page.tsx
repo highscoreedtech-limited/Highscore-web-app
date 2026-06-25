@@ -15,6 +15,7 @@ import { dashApi, LeaderboardEntry, api } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
 import SubscribeTab from "./SubscribeTab";
 import DownloadsTab from "./DownloadsTab";
+import { AVATARS } from "@/lib/avatars";
 
 const EXAMS = ["JAMB", "WAEC", "NECO", "GCE", "Nursing"];
 
@@ -265,11 +266,11 @@ const CATEGORIES: Cat[] = [
   { name: "My Courses", subtitle: "6 active", bg: "#E6F1FB", fg: "#185FA5", icon: PlayCircle, lottie: "/lottie/video-player.json", href: "/courses" },
   { name: "Quiz games", subtitle: "3 live now", bg: "#FAEEDA", fg: "#854F0B", icon: Gamepad2, lottie: "/lottie/quiz-games.json", href: "/quiz" },
   { name: "CBT practice", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: Laptop, lottie: "/lottie/cbt.json", href: "/cbt" },
-  { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, lottie: "/lottie/graph.json" },
+  { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, lottie: "/lottie/graph.json", href: "/analytics" },
   { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal },
   { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, lottie: "/lottie/reward.json", href: "/rewards" },
-  { name: "News", subtitle: "JAMB updates", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper },
-  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json" },
+  { name: "News", subtitle: "JAMB updates", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, href: "/news" },
+  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json", href: "/referral" },
 ];
 
 function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
@@ -331,28 +332,34 @@ function Placeholder({ title, subtitle }: { title: string; subtitle: string }) {
 }
 
 function MoreTab({ onLogout }: { onLogout: () => void }) {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshProfile } = useAuth();
+  const router = useRouter();
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const [redeemOpen, setRedeemOpen] = useState(false);
   const name = user ? `${user.first_name} ${user.last_name}`.trim() : "HighScore User";
   const initials = ((user?.first_name?.[0] ?? "") + (user?.last_name?.[0] ?? "")).toUpperCase() || "?";
   const tier = (user?.subscription_tier ?? "free").toLowerCase();
   const tierLabel = tier === "free" ? "Free plan" : `${tier[0].toUpperCase()}${tier.slice(1)} member`;
+  const avatarUrl = user?.avatar_url || "";
 
   return (
     <div className="px-4 pb-10 pt-7 lg:px-8">
       <div className="mx-auto max-w-2xl">
         {/* Identity */}
         <div className="flex flex-col items-center">
-          <div className="relative">
-            <span
-              className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-extrabold text-white"
-              style={{ backgroundColor: user?.avatar_color || "#185FA5" }}
-            >
-              {initials}
-            </span>
+          <button onClick={() => setAvatarOpen(true)} className="relative">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="Avatar" className="h-20 w-20 rounded-full bg-hs-blueTint object-cover" />
+            ) : (
+              <span className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-extrabold text-white" style={{ backgroundColor: user?.avatar_color || "#185FA5" }}>
+                {initials}
+              </span>
+            )}
             <span className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-hs-blue text-white">
               <Pencil size={11} />
             </span>
-          </div>
+          </button>
           <p className="mt-3 text-lg font-bold text-hs-navy">{name}</p>
           <p className="text-sm text-hs-muted">{user?.email}</p>
           <span className={`mt-2 rounded-full px-3 py-1 text-[11px] font-bold ${tier === "free" ? "bg-hs-bg text-hs-muted" : "bg-hs-amberBg text-hs-amberDark"}`}>
@@ -361,26 +368,26 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
         </div>
 
         {/* Wallet */}
-        <div className="mt-5 flex items-center justify-between rounded-2xl bg-hs-navy p-4 text-white">
+        <div className="mt-5 rounded-2xl bg-hs-navy p-4 text-white">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
               <Wallet size={20} />
             </span>
             <div>
               <p className="text-[11px] text-[#B8CCE0]">HST wallet balance</p>
-              <p className="text-lg font-extrabold">{user?.hst_balance ?? 0} HST</p>
+              <p className="text-2xl font-extrabold text-hs-amber">{user?.hst_balance ?? 0} <span className="text-sm">HST</span></p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-[11px] text-[#B8CCE0]">Referral points</p>
-            <p className="text-lg font-extrabold text-hs-amber">{user?.referral_points ?? 0}</p>
+          <div className="mt-4 flex gap-2.5">
+            <button onClick={() => router.push("/rewards")} className="flex-1 rounded-xl bg-white/10 py-2.5 text-sm font-semibold hover:bg-white/15">Convert points</button>
+            <button onClick={() => setRedeemOpen(true)} className="flex-1 rounded-xl bg-hs-amber py-2.5 text-sm font-bold text-hs-amberDark">Redeem</button>
           </div>
         </div>
 
         {/* Menu */}
         <div className="mt-5 space-y-3">
           <MenuSection>
-            <MenuItem icon={UserIcon} color="#185FA5" title="Edit profile" subtitle="Update your name, exam type & state" />
+            <MenuItem icon={UserIcon} color="#185FA5" title="Edit profile" subtitle="Update your name, exam type & state" onClick={() => router.push("/profile/edit")} />
           </MenuSection>
           <MenuSection>
             <MenuItem icon={Bell} color="#D97706" title="Notifications" subtitle="Streak reminders, battle invites & more" />
@@ -404,6 +411,83 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
           </MenuSection>
         </div>
       </div>
+
+      <AvatarPickerModal open={avatarOpen} current={avatarUrl} onClose={() => setAvatarOpen(false)} onSaved={() => refreshProfile().catch(() => {})} />
+      <RedeemModal open={redeemOpen} balance={user?.hst_balance ?? 0} onClose={() => setRedeemOpen(false)} />
+    </div>
+  );
+}
+
+function AvatarPickerModal({ open, current, onClose, onSaved }: { open: boolean; current: string; onClose: () => void; onSaved: () => void; }) {
+  const [selected, setSelected] = useState(current);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { if (open) setSelected(current); }, [open, current]);
+
+  const save = async () => {
+    if (!selected) { toast.error("Pick an avatar first."); return; }
+    setSaving(true);
+    try { await api("/api/user/profile", { method: "PUT", body: { avatar_url: selected } }); toast.success("Avatar updated!"); onSaved(); onClose(); }
+    catch (e: any) { toast.error(e?.message || "Couldn't save avatar."); }
+    finally { setSaving(false); }
+  };
+
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50" onClick={onClose}>
+      <div className="w-full max-w-2xl rounded-t-3xl bg-white p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="mx-auto h-1 w-10 rounded-full bg-hs-border" />
+        <h2 className="mt-4 text-lg font-bold text-hs-navy">Choose your avatar</h2>
+        <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5">
+          {AVATARS.map((a) => (
+            <button key={a} onClick={() => setSelected(a)} className={`overflow-hidden rounded-2xl border-2 ${selected === a ? "border-hs-blue" : "border-transparent"}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={a} alt="Avatar option" className="aspect-square w-full bg-hs-blueTint object-cover" />
+            </button>
+          ))}
+        </div>
+        <button onClick={save} disabled={saving} className="mt-6 w-full rounded-full bg-hs-blue py-3 font-semibold text-white disabled:opacity-50">
+          {saving ? "Saving…" : "Save avatar"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function RedeemModal({ open, balance, onClose }: { open: boolean; balance: number; onClose: () => void; }) {
+  const options = [
+    { icon: "📱", title: "Airtime", desc: "Convert HST to airtime", min: 100 },
+    { icon: "🌐", title: "Data bundle", desc: "Convert HST to mobile data", min: 150 },
+    { icon: "🎓", title: "Scholarship entry", desc: "Enter the termly scholarship draw", min: 500 },
+    { icon: "💵", title: "Cash payout", desc: "Withdraw to your bank account", min: 1000 },
+  ];
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50" onClick={onClose}>
+      <div className="w-full max-w-2xl rounded-t-3xl bg-white p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="mx-auto h-1 w-10 rounded-full bg-hs-border" />
+        <div className="mt-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-hs-navy">Redeem HST</h2>
+          <span className="rounded-full bg-hs-amberBg px-3 py-1 text-sm font-bold text-hs-amberDark">{balance} HST</span>
+        </div>
+        <p className="mt-1 text-sm text-hs-muted">Turn your HighScore Tokens into real rewards.</p>
+        <div className="mt-4 space-y-2.5">
+          {options.map((o) => {
+            const can = balance >= o.min;
+            return (
+              <button key={o.title} disabled={!can}
+                onClick={() => { toast.success(`Redemption request for ${o.title} submitted!`); onClose(); }}
+                className="flex w-full items-center gap-3 rounded-2xl border border-hs-border bg-white p-3.5 text-left disabled:opacity-50">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-hs-bg text-xl">{o.icon}</span>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-hs-navy">{o.title}</p>
+                  <p className="text-[11px] text-hs-muted">{o.desc}</p>
+                </div>
+                <span className="text-[11px] font-semibold text-hs-muted">{can ? "Redeem" : `${o.min}+ HST`}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
@@ -413,14 +497,14 @@ function MenuSection({ children }: { children: React.ReactNode }) {
 }
 
 function MenuItem({
-  icon: Icon, color, title, subtitle,
+  icon: Icon, color, title, subtitle, onClick,
 }: {
   icon: React.ComponentType<{ size?: number; className?: string }>;
-  color: string; title: string; subtitle: string;
+  color: string; title: string; subtitle: string; onClick?: () => void;
 }) {
   return (
     <button
-      onClick={() => toast.info(`${title} — coming soon`)}
+      onClick={onClick ?? (() => toast.info(`${title} — coming soon`))}
       className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-hs-bg"
     >
       <span className="flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ backgroundColor: `${color}1A`, color }}>
