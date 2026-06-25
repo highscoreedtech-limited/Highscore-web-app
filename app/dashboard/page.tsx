@@ -2,17 +2,25 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
 import {
   GraduationCap, ChevronDown, Bell, Search, PlayCircle, Gamepad2,
   Laptop, LineChart, Medal, Gift, Newspaper, UserPlus, ExternalLink,
-  Home, ShoppingCart, CloudDownload, MoreHorizontal,
+  Home, ShoppingCart, CloudDownload, MoreHorizontal, LogOut,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, LeaderboardEntry } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
 
 const EXAMS = ["JAMB", "WAEC", "NECO", "GCE", "Nursing"];
+
+const NAV = [
+  { icon: Home, label: "Home" },
+  { icon: ShoppingCart, label: "Subscribe" },
+  { icon: CloudDownload, label: "Downloads" },
+  { icon: MoreHorizontal, label: "More" },
+];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -27,23 +35,30 @@ export default function DashboardPage() {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-hs-bg">
-      <div className="mx-auto w-full max-w-lg min-h-screen bg-hs-bg pb-24">
-        {tab === 0 && (
-          <HomeTab
-            fullName={fullName}
-            initials={initials}
-            avatarColor={user?.avatar_color || "#185FA5"}
-            streak={user?.streak_count ?? 0}
-            examType={user?.exam_type || "JAMB"}
-            onNav={(href) => router.push(href)}
-          />
-        )}
-        {tab === 1 && <Placeholder title="Subscribe" subtitle="Plans & payments coming here" />}
-        {tab === 2 && <Placeholder title="Downloads" subtitle="Your saved materials" />}
-        {tab === 3 && <MoreTab onLogout={() => router.push("/login")} />}
-      </div>
+    <div className="min-h-screen bg-hs-bg lg:flex">
+      {/* Desktop sidebar */}
+      <SideNav tab={tab} setTab={setTab} />
 
+      {/* Main content */}
+      <main className="min-w-0 flex-1">
+        <div className="mx-auto w-full max-w-lg pb-24 lg:max-w-6xl lg:pb-10">
+          {tab === 0 && (
+            <HomeTab
+              fullName={fullName}
+              initials={initials}
+              avatarColor={user?.avatar_color || "#185FA5"}
+              streak={user?.streak_count ?? 0}
+              examType={user?.exam_type || "JAMB"}
+              onNav={(href) => router.push(href)}
+            />
+          )}
+          {tab === 1 && <Placeholder title="Subscribe" subtitle="Plans & payments coming here" />}
+          {tab === 2 && <Placeholder title="Downloads" subtitle="Your saved materials" />}
+          {tab === 3 && <MoreTab onLogout={() => router.push("/login")} />}
+        </div>
+      </main>
+
+      {/* Mobile bottom nav */}
       <BottomNav tab={tab} setTab={setTab} />
     </div>
   );
@@ -69,7 +84,7 @@ function HomeTab({
   }, [exam]);
 
   return (
-    <div className="px-4 pt-4">
+    <div className="px-4 pt-4 lg:px-8 lg:pt-7">
       {/* Top bar */}
       <div className="flex items-center gap-2">
         <button
@@ -87,19 +102,17 @@ function HomeTab({
             <Bell size={22} className="text-hs-muted" />
             <span className="absolute right-0 top-0 h-[7px] w-[7px] rounded-full border border-white bg-hs-flame" />
           </div>
-          <div className="flex flex-col items-center">
-            <span
-              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-              style={{ backgroundColor: avatarColor }}
-            >
-              {initials}
-            </span>
-          </div>
+          <span
+            className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+            style={{ backgroundColor: avatarColor }}
+          >
+            {initials}
+          </span>
         </div>
       </div>
 
       {examOpen && (
-        <div className="mt-2 rounded-xl border border-hs-border bg-white p-2 shadow-sm">
+        <div className="mt-2 rounded-xl border border-hs-border bg-white p-2 shadow-sm lg:max-w-xs">
           {EXAMS.map((e) => (
             <button
               key={e}
@@ -117,76 +130,83 @@ function HomeTab({
         </div>
       )}
 
-      {/* Welcome card */}
-      <div className="mt-3.5 rounded-2xl bg-hs-navy p-4 shadow-lg shadow-hs-navy/25">
-        <div className="flex items-start">
-          <div className="flex-1">
-            <p className="text-[13px] text-[#B8CCE0]">Welcome back,</p>
-            <p className="text-[13px] font-semibold text-white">{fullName}</p>
+      {/* Two-pane on desktop: feed + leaderboard side panel */}
+      <div className="lg:grid lg:grid-cols-3 lg:gap-6">
+        <div className="lg:col-span-2">
+          {/* Welcome card */}
+          <div className="mt-3.5 rounded-2xl bg-hs-navy p-4 shadow-lg shadow-hs-navy/25 lg:p-6">
+            <div className="flex items-start">
+              <div className="flex-1">
+                <p className="text-[13px] text-[#B8CCE0]">Welcome back,</p>
+                <p className="text-[13px] font-semibold text-white lg:text-base">{fullName}</p>
+              </div>
+              <span className="rounded-[10px] border border-white/40 bg-white/15 px-2.5 py-1 text-[13px] font-bold text-white">
+                {myRank > 0 ? `Bronze  #${myRank}` : "Bronze"}
+              </span>
+            </div>
+
+            <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-[10px] bg-white/15 px-2.5 py-1.5">
+              <LottieIcon
+                src="/lottie/fire.json"
+                className="h-[22px] w-[22px]"
+                fallback={<span className="text-base">🔥</span>}
+              />
+              <span className="text-[13px] font-semibold text-white">
+                {streak}-day streak — keep it up!
+              </span>
+            </div>
+
+            <div className="mt-3.5 flex gap-1.5">
+              <StatTile value="84%" label="avg score" />
+              <StatTile value="129" label="questions" />
+              <StatTile value={myRank > 0 ? `#${myRank}` : "--"} label="rank" amber />
+            </div>
           </div>
-          <span className="rounded-[10px] border border-white/40 bg-white/15 px-2.5 py-1 text-[13px] font-bold text-white">
-            {myRank > 0 ? `Bronze  #${myRank}` : "Bronze"}
-          </span>
+
+          {/* Search */}
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-hs-border bg-white px-3.5 py-3">
+            <Search size={18} className="text-hs-placeholder" />
+            <input
+              placeholder="Search subjects, topics, past questions…"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-hs-placeholder"
+            />
+          </div>
+
+          {/* Category grid */}
+          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            {CATEGORIES.map((c) => (
+              <CategoryCard
+                key={c.name}
+                cat={c}
+                onClick={() => (c.href ? onNav(c.href) : toast.info(`${c.name} — coming soon`))}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-[10px] bg-white/15 px-2.5 py-1.5">
-          <LottieIcon
-            src="/lottie/fire.json"
-            className="h-[22px] w-[22px]"
-            fallback={<span className="text-base">🔥</span>}
-          />
-          <span className="text-[13px] font-semibold text-white">
-            {streak}-day streak — keep it up!
-          </span>
-        </div>
-
-        <div className="mt-3.5 flex gap-1.5">
-          <StatTile value="84%" label="avg score" />
-          <StatTile value="129" label="questions" />
-          <StatTile value={myRank > 0 ? `#${myRank}` : "--"} label="rank" amber />
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="mt-4 flex items-center gap-2 rounded-xl border border-hs-border bg-white px-3.5 py-3">
-        <Search size={18} className="text-hs-placeholder" />
-        <input
-          placeholder="Search subjects, topics, past questions…"
-          className="w-full bg-transparent text-sm outline-none placeholder:text-hs-placeholder"
-        />
-      </div>
-
-      {/* Category grid */}
-      <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-        {CATEGORIES.map((c) => (
-          <CategoryCard
-            key={c.name}
-            cat={c}
-            onClick={() => (c.href ? onNav(c.href) : toast.info(`${c.name} — coming soon`))}
-          />
-        ))}
-      </div>
-
-      {/* Leaderboard preview */}
-      <div className="mt-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-hs-navy">Leaderboard</h2>
-          <button
-            onClick={() => toast.info("Full board — coming soon")}
-            className="flex items-center gap-1 text-sm font-semibold text-hs-blue"
-          >
-            Full board <ExternalLink size={13} />
-          </button>
-        </div>
-        <div className="mt-3 space-y-2">
-          {entries.length === 0 && (
-            <p className="rounded-xl border border-hs-border bg-white px-4 py-5 text-center text-sm text-hs-muted">
-              No leaderboard data yet.
-            </p>
-          )}
-          {entries.slice(0, 5).map((e) => (
-            <LeaderboardRow key={e.rank} e={e} />
-          ))}
+        {/* Leaderboard panel */}
+        <div className="mt-6 lg:mt-3.5">
+          <div className="lg:sticky lg:top-6 lg:rounded-2xl lg:border lg:border-hs-border lg:bg-white lg:p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-hs-navy">Leaderboard</h2>
+              <button
+                onClick={() => toast.info("Full board — coming soon")}
+                className="flex items-center gap-1 text-sm font-semibold text-hs-blue"
+              >
+                Full board <ExternalLink size={13} />
+              </button>
+            </div>
+            <div className="mt-3 space-y-2">
+              {entries.length === 0 && (
+                <p className="rounded-xl border border-hs-border bg-white px-4 py-5 text-center text-sm text-hs-muted lg:border-0">
+                  No leaderboard data yet.
+                </p>
+              )}
+              {entries.slice(0, 5).map((e) => (
+                <LeaderboardRow key={e.rank} e={e} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -240,7 +260,7 @@ function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="flex aspect-[1.75] flex-col items-start rounded-xl p-3 text-left shadow-[0_4px_12px_rgba(0,0,0,0.13)] transition-transform active:scale-95"
+      className="flex aspect-[1.75] flex-col items-start rounded-xl p-3 text-left shadow-[0_4px_12px_rgba(0,0,0,0.13)] transition-transform hover:-translate-y-0.5 active:scale-95"
       style={{ backgroundColor: cat.bg }}
     >
       {cat.lottie ? (
@@ -296,12 +316,12 @@ function Placeholder({ title, subtitle }: { title: string; subtitle: string }) {
 function MoreTab({ onLogout }: { onLogout: () => void }) {
   const { user, logout } = useAuth();
   return (
-    <div className="px-4 pt-6">
+    <div className="px-4 pt-6 lg:px-8">
       <h1 className="text-xl font-bold text-hs-navy">More</h1>
       <p className="mt-1 text-sm text-hs-muted">{user?.email}</p>
       <button
         onClick={() => { logout(); onLogout(); }}
-        className="mt-6 w-full rounded-full bg-hs-navy py-3 font-semibold text-white"
+        className="mt-6 w-full rounded-full bg-hs-navy py-3 font-semibold text-white lg:max-w-xs"
       >
         Log out
       </button>
@@ -309,18 +329,50 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
   );
 }
 
-// ── Bottom nav ────────────────────────────────────────────────────────────────
-function BottomNav({ tab, setTab }: { tab: number; setTab: (i: number) => void }) {
-  const items = [
-    { icon: Home, label: "Home" },
-    { icon: ShoppingCart, label: "Subscribe" },
-    { icon: CloudDownload, label: "Downloads" },
-    { icon: MoreHorizontal, label: "More" },
-  ];
+// ── Desktop sidebar (lg+) ─────────────────────────────────────────────────────
+function SideNav({ tab, setTab }: { tab: number; setTab: (i: number) => void }) {
+  const { logout } = useAuth();
+  const router = useRouter();
   return (
-    <nav className="fixed bottom-0 left-1/2 w-full max-w-lg -translate-x-1/2 border-t border-hs-border bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
+    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-hs-border bg-white px-3 py-6 lg:flex">
+      <div className="px-3">
+        <Image src="/highscore-logo-final.png" alt="HighScore" width={140} height={36} className="h-9 w-auto object-contain" priority />
+      </div>
+      <nav className="mt-8 flex flex-col gap-1">
+        {NAV.map((it, i) => {
+          const active = i === tab;
+          const Icon = it.icon;
+          return (
+            <button
+              key={it.label}
+              onClick={() => setTab(i)}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
+                active ? "bg-hs-blue text-white" : "text-hs-navy hover:bg-hs-blueTint"
+              }`}
+            >
+              <Icon size={20} />
+              {it.label}
+            </button>
+          );
+        })}
+      </nav>
+      <button
+        onClick={() => { logout(); router.push("/login"); }}
+        className="mt-auto flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-hs-muted hover:bg-hs-bg"
+      >
+        <LogOut size={20} />
+        Log out
+      </button>
+    </aside>
+  );
+}
+
+// ── Mobile bottom nav ─────────────────────────────────────────────────────────
+function BottomNav({ tab, setTab }: { tab: number; setTab: (i: number) => void }) {
+  return (
+    <nav className="fixed bottom-0 left-1/2 w-full max-w-lg -translate-x-1/2 border-t border-hs-border bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.06)] lg:hidden">
       <div className="flex items-center justify-around py-1.5">
-        {items.map((it, i) => {
+        {NAV.map((it, i) => {
           const active = i === tab;
           const Icon = it.icon;
           return (
