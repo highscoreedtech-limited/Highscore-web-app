@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   PlayCircle, Laptop, Gamepad2, Medal, LineChart, Gift,
   ArrowRight, Check, Menu, X, GraduationCap, Play, ChevronLeft, ChevronRight,
+  User, Instagram, Twitter, Youtube,
 } from "lucide-react";
 import { Reveal, stagger, item } from "@/components/Reveal";
 import LottieIcon from "@/components/LottieIcon";
@@ -57,7 +58,7 @@ export default function MarketingPage() {
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-hs-border bg-white/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
-          <Image src="/highscore-logo-final.png" alt="HighScore" width={200} height={52} className="h-12 w-auto object-contain lg:h-14" priority />
+          <Image src="/highscore-logo-final.png" alt="HighScore" width={240} height={64} className="h-14 w-auto object-contain lg:h-16" priority />
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Features</a>
             <a href="#library" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Video library</a>
@@ -68,80 +69,124 @@ export default function MarketingPage() {
             <Link href="/login" className="rounded-full px-4 py-2 text-sm font-semibold text-hs-navy hover:bg-hs-bg">Log in</Link>
             <Link href="/signup" className="rounded-full bg-hs-blue px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-hs-blueDeep">Get started</Link>
           </div>
-          <button className="md:hidden" onClick={() => setMenuOpen((v) => !v)} aria-label="Menu">
-            {menuOpen ? <X /> : <Menu />}
+          <button className="text-hs-navy md:hidden" onClick={() => setMenuOpen(true)} aria-label="Open menu">
+            <Menu size={26} />
           </button>
         </div>
-        {menuOpen && (
-          <div className="border-t border-hs-border bg-white px-4 py-4 md:hidden">
-            <div className="flex flex-col gap-3">
-              <a href="#features" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Features</a>
-              <a href="#library" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Video library</a>
-              <a href="#pricing" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Pricing</a>
-              <Link href="/blog" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-hs-navy">Blog</Link>
-              <Link href="/login" className="rounded-full border border-hs-border px-4 py-2 text-center text-sm font-semibold text-hs-navy">Log in</Link>
-              <Link href="/signup" className="rounded-full bg-hs-blue px-4 py-2 text-center text-sm font-semibold text-white">Get started</Link>
-            </div>
-          </div>
-        )}
       </header>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 lg:grid-cols-2 lg:px-8 lg:py-20">
+      {/* Full-screen mobile menu */}
+      <AnimatePresence>
+        {menuOpen && (
           <motion.div
+            className="fixed inset-0 z-[60] flex flex-col bg-hs-bg md:hidden"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {/* Top bar */}
+            <div className="flex items-center justify-between border-b border-hs-border/60 px-5 py-4">
+              <button onClick={() => setMenuOpen(false)} aria-label="Close menu" className="text-hs-navy">
+                <X size={24} />
+              </button>
+              <span className="text-sm font-semibold tracking-[0.35em] text-hs-navy">HIGHSCORE</span>
+              <Link href="/login" onClick={() => setMenuOpen(false)} aria-label="Account" className="text-hs-navy">
+                <User size={22} />
+              </Link>
+            </div>
+
+            {/* Links */}
+            <nav className="flex flex-1 flex-col gap-2 px-7 pt-8">
+              {[
+                { label: "Features", href: "#features" },
+                { label: "Video library", href: "#library" },
+                { label: "Pricing", href: "#pricing" },
+                { label: "Blog", href: "/blog" },
+                { label: "Log in", href: "/login" },
+                { label: "Get started", href: "/signup" },
+              ].map((l, i) => (
+                <motion.div
+                  key={l.label}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.06 + i * 0.05, duration: 0.3 }}
+                >
+                  {l.href.startsWith("#") ? (
+                    <a href={l.href} onClick={() => setMenuOpen(false)} className="block py-3 text-3xl font-light tracking-tight text-hs-navy">
+                      {l.label}
+                    </a>
+                  ) : (
+                    <Link href={l.href} onClick={() => setMenuOpen(false)} className="block py-3 text-3xl font-light tracking-tight text-hs-navy">
+                      {l.label}
+                    </Link>
+                  )}
+                </motion.div>
+              ))}
+            </nav>
+
+            {/* Footer tagline */}
+            <div className="px-7 pb-10">
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-hs-muted">JAMB · WAEC · NECO · NIGERIA</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Hero — full-bleed background image */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <Image src="/hero-students-computers.png" alt="" fill priority className="object-cover" />
+          {/* Brand overlay for legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-hs-navy/95 via-hs-navy/85 to-hs-navy/55" />
+          <div className="absolute inset-0 bg-hs-navy/30" />
+        </div>
+
+        <div className="relative mx-auto max-w-6xl px-4 py-20 lg:px-8 lg:py-28">
+          <motion.div
+            className="max-w-2xl"
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-hs-blueTint px-3 py-1 text-xs font-semibold text-hs-blue">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 text-xs font-semibold text-hs-amber ring-1 ring-white/20">
               <GraduationCap size={14} /> JAMB · WAEC · NECO · Post-UTME
             </span>
-            <h1 className="mt-4 text-4xl font-extrabold leading-tight text-hs-navy lg:text-5xl">
-              Pass your exams with <span className="text-hs-blue">confidence.</span>
+            <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] text-white sm:text-5xl lg:text-6xl">
+              Pass your exams with <span className="text-hs-amber">confidence.</span>
             </h1>
-            <p className="mt-4 max-w-md text-lg text-hs-muted">
+            <p className="mt-5 max-w-lg text-lg text-[#D7E3F0]">
               Nigeria&apos;s smartest learning app — video lessons, CBT practice, quiz battles
               and leaderboards, all in one place. Study smarter and score higher.
             </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-6 py-3 font-semibold text-hs-amberDark">
+                <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-7 py-3.5 font-semibold text-hs-amberDark shadow-lg shadow-black/20">
                   Start learning free <ArrowRight size={18} />
                 </Link>
               </motion.div>
-              <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-hs-border px-6 py-3 font-semibold text-hs-navy hover:bg-hs-bg">
+              <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/5 px-7 py-3.5 font-semibold text-white backdrop-blur hover:bg-white/10">
                 I have an account
               </Link>
             </div>
-            <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3 text-sm text-hs-muted">
-              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-blue" /> 10 core subjects</span>
-              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-blue" /> Thousands of past questions</span>
-              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-blue" /> Learn anywhere</span>
+            <div className="mt-9 flex flex-wrap gap-x-8 gap-y-3 text-sm text-[#D7E3F0]">
+              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-amber" /> 10 core subjects</span>
+              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-amber" /> Thousands of past questions</span>
+              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-amber" /> Learn anywhere</span>
             </div>
           </motion.div>
 
           <motion.div
-            className="relative"
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-10 inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-white ring-1 ring-white/15 backdrop-blur"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
           >
-            <div className="overflow-hidden rounded-3xl border-4 border-white shadow-[0_30px_70px_-15px_rgba(4,44,83,0.55)] ring-1 ring-hs-border">
-              <Image src="/hero-students-computers.png" alt="Students learning with HighScore" width={720} height={540} className="h-full w-full object-cover" priority />
+            <span className="text-xl">🔥</span>
+            <div>
+              <p className="text-sm font-bold">Join 7-day streak learners</p>
+              <p className="text-[11px] text-[#B8CCE0]">building winning study habits daily</p>
             </div>
-            <motion.div
-              className="absolute -bottom-4 -left-4 hidden items-center gap-2 rounded-2xl bg-hs-navy px-4 py-3 text-white shadow-lg sm:flex"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-            >
-              <span className="text-xl">🔥</span>
-              <div>
-                <p className="text-sm font-bold">7-day streak</p>
-                <p className="text-[11px] text-[#B8CCE0]">keep it going!</p>
-              </div>
-            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -310,16 +355,51 @@ export default function MarketingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-hs-border bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-hs-muted sm:flex-row lg:px-8">
-          <Image src="/highscore-logo-final.png" alt="HighScore" width={170} height={42} className="h-11 w-auto object-contain" />
-          <p>© {new Date().getFullYear()} HighScore EdTech. All rights reserved.</p>
-          <div className="flex gap-5">
-            <Link href="/login" className="hover:text-hs-blue">Log in</Link>
-            <Link href="/signup" className="hover:text-hs-blue">Sign up</Link>
+      <footer className="bg-hs-navy text-[#B8CCE0]">
+        <div className="mx-auto max-w-6xl px-4 py-14 lg:px-8">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <Image src="/highscore-logo-final.png" alt="HighScore" width={260} height={66} className="h-14 w-auto object-contain brightness-0 invert" />
+              <p className="mt-4 max-w-xs text-sm">Nigeria&apos;s smartest exam-prep app — lessons, CBT, quiz battles and rewards in one place.</p>
+              <div className="mt-5 flex gap-3">
+                {[Instagram, Twitter, Youtube].map((Icon, i) => (
+                  <a key={i} href="#" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Social link">
+                    <Icon size={17} />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <FooterCol title="Product" links={[["Features", "#features"], ["Video library", "#library"], ["Pricing", "#pricing"], ["Blog", "/blog"]]} />
+            <FooterCol title="Subjects" links={[["English", "/signup"], ["Mathematics", "/signup"], ["Physics", "/signup"], ["Chemistry", "/signup"], ["Biology", "/signup"]]} />
+            <FooterCol title="Company" links={[["Log in", "/login"], ["Sign up", "/signup"], ["Contact", "#"], ["Privacy", "#"]]} />
+          </div>
+
+          <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
+            <p className="text-xs">© {new Date().getFullYear()} HighScore EdTech Limited. All rights reserved.</p>
+            <p className="text-xs font-medium uppercase tracking-[0.3em] text-white/60">Lagos · Abuja · Nigeria</p>
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
+  return (
+    <div>
+      <p className="text-sm font-bold text-white">{title}</p>
+      <ul className="mt-4 space-y-2.5 text-sm">
+        {links.map(([label, href]) => (
+          <li key={label}>
+            {href.startsWith("#") ? (
+              <a href={href} className="hover:text-white">{label}</a>
+            ) : (
+              <Link href={href} className="hover:text-white">{label}</Link>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
