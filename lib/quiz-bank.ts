@@ -1,0 +1,53 @@
+// Quiz battle bank — ported from the mobile app (quiz_constants.dart).
+export interface QuizQuestion { q: string; opts: string[]; ans: number; }
+
+export const QUIZ_BANK: Record<string, QuizQuestion[]> = {
+  'Mathematics': [
+    {'q': 'If x² − 5x + 6 = 0, what are the values of x?',                   'opts': ['x = 1 and 6', 'x = 2 and 3', 'x = −2 and −3', 'x = 5 and 1'],      'ans': 1},
+    {'q': 'What is the value of sin 30° + cos 60°?',                          'opts': ['0.5', '1', '√3/2', '√2/2'],                                         'ans': 1},
+    {'q': 'Find the gradient of the line joining (2, 3) and (6, 11).',        'opts': ['1', '2', '3', '4'],                                                  'ans': 1},
+    {'q': 'If log₂ 8 = x, find x.',                                           'opts': ['2', '3', '4', '6'],                                                  'ans': 1},
+    {'q': 'A circle has radius 7cm. Find its area. (π = 22/7)',               'opts': ['154 cm²', '44 cm²', '22 cm²', '308 cm²'],                            'ans': 0},
+    {'q': 'Evaluate: ∫(2x + 3) dx',                                           'opts': ['x² + 3x + C', '2x² + 3 + C', 'x² + C', '2x + C'],                  'ans': 0},
+    {'q': 'What is 15% of 240?',                                              'opts': ['30', '36', '42', '48'],                                              'ans': 1},
+    {'q': 'Simplify: (3x² + 2x − 1) ÷ (x + 1)',                              'opts': ['3x + 1', '3x − 1', '3x − 5', '3x + 5'],                             'ans': 1},
+    {'q': 'Sum of first 20 terms of AP is 400, first term is 2. Find d.',     'opts': ['2', '3', '4', '5'],                                                  'ans': 0},
+    {'q': 'In a class of 40, 25 study French, 20 Spanish, 10 both. Neither?', 'opts': ['5', '10', '15', '20'],                                               'ans': 0},
+  ],
+  'Physics': [
+    {'q': 'What is the SI unit of electric current?',                         'opts': ['Volt', 'Watt', 'Ampere', 'Ohm'],                                     'ans': 2},
+    {'q': 'An object travels 60 m in 3 s. What is its average speed?',        'opts': ['10 m/s', '15 m/s', '20 m/s', '25 m/s'],                              'ans': 2},
+    {"q": "Which of Newton's laws states F = ma?",                            'opts': ['First law', 'Second law', 'Third law', 'Law of gravitation'],         'ans': 1},
+    {'q': 'What type of wave is sound?',                                      'opts': ['Transverse', 'Electromagnetic', 'Longitudinal', 'Surface'],          'ans': 2},
+    {'q': 'What is the speed of light in vacuum?',                            'opts': ['3×10⁶ m/s', '3×10⁸ m/s', '3×10¹⁰ m/s', '3×10⁴ m/s'],               'ans': 1},
+    {"q": "Ohm's Law states that V = ?",                                      'opts': ['I/R', 'IR', 'I²R', 'R/I'],                                           'ans': 1},
+    {'q': 'Which colour of light has the highest frequency?',                 'opts': ['Red', 'Green', 'Yellow', 'Violet'],                                  'ans': 3},
+    {'q': 'A body at rest has zero:',                                         'opts': ['Mass', 'Weight', 'Kinetic energy', 'Potential energy'],               'ans': 2},
+    {'q': 'The unit of pressure is:',                                         'opts': ['Newton', 'Joule', 'Pascal', 'Watt'],                                  'ans': 2},
+    {'q': 'A solid changing directly to gas is called:',                      'opts': ['Evaporation', 'Condensation', 'Sublimation', 'Fusion'],               'ans': 2},
+  ],
+  'Chemistry': [
+    {'q': 'What is the chemical symbol for Gold?',                            'opts': ['Go', 'Gd', 'Au', 'Ag'],                                              'ans': 2},
+    {'q': 'What is the pH of pure water?',                                    'opts': ['0', '7', '14', '10'],                                                'ans': 1},
+    {'q': 'How many electrons does Carbon have?',                             'opts': ['4', '6', '8', '12'],                                                 'ans': 1},
+    {'q': 'What type of bond is formed between Na and Cl?',                   'opts': ['Covalent', 'Metallic', 'Ionic', 'Hydrogen'],                         'ans': 2},
+    {'q': 'Which gas is produced when zinc reacts with dilute HCl?',          'opts': ['Oxygen', 'Chlorine', 'Carbon dioxide', 'Hydrogen'],                  'ans': 3},
+    {"q": "Avogadro's number is approximately:",                              'opts': ['6.02×10²³', '6.02×10²²', '3.01×10²³', '1.02×10²³'],                  'ans': 0},
+    {'q': 'Which of these is a noble gas?',                                   'opts': ['Nitrogen', 'Oxygen', 'Argon', 'Fluorine'],                           'ans': 2},
+    {'q': 'What is the functional group in alcohols?',                        'opts': ['-COOH', '-OH', '-CHO', '-NH₂'],                                      'ans': 1},
+    {'q': 'Which acid is found in the stomach?',                              'opts': ['H₂SO₄', 'HNO₃', 'HCl', 'H₃PO₄'],                                    'ans': 2},
+    {'q': 'A liquid turning to vapour at its surface is:',                   'opts': ['Boiling', 'Evaporation', 'Sublimation', 'Condensation'],              'ans': 1},
+  ],
+  'Biology': [
+    {'q': 'The powerhouse of the cell is the:',                               'opts': ['Nucleus', 'Ribosome', 'Mitochondria', 'Chloroplast'],                'ans': 2},
+    {'q': 'Which blood group is the universal donor?',                        'opts': ['A', 'B', 'AB', 'O'],                                                 'ans': 3},
+    {'q': 'Photosynthesis takes place in the:',                               'opts': ['Mitochondria', 'Chloroplast', 'Nucleus', 'Ribosome'],                'ans': 1},
+    {'q': 'DNA stands for:',                                                  'opts': ['Deoxyribonucleic Acid', 'Deoxyribonitric Acid', 'Diribonucleic Acid', 'Dinucleic Acid'], 'ans': 0},
+    {'q': 'Which organ produces insulin?',                                    'opts': ['Liver', 'Kidney', 'Pancreas', 'Stomach'],                            'ans': 2},
+    {'q': 'Plants losing water through leaves is called:',                   'opts': ['Respiration', 'Transpiration', 'Osmosis', 'Diffusion'],               'ans': 1},
+    {'q': 'How many chromosomes do humans normally have?',                    'opts': ['23', '44', '46', '48'],                                              'ans': 2},
+    {'q': 'Which vitamin is produced by skin in sunlight?',                   'opts': ['Vitamin A', 'Vitamin B', 'Vitamin C', 'Vitamin D'],                  'ans': 3},
+    {'q': 'The basic unit of life is the:',                                   'opts': ['Tissue', 'Organ', 'Cell', 'Atom'],                                   'ans': 2},
+    {'q': 'Which part of the brain controls balance?',                        'opts': ['Cerebrum', 'Cerebellum', 'Medulla', 'Hypothalamus'],                 'ans': 1},
+  ],
+};

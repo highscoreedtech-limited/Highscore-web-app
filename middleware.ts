@@ -8,6 +8,7 @@ const PROTECTED = [
   "/lms",
   "/courses",
   "/cbt",
+  "/quiz",
   "/rewards",
   "/chat",
   "/profile",
