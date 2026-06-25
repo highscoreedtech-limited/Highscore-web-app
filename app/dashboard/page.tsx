@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, LeaderboardEntry } from "@/lib/api";
+import LottieIcon from "@/components/LottieIcon";
 
 const EXAMS = ["JAMB", "WAEC", "NECO", "GCE", "Nursing"];
 
@@ -27,7 +28,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-hs-bg">
-      <div className="mx-auto max-w-md min-h-screen bg-hs-bg pb-24">
+      <div className="mx-auto w-full max-w-lg min-h-screen bg-hs-bg pb-24">
         {tab === 0 && (
           <HomeTab
             fullName={fullName}
@@ -129,7 +130,11 @@ function HomeTab({
         </div>
 
         <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-[10px] bg-white/15 px-2.5 py-1.5">
-          <span className="text-base">🔥</span>
+          <LottieIcon
+            src="/lottie/fire.json"
+            className="h-[22px] w-[22px]"
+            fallback={<span className="text-base">🔥</span>}
+          />
           <span className="text-[13px] font-semibold text-white">
             {streak}-day streak — keep it up!
           </span>
@@ -152,7 +157,7 @@ function HomeTab({
       </div>
 
       {/* Category grid */}
-      <div className="mt-5 grid grid-cols-2 gap-2.5">
+      <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
         {CATEGORIES.map((c) => (
           <CategoryCard
             key={c.name}
@@ -216,17 +221,18 @@ function StatTile({ value, label, amber }: { value: string; label: string; amber
 
 interface Cat {
   name: string; subtitle: string; bg: string; fg: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>; href?: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  lottie?: string; href?: string;
 }
 const CATEGORIES: Cat[] = [
-  { name: "My Courses", subtitle: "6 active", bg: "#E6F1FB", fg: "#185FA5", icon: PlayCircle, href: "/courses" },
-  { name: "Quiz games", subtitle: "3 live now", bg: "#FAEEDA", fg: "#854F0B", icon: Gamepad2 },
-  { name: "CBT practice", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: Laptop, href: "/cbt" },
-  { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart },
+  { name: "My Courses", subtitle: "6 active", bg: "#E6F1FB", fg: "#185FA5", icon: PlayCircle, lottie: "/lottie/video-player.json", href: "/courses" },
+  { name: "Quiz games", subtitle: "3 live now", bg: "#FAEEDA", fg: "#854F0B", icon: Gamepad2, lottie: "/lottie/quiz-games.json" },
+  { name: "CBT practice", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: Laptop, lottie: "/lottie/cbt.json", href: "/cbt" },
+  { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, lottie: "/lottie/graph.json" },
   { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal },
-  { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, href: "/rewards" },
+  { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, lottie: "/lottie/reward.json", href: "/rewards" },
   { name: "News", subtitle: "JAMB updates", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper },
-  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus },
+  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json" },
 ];
 
 function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
@@ -237,12 +243,21 @@ function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
       className="flex aspect-[1.75] flex-col items-start rounded-xl p-3 text-left shadow-[0_4px_12px_rgba(0,0,0,0.13)] transition-transform active:scale-95"
       style={{ backgroundColor: cat.bg }}
     >
-      <span
-        className="rounded-lg p-1.5"
-        style={{ backgroundColor: `${cat.fg}26` }}
-      >
-        <Icon size={22} style={{ color: cat.fg }} />
-      </span>
+      {cat.lottie ? (
+        <LottieIcon
+          src={cat.lottie}
+          className="h-12 w-12"
+          fallback={
+            <span className="rounded-lg p-1.5" style={{ backgroundColor: `${cat.fg}26` }}>
+              <Icon size={22} style={{ color: cat.fg }} />
+            </span>
+          }
+        />
+      ) : (
+        <span className="rounded-lg p-1.5" style={{ backgroundColor: `${cat.fg}26` }}>
+          <Icon size={22} style={{ color: cat.fg }} />
+        </span>
+      )}
       <span className="mt-auto text-xs font-bold text-hs-navy">{cat.name}</span>
       <span className="text-[11px] text-hs-muted">{cat.subtitle}</span>
     </button>
@@ -303,7 +318,7 @@ function BottomNav({ tab, setTab }: { tab: number; setTab: (i: number) => void }
     { icon: MoreHorizontal, label: "More" },
   ];
   return (
-    <nav className="fixed bottom-0 left-1/2 w-full max-w-md -translate-x-1/2 border-t border-hs-border bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
+    <nav className="fixed bottom-0 left-1/2 w-full max-w-lg -translate-x-1/2 border-t border-hs-border bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
       <div className="flex items-center justify-around py-1.5">
         {items.map((it, i) => {
           const active = i === tab;
