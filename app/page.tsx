@@ -1,22 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   PlayCircle, Laptop, Gamepad2, Medal, LineChart, Gift,
-  ArrowRight, Check, Menu, X, GraduationCap, Play,
+  ArrowRight, Check, Menu, X, GraduationCap, Play, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Reveal, stagger, item } from "@/components/Reveal";
+import LottieIcon from "@/components/LottieIcon";
 
 const FEATURES = [
-  { icon: PlayCircle, title: "Video lessons", desc: "Bite-sized lessons for every JAMB, WAEC & NECO topic, taught by top teachers.", color: "#185FA5", bg: "#E6F1FB" },
-  { icon: Laptop, title: "CBT practice", desc: "Real exam-style computer-based tests with instant scoring and explanations.", color: "#185FA5", bg: "#E6F1FB" },
-  { icon: Gamepad2, title: "Quiz battles", desc: "Challenge friends in live 1-v-1 quiz games and climb the ranks.", color: "#854F0B", bg: "#FAEEDA" },
-  { icon: Medal, title: "Leaderboards", desc: "Compete with students across Nigeria and earn your spot at the top.", color: "#854F0B", bg: "#FAEEDA" },
-  { icon: LineChart, title: "Analytics", desc: "Track your progress, spot weak topics and study smarter, not harder.", color: "#185FA5", bg: "#E6F1FB" },
-  { icon: Gift, title: "Rewards", desc: "Earn points and streaks as you learn — and turn them into real rewards.", color: "#854F0B", bg: "#FAEEDA" },
+  { icon: PlayCircle, lottie: "/lottie/video-player.json", title: "Video lessons", desc: "Bite-sized lessons for every JAMB, WAEC & NECO topic, taught by top teachers.", color: "#185FA5", bg: "#E6F1FB" },
+  { icon: Laptop, lottie: "/lottie/cbt.json", title: "CBT practice", desc: "Real exam-style computer-based tests with instant scoring and explanations.", color: "#185FA5", bg: "#E6F1FB" },
+  { icon: Gamepad2, lottie: "/lottie/quiz-games.json", title: "Quiz battles", desc: "Challenge friends in live 1-v-1 quiz games and climb the ranks.", color: "#854F0B", bg: "#FAEEDA" },
+  { icon: Medal, lottie: "/lottie/chart-growup.json", title: "Leaderboards", desc: "Compete with students across Nigeria and earn your spot at the top.", color: "#854F0B", bg: "#FAEEDA" },
+  { icon: LineChart, lottie: "/lottie/graph.json", title: "Analytics", desc: "Track your progress, spot weak topics and study smarter, not harder.", color: "#185FA5", bg: "#E6F1FB" },
+  { icon: Gift, lottie: "/lottie/reward.json", title: "Rewards", desc: "Earn points and streaks as you learn — and turn them into real rewards.", color: "#854F0B", bg: "#FAEEDA" },
 ];
 
 const LIBRARY = [
@@ -30,6 +31,8 @@ const LIBRARY = [
 
 export default function MarketingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const slide = (dir: number) => sliderRef.current?.scrollBy({ left: dir * 360, behavior: "smooth" });
 
   return (
     <div className="min-h-screen bg-white font-sans text-hs-body">
@@ -154,12 +157,16 @@ export default function MarketingPage() {
               <motion.div
                 key={f.title}
                 variants={item}
-                whileHover={{ y: -6 }}
+                whileHover={{ y: -8 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="rounded-2xl border border-hs-border bg-white p-6 shadow-[0_4px_14px_rgba(0,0,0,0.04)]"
+                className="rounded-2xl border border-hs-border bg-white p-6 shadow-[0_10px_30px_-8px_rgba(4,44,83,0.16)] hover:shadow-[0_22px_44px_-12px_rgba(4,44,83,0.28)]"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl" style={{ backgroundColor: f.bg }}>
-                  <Icon size={24} style={{ color: f.color }} />
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl" style={{ backgroundColor: f.bg }}>
+                  <LottieIcon
+                    src={f.lottie}
+                    className="h-11 w-11"
+                    fallback={<Icon size={24} style={{ color: f.color }} />}
+                  />
                 </span>
                 <h3 className="mt-4 text-lg font-bold text-hs-navy">{f.title}</h3>
                 <p className="mt-1.5 text-sm text-hs-muted">{f.desc}</p>
@@ -180,36 +187,55 @@ export default function MarketingPage() {
             <p className="mt-3 text-[#B8CCE0]">Animated, exam-focused lessons across every subject we cover — from English to Further Maths.</p>
           </Reveal>
 
-          <motion.div
-            className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-80px" }}
-          >
-            {LIBRARY.map((v) => (
-              <motion.div key={v.subject} variants={item} whileHover={{ y: -6 }} className="group cursor-pointer">
-                <Link href="/signup" className="block overflow-hidden rounded-2xl bg-white shadow-lg">
-                  <div className="relative aspect-video overflow-hidden">
-                    <Image src={v.img} alt={v.subject} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
-                    <motion.span
-                      className="absolute inset-0 m-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-hs-blue shadow-lg"
-                      whileHover={{ scale: 1.12 }}
-                    >
-                      <Play size={24} className="ml-0.5 fill-hs-blue" />
-                    </motion.span>
-                  </div>
-                  <div className="p-4">
-                    <p className="text-base font-bold text-hs-blue">{v.subject}</p>
-                    <p className="mt-0.5 text-sm text-hs-muted">{v.topic}</p>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="relative mt-12">
+            {/* Slider arrows (desktop) */}
+            <button
+              onClick={() => slide(-1)}
+              aria-label="Previous"
+              className="absolute -left-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white p-2.5 text-hs-navy shadow-[0_8px_24px_rgba(0,0,0,0.25)] hover:bg-hs-bg lg:flex"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={() => slide(1)}
+              aria-label="Next"
+              className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white p-2.5 text-hs-navy shadow-[0_8px_24px_rgba(0,0,0,0.25)] hover:bg-hs-bg lg:flex"
+            >
+              <ChevronRight size={20} />
+            </button>
 
-          <div className="mt-10 text-center">
+            <div
+              ref={sliderRef}
+              className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {LIBRARY.map((v) => (
+                <motion.div
+                  key={v.subject}
+                  whileHover={{ y: -6 }}
+                  className="group w-[280px] shrink-0 snap-start sm:w-[330px]"
+                >
+                  <Link href="/signup" className="block overflow-hidden rounded-2xl bg-white shadow-[0_18px_40px_-12px_rgba(0,0,0,0.45)]">
+                    <div className="relative aspect-video overflow-hidden">
+                      <Image src={v.img} alt={v.subject} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+                      <motion.span
+                        className="absolute inset-0 m-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-hs-blue shadow-[0_8px_20px_rgba(0,0,0,0.3)]"
+                        whileHover={{ scale: 1.12 }}
+                      >
+                        <Play size={24} className="ml-0.5 fill-hs-blue" />
+                      </motion.span>
+                    </div>
+                    <div className="p-4">
+                      <p className="text-base font-bold text-hs-blue">{v.subject}</p>
+                      <p className="mt-0.5 text-sm text-hs-muted">{v.topic}</p>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
             <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-6 py-3 font-semibold text-hs-amberDark hover:opacity-90">
               Watch the full library <ArrowRight size={18} />
             </Link>
