@@ -281,8 +281,8 @@ export default function ChatModal({
                     id: f.id,
                     name: f.name,
                   }));
-                  // Navigate to live game (you'll need to adjust this based on your routing)
-                  window.location.href = '/games/math-champion'; // or your live games route
+                  // Games are now handled by the backend; route to courses for now
+                  window.location.href = '/courses';
                 }}
                 className="text-xs px-2 py-1 bg-orange-400 hover:bg-orange-500 text-white rounded"
               >

@@ -66,9 +66,9 @@ export default function HomePage() {
 
   function onHandleGameClick() {
     if (user) {
-      router.push("/games1");
+      router.push("/lms");
     } else {
-      router.push("/login?redirect=/games1");
+      router.push("/login?redirect=/lms");
     }
     setIsMenuOpen(false);
   }
@@ -194,9 +194,9 @@ export default function HomePage() {
           {/* Desktop Navigation - Centered absolute */}
           <nav className="hidden lg:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
           {/* absolute left-1/2 -translate-x-1/2 */}
-            {["Tutorials", "CBT Practice", "Games"].map((item) => {
-              const dest = item === "Tutorials" ? "/courses" : 
-                           item === "CBT Practice" ? "/courses/CBT-PRACTICE" : "/games1";
+            {["Tutorials", "CBT Practice"].map((item) => {
+              const dest = item === "Tutorials" ? "/courses" :
+                           "/courses/CBT-PRACTICE";
               const href = user ? dest : `/login?redirect=${dest}`;
               
               return (
@@ -282,10 +282,9 @@ export default function HomePage() {
               className="lg:hidden bg-white border-t border-slate-100 overflow-hidden shadow-2xl"
             >
               <div className="p-8 flex flex-col gap-6">
-                {["Explainer Videos", "CBT Practice", "Educational Games", "Pricing"].map((item) => {
-                  const href = item === "Explainer Videos" ? "/courses" : 
-                               item === "CBT Practice" ? "/courses/CBT-PRACTICE" : 
-                               item === "Educational Games" ? "/games1" : "#pricing";
+                {["Explainer Videos", "CBT Practice", "Pricing"].map((item) => {
+                  const href = item === "Explainer Videos" ? "/courses" :
+                               item === "CBT Practice" ? "/courses/CBT-PRACTICE" : "#pricing";
                   return (
                     <Link 
                       key={item}
@@ -493,15 +492,6 @@ export default function HomePage() {
                 color: "#4f46e5", // indigo-600
                 link: "/courses/CBT-PRACTICE",
                 btnText: "Start Practice"
-              },
-              {
-                title: "Gamified Quiz Hub",
-                desc: "Turn study into play. Compete for high scores and earn rewards while you learn.",
-                icon: <GamepadIcon className="w-6 h-6 text-orange-600" />,
-                bg: "bg-orange-50",
-                color: "#ea580c", // orange-600
-                link: "/games1",
-                btnText: "Play Now"
               },
               {
                 title: "AI Study Tutor",
@@ -881,7 +871,6 @@ export default function HomePage() {
               <ul className="space-y-4">
                 <li><Link href="/courses" className="text-slate-400 hover:text-blue-400 transition-colors">Video Tutorials</Link></li>
                 <li><Link href="/courses/CBT-PRACTICE" className="text-slate-400 hover:text-blue-400 transition-colors">CBT Practice</Link></li>
-                <li><Link href="/games1" className="text-slate-400 hover:text-blue-400 transition-colors">Interactive Games</Link></li>
                 <li><Link href="/lms" className="text-slate-400 hover:text-blue-400 transition-colors">LMS Access</Link></li>
               </ul>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, BookOpen, Gamepad2, Users, User } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, User } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function FooterNav() {
@@ -10,7 +10,6 @@ export default function FooterNav() {
   const navItems = [
     { name: "Dashboard", icon: LayoutDashboard, route: "/lms" },
     { name: "Courses", icon: BookOpen, route: "/courses" },
-    { name: "Play", icon: Gamepad2, route: "/games1" },
     { name: "Community", icon: Users, route: "#" },
     { name: "Profile", icon: User, route: "#" },
   ];

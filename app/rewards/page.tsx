@@ -1,9 +1,22 @@
 "use client";
 import React, { useState } from 'react';
 import { ArrowLeft, Coins, Gift, Star, Zap, ShoppingBag, Trophy, Crown } from 'lucide-react';
-//import type { User } from '../games/page';
-import type { User } from '../games1/game2/page'
 import { useRouter } from 'next/navigation';
+
+export interface User {
+  authid: string;
+  id: string;
+  username: string;
+  email: string;
+  displayName: string;
+  rank: string;
+  xp: number;
+  coins: number;
+  avatar: string;
+  totalMatches: number;
+  wins: number;
+  winRate: number;
+}
 
 
 interface RewardCenterProps {
@@ -115,7 +128,7 @@ const RewardCenter: React.FC<RewardCenterProps> = ({ user, onBack, onUpdateUser 
         <div className="flex items-center justify-between mb-8">
           <button
 
-            onClick={() => router.push("/games1")}
+            onClick={() => router.push("/lms")}
             className="flex items-center space-x-2 text-black hover:text-purple-300 transition-colors duration-200"
           >
             <ArrowLeft className="w-6 h-6" /><span className="hidden sm:inline font-medium">

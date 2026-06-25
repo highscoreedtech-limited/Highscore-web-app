@@ -4,12 +4,10 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   Home,
   BookOpen,
-  Gamepad2,
   Users,
   Award,
   User,
   LogOut,
-  Flame,
   Settings,
 } from "lucide-react";
 import { useEffect } from "react";
@@ -64,9 +62,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
             { name: "Dashboard", icon: Home, route: "/lms" },
             { name: "Courses", icon: BookOpen, route: "/courses" },
             { name: "Certification", icon: Award },
-            { name: "Leaderboard", icon: Flame, route: "/leaderboard" },
             { name: "Community", icon: Users },
-            { name: "Play", icon: Gamepad2, route: "/games1" },
             { name: "Settings", icon: Settings },
             { name: "Profile", icon: User },
           ].map((item, i) => (
@@ -147,10 +143,8 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
               {[
                 { name: "Dashboard", icon: Home, route: "/lms" },
                 { name: "Courses", icon: BookOpen, route: "/courses" },
-                { name: "Play", icon: Gamepad2, route: "/games1" },
                 { name: "Community", icon: Users },
                 { name: "Certification", icon: Award },
-                { name: "Leaderboard", icon: Flame, route: "/leaderboard" },
                 { name: "Settings", icon: Settings },
                 { name: "Profile", icon: User },
               ].map((item, i) => (
