@@ -11,8 +11,10 @@ import {
   User as UserIcon, Shield, HelpCircle, Star, Info, Wallet, ChevronRight, Pencil,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { dashApi, LeaderboardEntry } from "@/lib/api";
+import { dashApi, LeaderboardEntry, api } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
+import SubscribeTab from "./SubscribeTab";
+import DownloadsTab from "./DownloadsTab";
 
 const EXAMS = ["JAMB", "WAEC", "NECO", "GCE", "Nursing"];
 
@@ -25,8 +27,22 @@ const NAV = [
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [tab, setTab] = useState(0);
+
+  // Verify a Paystack payment when the user is redirected back with a reference.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("reference") || params.get("trxref");
+    if (!ref) return;
+    api("/api/payment/verify", { method: "POST", body: { reference: ref } })
+      .then(() => { toast.success("Subscription activated! Welcome to HighScore Pro 🎉"); refreshProfile().catch(() => {}); })
+      .catch(() => toast.error("We couldn't confirm your payment. Contact support if you were charged."))
+      .finally(() => {
+        localStorage.removeItem("hs_pay_ref");
+        window.history.replaceState({}, "", window.location.pathname);
+      });
+  }, [refreshProfile]);
 
   const fullName = user ? `${user.first_name} ${user.last_name}`.trim() : "Champion";
   const initials = useMemo(() => {
@@ -53,8 +69,8 @@ export default function DashboardPage() {
               onNav={(href) => router.push(href)}
             />
           )}
-          {tab === 1 && <Placeholder title="Subscribe" subtitle="Plans & payments coming here" />}
-          {tab === 2 && <Placeholder title="Downloads" subtitle="Your saved materials" />}
+          {tab === 1 && <SubscribeTab />}
+          {tab === 2 && <DownloadsTab />}
           {tab === 3 && <MoreTab onLogout={() => router.push("/login")} />}
         </div>
       </main>
