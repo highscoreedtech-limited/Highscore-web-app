@@ -8,6 +8,7 @@ import {
   GraduationCap, ChevronDown, Bell, Search, PlayCircle, Gamepad2,
   Laptop, LineChart, Medal, Gift, Newspaper, UserPlus, ExternalLink,
   Home, ShoppingCart, CloudDownload, MoreHorizontal, LogOut,
+  User as UserIcon, Shield, HelpCircle, Star, Info, Wallet, ChevronRight, Pencil,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, LeaderboardEntry } from "@/lib/api";
@@ -315,17 +316,106 @@ function Placeholder({ title, subtitle }: { title: string; subtitle: string }) {
 
 function MoreTab({ onLogout }: { onLogout: () => void }) {
   const { user, logout } = useAuth();
+  const name = user ? `${user.first_name} ${user.last_name}`.trim() : "HighScore User";
+  const initials = ((user?.first_name?.[0] ?? "") + (user?.last_name?.[0] ?? "")).toUpperCase() || "?";
+  const tier = (user?.subscription_tier ?? "free").toLowerCase();
+  const tierLabel = tier === "free" ? "Free plan" : `${tier[0].toUpperCase()}${tier.slice(1)} member`;
+
   return (
-    <div className="px-4 pt-6 lg:px-8">
-      <h1 className="text-xl font-bold text-hs-navy">More</h1>
-      <p className="mt-1 text-sm text-hs-muted">{user?.email}</p>
-      <button
-        onClick={() => { logout(); onLogout(); }}
-        className="mt-6 w-full rounded-full bg-hs-navy py-3 font-semibold text-white lg:max-w-xs"
-      >
-        Log out
-      </button>
+    <div className="px-4 pb-10 pt-7 lg:px-8">
+      <div className="mx-auto max-w-2xl">
+        {/* Identity */}
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            <span
+              className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-extrabold text-white"
+              style={{ backgroundColor: user?.avatar_color || "#185FA5" }}
+            >
+              {initials}
+            </span>
+            <span className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-hs-blue text-white">
+              <Pencil size={11} />
+            </span>
+          </div>
+          <p className="mt-3 text-lg font-bold text-hs-navy">{name}</p>
+          <p className="text-sm text-hs-muted">{user?.email}</p>
+          <span className={`mt-2 rounded-full px-3 py-1 text-[11px] font-bold ${tier === "free" ? "bg-hs-bg text-hs-muted" : "bg-hs-amberBg text-hs-amberDark"}`}>
+            {tierLabel}
+          </span>
+        </div>
+
+        {/* Wallet */}
+        <div className="mt-5 flex items-center justify-between rounded-2xl bg-hs-navy p-4 text-white">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
+              <Wallet size={20} />
+            </span>
+            <div>
+              <p className="text-[11px] text-[#B8CCE0]">HST wallet balance</p>
+              <p className="text-lg font-extrabold">{user?.hst_balance ?? 0} HST</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-[11px] text-[#B8CCE0]">Referral points</p>
+            <p className="text-lg font-extrabold text-hs-amber">{user?.referral_points ?? 0}</p>
+          </div>
+        </div>
+
+        {/* Menu */}
+        <div className="mt-5 space-y-3">
+          <MenuSection>
+            <MenuItem icon={UserIcon} color="#185FA5" title="Edit profile" subtitle="Update your name, exam type & state" />
+          </MenuSection>
+          <MenuSection>
+            <MenuItem icon={Bell} color="#D97706" title="Notifications" subtitle="Streak reminders, battle invites & more" />
+            <MenuItem icon={Shield} color="#7C3AED" title="Privacy" subtitle="Your data, legal policies & account deletion" />
+          </MenuSection>
+          <MenuSection>
+            <MenuItem icon={HelpCircle} color="#059669" title="Help & support" subtitle="FAQs, report a bug, contact us" />
+            <MenuItem icon={Star} color="#D97706" title="Rate the app" subtitle="Enjoying HighScore? Leave a review" />
+            <MenuItem icon={Info} color="#8A8A8A" title="About" subtitle="Version 1.0.0 · HighScore EdTech Limited" />
+          </MenuSection>
+          <MenuSection>
+            <button
+              onClick={() => { logout(); onLogout(); }}
+              className="flex w-full items-center gap-3 px-4 py-3 text-left"
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-red-50">
+                <LogOut size={18} className="text-red-500" />
+              </span>
+              <span className="text-sm font-semibold text-red-500">Log out</span>
+            </button>
+          </MenuSection>
+        </div>
+      </div>
     </div>
+  );
+}
+
+function MenuSection({ children }: { children: React.ReactNode }) {
+  return <div className="divide-y divide-hs-border overflow-hidden rounded-2xl border border-hs-border bg-white">{children}</div>;
+}
+
+function MenuItem({
+  icon: Icon, color, title, subtitle,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  color: string; title: string; subtitle: string;
+}) {
+  return (
+    <button
+      onClick={() => toast.info(`${title} — coming soon`)}
+      className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-hs-bg"
+    >
+      <span className="flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ backgroundColor: `${color}1A`, color }}>
+        <Icon size={18} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold text-hs-navy">{title}</span>
+        <span className="block truncate text-[11px] text-hs-muted">{subtitle}</span>
+      </span>
+      <ChevronRight size={18} className="text-hs-placeholder" />
+    </button>
   );
 }
 
