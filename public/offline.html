@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>You're offline · HighScore</title>
+  <style>
+    body { margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      font-family: 'Poppins', system-ui, sans-serif; background:#F4F5F7; color:#042C53; text-align:center; padding:24px; }
+    img { width:96px; height:96px; object-fit:contain; margin-bottom:20px; }
+    h1 { font-size:22px; margin:0 0 8px; }
+    p { color:#8A8A8A; max-width:320px; margin:0 0 24px; line-height:1.5; }
+    button { background:#185FA5; color:#fff; border:none; padding:12px 24px; border-radius:999px; font-weight:600; font-size:15px; }
+  </style>
+</head>
+<body>
+  <img src="/icon-192.png" alt="HighScore" />
+  <h1>You're offline</h1>
+  <p>Check your internet connection and try again. Your streak and progress are safe.</p>
+  <button onclick="location.reload()">Retry</button>
+</body>
+</html>
