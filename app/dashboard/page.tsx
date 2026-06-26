@@ -256,7 +256,7 @@ function HomeTab({
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-hs-navy">Leaderboard</h2>
               <button
-                onClick={() => toast.info("Full board — coming soon")}
+                onClick={() => onNav("/leaderboard")}
                 className="flex items-center gap-1 text-sm font-semibold text-hs-blue"
               >
                 Full board <ExternalLink size={13} />
@@ -315,7 +315,7 @@ const CATEGORIES: Cat[] = [
   { name: "Quiz games", subtitle: "3 live now", bg: "#FAEEDA", fg: "#854F0B", icon: Gamepad2, lottie: "/lottie/quiz-games.json", href: "/quiz" },
   { name: "CBT practice", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: Laptop, lottie: "/lottie/cbt.json", href: "/cbt" },
   { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, lottie: "/lottie/graph.json", href: "/analytics" },
-  { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal },
+  { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal, href: "/leaderboard" },
   { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, lottie: "/lottie/reward.json", href: "/rewards", big: true },
   { name: "News", subtitle: "JAMB updates", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, href: "/news" },
   { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json", href: "/referral", big: true },

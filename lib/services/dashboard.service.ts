@@ -4,8 +4,11 @@ import { Endpoints } from "@/lib/api/endpoints";
 import type { LeaderboardEntry } from "@/lib/domain/models";
 
 export const dashApi = {
+  // examType "" or "All" → global board (no exam filter) so the true top scorer
+  // always shows, matching the mobile All-exams board.
   leaderboard(examType: string, limit = 5): Promise<LeaderboardEntry[]> {
-    return api<LeaderboardEntry[]>(`${Endpoints.leaderboard.list}?exam_type=${encodeURIComponent(examType)}&limit=${limit}`);
+    const exam = examType && examType !== "All" ? `exam_type=${encodeURIComponent(examType)}&` : "";
+    return api<LeaderboardEntry[]>(`${Endpoints.leaderboard.list}?${exam}limit=${limit}`);
   },
   myRank(examType: string): Promise<MyRank> {
     return api<MyRank>(`${Endpoints.leaderboard.myRank}?exam_type=${encodeURIComponent(examType)}`);
