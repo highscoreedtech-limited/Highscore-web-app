@@ -10,7 +10,8 @@ import { api } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
 import { stagger, item } from "@/components/Reveal";
 
-interface EarnItem { icon: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; }
+type Social = "youtube" | "instagram" | "whatsapp";
+interface EarnItem { icon: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; social?: Social; }
 
 const EARN: EarnItem[] = [
   { icon: "⚔️", title: "Win a PVP Battle", pts: "+200", sub: "Beat an opponent — credited automatically when the match ends", auto: true },
@@ -20,10 +21,26 @@ const EARN: EarnItem[] = [
   { icon: "🏆", title: "Week Streak Milestone", pts: "+70", sub: "7 days in a row — claim your special bonus!" },
   { icon: "📈", title: "Reach Top 10 Leaderboard", pts: "+50", sub: "Land in the top 10 this week to claim" },
   { icon: "💡", title: "Perfect Score (10/10)", pts: "+100", sub: "Get every question right in a quiz", auto: true },
-  { icon: "▶️", title: "Subscribe on YouTube", pts: "+50", sub: "Open the channel, subscribe, then claim", url: "https://www.youtube.com/@HighScore" },
-  { icon: "📸", title: "Follow on Instagram", pts: "+40", sub: "Follow our page, then claim your points", url: "https://www.instagram.com/highscore" },
-  { icon: "💬", title: "Join WhatsApp community", pts: "+30", sub: "Join the group, then claim your points", url: "https://chat.whatsapp.com" },
+  { icon: "", social: "youtube", title: "Subscribe on YouTube", pts: "+50", sub: "Open the channel, subscribe, then claim", url: "https://www.youtube.com/@HighScore" },
+  { icon: "", social: "instagram", title: "Follow on Instagram", pts: "+40", sub: "Follow our page, then claim your points", url: "https://www.instagram.com/highscore" },
+  { icon: "", social: "whatsapp", title: "Join WhatsApp community", pts: "+30", sub: "Join the group, then claim your points", url: "https://chat.whatsapp.com" },
 ];
+
+// Brand glyphs for the social earn tasks.
+const SOCIAL: Record<Social, { bg: string; svg: React.ReactNode }> = {
+  youtube: {
+    bg: "#FF0000",
+    svg: <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z" /></svg>,
+  },
+  instagram: {
+    bg: "linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)",
+    svg: <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5.5" /><circle cx="12" cy="12" r="4.2" /><circle cx="17.4" cy="6.6" r="1.2" fill="#fff" stroke="none" /></svg>,
+  },
+  whatsapp: {
+    bg: "#25D366",
+    svg: <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M12 .5A11.5 11.5 0 0 0 2.1 17.7L.5 23.5l6-1.6A11.5 11.5 0 1 0 12 .5zm0 21a9.4 9.4 0 0 1-4.8-1.3l-.34-.2-3.55.93.95-3.46-.22-.36A9.5 9.5 0 1 1 12 21.5zm5.2-7.1c-.28-.14-1.68-.83-1.94-.92s-.45-.14-.64.14-.73.92-.9 1.1-.33.21-.61.07a7.8 7.8 0 0 1-2.29-1.41 8.6 8.6 0 0 1-1.59-1.98c-.17-.28 0-.43.12-.57s.28-.33.42-.49a1.9 1.9 0 0 0 .28-.47.52.52 0 0 0 0-.49c-.07-.14-.64-1.54-.88-2.11s-.46-.48-.64-.49h-.55a1.05 1.05 0 0 0-.76.36 3.2 3.2 0 0 0-1 2.37 5.5 5.5 0 0 0 1.17 2.95 12.7 12.7 0 0 0 4.87 4.3c.68.29 1.21.47 1.62.6a3.9 3.9 0 0 0 1.79.11 2.93 2.93 0 0 0 1.92-1.35 2.38 2.38 0 0 0 .17-1.36c-.07-.12-.26-.19-.54-.33z" /></svg>,
+  },
+};
 
 const PRESETS = [100, 250, 500, 1000];
 
@@ -142,7 +159,13 @@ export default function RewardsPage() {
                 variants={item}
                 className="flex items-center gap-3 rounded-2xl border border-hs-border bg-white p-3.5"
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-hs-bg text-xl">{e.icon}</span>
+                {e.social ? (
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: SOCIAL[e.social].bg }}>
+                    {SOCIAL[e.social].svg}
+                  </span>
+                ) : (
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-hs-bg text-xl">{e.icon}</span>
+                )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate text-sm font-bold text-hs-navy">{e.title}</p>
