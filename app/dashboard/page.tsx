@@ -12,7 +12,7 @@ import {
   User as UserIcon, Shield, HelpCircle, Star, Info, Wallet, ChevronRight, Pencil,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { dashApi, LeaderboardEntry, api } from "@/lib/api";
+import { dashApi, LeaderboardEntry, api, profileApi, streakPoints } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
 import SubscribeTab from "./SubscribeTab";
 import DownloadsTab from "./DownloadsTab";
@@ -46,6 +46,27 @@ export default function DashboardPage() {
       });
   }, [refreshProfile]);
 
+  // Daily streak: tell the backend (authoritative, +1/day max), reflect the
+  // result, and celebrate when it advances on a new day.
+  const [streakCelebrate, setStreakCelebrate] = useState<{ count: number; points: number } | null>(null);
+  useEffect(() => {
+    let active = true;
+    profileApi.touchStreak()
+      .then((res) => {
+        if (!active) return;
+        const count = res?.streak_count ?? 0;
+        const today = new Date().toISOString().slice(0, 10);
+        const last = localStorage.getItem("hs_last_streak_date");
+        if (count > 0 && last !== today) {
+          localStorage.setItem("hs_last_streak_date", today);
+          setStreakCelebrate({ count, points: streakPoints(count) });
+        }
+        refreshProfile().catch(() => {});
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [refreshProfile]);
+
   const fullName = user ? `${user.first_name} ${user.last_name}`.trim() : "Champion";
   const initials = useMemo(() => {
     const a = user?.first_name?.[0] ?? "";
@@ -66,6 +87,7 @@ export default function DashboardPage() {
               fullName={fullName}
               initials={initials}
               avatarColor={user?.avatar_color || "#185FA5"}
+              avatarUrl={user?.avatar_url || ""}
               streak={user?.streak_count ?? 0}
               examType={user?.exam_type || "JAMB"}
               onNav={(href) => router.push(href)}
@@ -79,15 +101,35 @@ export default function DashboardPage() {
 
       {/* Mobile bottom nav */}
       <BottomNav tab={tab} setTab={setTab} />
+
+      {/* Daily streak celebration */}
+      <AnimatePresence>
+        {streakCelebrate && (
+          <motion.div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 px-6" onClick={() => setStreakCelebrate(null)}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div className="w-full max-w-sm rounded-3xl bg-hs-navy p-7 text-center text-white" onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.7, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", stiffness: 240, damping: 16 }}>
+              <div className="mx-auto mb-2 h-24 w-24"><LottieIcon src="/lottie/fire.json" className="h-24 w-24" fallback={<span className="text-6xl">🔥</span>} /></div>
+              <p className="text-3xl font-extrabold">{streakCelebrate.count}-day streak!</p>
+              <p className="mt-1 text-sm text-[#B8CCE0]">You&apos;re on fire. Keep showing up daily.</p>
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-hs-amber/20 px-4 py-2 text-hs-amber">
+                <span className="text-lg">⚡</span>
+                <span className="font-bold">+{streakCelebrate.points} points earned</span>
+              </div>
+              <button onClick={() => setStreakCelebrate(null)} className="mt-6 w-full rounded-full bg-hs-amber py-3 font-bold text-hs-amberDark">Claim & continue</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 // ── Home tab ──────────────────────────────────────────────────────────────────
 function HomeTab({
-  fullName, initials, avatarColor, streak, examType, onNav,
+  fullName, initials, avatarColor, avatarUrl, streak, examType, onNav,
 }: {
-  fullName: string; initials: string; avatarColor: string;
+  fullName: string; initials: string; avatarColor: string; avatarUrl: string;
   streak: number; examType: string; onNav: (href: string) => void;
 }) {
   const [exam, setExam] = useState(examType);
@@ -121,12 +163,17 @@ function HomeTab({
             <Bell size={22} className="text-hs-muted" />
             <span className="absolute right-0 top-0 h-[7px] w-[7px] rounded-full border border-white bg-hs-flame" />
           </div>
-          <span
-            className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-            style={{ backgroundColor: avatarColor }}
-          >
-            {initials}
-          </span>
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="Avatar" className="h-8 w-8 rounded-full bg-hs-blueTint object-cover" />
+          ) : (
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+              style={{ backgroundColor: avatarColor }}
+            >
+              {initials}
+            </span>
+          )}
         </div>
       </div>
 

@@ -30,8 +30,9 @@ export type {
 } from "./domain/models";
 
 export { authApi } from "./services/auth.service";
-export { profileApi } from "./services/profile.service";
-export { dashApi } from "./services/dashboard.service";
+export { profileApi, streakPoints } from "./services/profile.service";
+export { dashApi, pointsFromRank } from "./services/dashboard.service";
+export type { MyRank } from "./services/dashboard.service";
 export { gameApi } from "./services/game.service";
 export { quizApi } from "./services/quiz.service";
 export { paymentApi } from "./services/payment.service";

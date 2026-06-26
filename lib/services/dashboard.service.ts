@@ -7,7 +7,18 @@ export const dashApi = {
   leaderboard(examType: string, limit = 5): Promise<LeaderboardEntry[]> {
     return api<LeaderboardEntry[]>(`${Endpoints.leaderboard.list}?exam_type=${encodeURIComponent(examType)}&limit=${limit}`);
   },
-  myRank(examType: string): Promise<{ rank: number; badge?: string }> {
-    return api<{ rank: number; badge?: string }>(`${Endpoints.leaderboard.myRank}?exam_type=${encodeURIComponent(examType)}`);
+  myRank(examType: string): Promise<MyRank> {
+    return api<MyRank>(`${Endpoints.leaderboard.myRank}?exam_type=${encodeURIComponent(examType)}`);
   },
 };
+
+export interface MyRank {
+  rank: number;
+  badge?: string;
+  // Spendable balance = lifetime score minus points already converted.
+  spendable_points?: number;
+  total_score?: number;
+}
+
+// Resolve the user's usable points balance from a my-rank response.
+export const pointsFromRank = (r: MyRank): number => r.spendable_points ?? r.total_score ?? 0;

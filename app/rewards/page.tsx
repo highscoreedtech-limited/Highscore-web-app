@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ArrowLeft, Coins, ArrowRightLeft, Sparkles, Check } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { api } from "@/lib/api";
+import { api, dashApi, pointsFromRank } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
 import { stagger, item } from "@/components/Reveal";
 
@@ -50,11 +50,16 @@ export default function RewardsPage() {
   const [tab, setTab] = useState<"earn" | "convert">("earn");
   const [preset, setPreset] = useState<number | null>(null);
   const [converting, setConverting] = useState(false);
+  const [points, setPoints] = useState(0);
 
   const hst = user?.hst_balance ?? 0;
-  const points = user?.referral_points ?? 0;
   const streak = user?.streak_count ?? 0;
   const done = streak % 7;
+
+  // Real spendable points balance from the backend (earned via quizzes/CBT/streak).
+  useEffect(() => {
+    dashApi.myRank(user?.exam_type || "JAMB").then((r) => setPoints(pointsFromRank(r))).catch(() => {});
+  }, [user?.exam_type]);
 
   const convert = async () => {
     if (!preset) return;
