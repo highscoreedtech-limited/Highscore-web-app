@@ -5,31 +5,25 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, TrendingUp, Target, Flame, Award } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { api } from "@/lib/api";
+import { performanceApi, type Performance } from "@/lib/api";
 
-interface SubjectPerf { label: string; score: number; color: string; }
-const FALLBACK: SubjectPerf[] = [
-  { label: "Physics", score: 85, color: "#185FA5" },
-  { label: "Chemistry", score: 72, color: "#7C3AED" },
-  { label: "Mathematics", score: 91, color: "#059669" },
-  { label: "Biology", score: 68, color: "#2563EB" },
-  { label: "Literature", score: 55, color: "#DC2626" },
-];
-const WEEK = [40, 62, 55, 78, 70, 88, 84];
 const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
 export default function AnalyticsPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [subjects, setSubjects] = useState<SubjectPerf[]>(FALLBACK);
+  const [perf, setPerf] = useState<Performance | null>(null);
 
   useEffect(() => {
-    api<{ subjects?: SubjectPerf[] }>("/api/performance")
-      .then((p) => { if (p?.subjects?.length) setSubjects(p.subjects); })
-      .catch(() => {});
+    let active = true;
+    performanceApi.get().then((p) => { if (active) setPerf(p); });
+    return () => { active = false; };
   }, []);
 
-  const avg = Math.round(subjects.reduce((n, s) => n + s.score, 0) / subjects.length);
+  const subjects = perf?.subjects ?? [];
+  const week = perf?.weekly ?? [];
+  const trend = perf?.trend ?? "";
+  const avg = subjects.length ? Math.round(subjects.reduce((n, s) => n + s.score, 0) / subjects.length) : 0;
 
   return (
     <div className="min-h-screen bg-hs-bg pb-12">
@@ -57,10 +51,10 @@ export default function AnalyticsPage() {
         <div className="mt-4 rounded-2xl border border-hs-border bg-white p-5">
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-hs-navy">This week</p>
-            <span className="flex items-center gap-1 text-xs font-semibold text-green-600"><TrendingUp size={14} /> +12%</span>
+            {trend && <span className="flex items-center gap-1 text-xs font-semibold text-green-600"><TrendingUp size={14} /> {trend}</span>}
           </div>
           <div className="mt-4 flex h-36 items-end justify-between gap-2">
-            {WEEK.map((v, i) => (
+            {week.map((v, i) => (
               <div key={i} className="flex flex-1 flex-col items-center gap-2">
                 <div className="flex w-full flex-1 items-end">
                   <motion.div className="w-full rounded-t-lg bg-hs-blue" initial={{ height: 0 }} animate={{ height: `${v}%` }} transition={{ delay: i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }} />

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ArrowLeft, Copy, Check, Share2, Users, Coins } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { referralApi } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
 
 const STEPS = [
@@ -17,10 +18,20 @@ const STEPS = [
 export default function ReferralPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const code = user?.referral_code || "------";
-  const count = user?.referral_count ?? 0;
-  const points = user?.referral_points ?? 0;
+  const [stats, setStats] = useState({
+    code: user?.referral_code || "------",
+    referral_count: user?.referral_count ?? 0,
+    referral_points: user?.referral_points ?? 0,
+  });
+  const code = stats.code;
+  const count = stats.referral_count;
+  const points = stats.referral_points;
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    referralApi.get().then((s) => { if (active) setStats(s); }).catch(() => {});
+  }, []);
 
   const copy = async () => {
     try {
