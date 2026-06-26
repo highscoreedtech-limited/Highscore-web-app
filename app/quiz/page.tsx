@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
-import { api, presenceWsUrl } from "@/lib/api";
+import { api } from "@/lib/api";
+import { realtime } from "@/lib/realtime/client";
 import { useAuth } from "../hooks/useAuth";
 import FindPlayers from "./FindPlayers";
 
@@ -108,22 +109,15 @@ export default function QuizPage() {
     resetGame();
   }, []);
 
-  // Presence WebSocket: listen for the opponent accepting the challenge.
+  // Listen for the opponent accepting the challenge over the SHARED realtime
+  // socket (same connection used for profile sync) — no second WebSocket.
   useEffect(() => {
     if (!user?.id) return;
-    let ws: WebSocket | null = null;
-    try {
-      ws = new WebSocket(presenceWsUrl(user.id));
-      ws.onmessage = (ev) => {
-        try {
-          const d = JSON.parse(ev.data);
-          if (d.type === "challenge_accepted") {
-            startPvp(d.from_name || d.to_name || "Opponent", d.subject || "Mathematics", Number(d.seed) || 0);
-          }
-        } catch { /* ignore */ }
-      };
-    } catch { /* presence WS is optional */ }
-    return () => { try { ws?.close(); } catch { /* noop */ } };
+    realtime.connect(user.id);
+    const off = realtime.on("challenge_accepted", (d) => {
+      startPvp(d.from_name || d.to_name || "Opponent", d.subject || "Mathematics", Number(d.seed) || 0);
+    });
+    return () => off();
   }, [user?.id, startPvp]);
 
   useEffect(() => {

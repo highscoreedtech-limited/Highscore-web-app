@@ -11,6 +11,7 @@ import {
   ReactNode,
 } from "react";
 import { authApi, session, User } from "@/lib/api";
+import { realtime } from "@/lib/realtime/client";
 
 interface AuthContextValue {
   user: User | null;
@@ -64,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    realtime.disconnect();
     authApi.logout();
     setUser(null);
   }, []);
@@ -73,7 +75,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(fresh);
   }, []);
 
-  // Cross-device sync: re-pull the profile from the shared backend whenever the
+  // Real-time cross-device sync (Tier 3): keep ONE shared socket open for the
+  // user and live-apply `profile_updated` events the backend pushes when the
+  // profile changes on ANY device. If the event carries the user payload we
+  // apply it instantly (no HTTP); otherwise we re-pull as a fallback.
+  useEffect(() => {
+    if (!user?.id) return;
+    realtime.connect(user.id);
+    const off = realtime.on("profile_updated", (data) => {
+      if (data && typeof data === "object" && data.id) {
+        const fresh = data as User;
+        setUser(fresh);
+        session.saveUser(fresh);
+      } else {
+        authApi.profile().then(setUser).catch(() => {});
+      }
+    });
+    return () => { off(); };
+  }, [user?.id]);
+
+  // Cross-device sync (Tier 1 fallback): re-pull the profile whenever the
   // user returns to the app (tab focus / visible) or the device comes back
   // online. This makes changes made on the mobile app — avatar, streak, points,
   // subscription — show up on the PWA as soon as it's opened. Debounced so we
