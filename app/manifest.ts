@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "HighScore — Learn & Win",
     short_name: "HighScore",
     description: "Master JAMB, WAEC, NECO & Post-UTME — video lessons, CBT practice, quiz battles and rewards.",
-    start_url: "/dashboard",
+    start_url: "/onboarding",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
