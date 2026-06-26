@@ -13,7 +13,7 @@ const AMBER = "#EF9F27";
 const SLIDES = [
   { lottie: "/lottie/video-player.json", title: "Video lessons\nfor every topic", subtitle: "Watch expert-taught videos on any subject, anytime — even offline." },
   { lottie: "/lottie/quiz-games.json", title: "Battle friends in\nlive quiz games", subtitle: "Challenge classmates to real-time quizzes and prove who's the champion." },
-  { lottie: "/lottie/graph.json", title: "Track progress &\nclimb the rank", subtitle: "See exactly where you stand, earn streaks, and watch your score grow." },
+  { lottie: "/lottie/chart-growup.json", title: "Track progress &\nclimb the rank", subtitle: "See exactly where you stand, earn streaks, and watch your score grow." },
 ];
 
 const SEEN_KEY = "hs_onboarding_seen";
