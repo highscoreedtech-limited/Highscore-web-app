@@ -73,6 +73,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(fresh);
   }, []);
 
+  // Cross-device sync: re-pull the profile from the shared backend whenever the
+  // user returns to the app (tab focus / visible) or the device comes back
+  // online. This makes changes made on the mobile app — avatar, streak, points,
+  // subscription — show up on the PWA as soon as it's opened. Debounced so we
+  // don't spam the backend on rapid focus/blur.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let last = 0;
+    const MIN_GAP = 10_000; // at most once per 10s
+    const maybeRefresh = () => {
+      if (!session.isAuthenticated) return;
+      if (document.visibilityState === "hidden") return;
+      const now = Date.now();
+      if (now - last < MIN_GAP) return;
+      last = now;
+      authApi.profile().then((fresh) => setUser(fresh)).catch(() => {});
+    };
+    const onVisible = () => { if (document.visibilityState === "visible") maybeRefresh(); };
+
+    window.addEventListener("focus", maybeRefresh);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", maybeRefresh);
+    return () => {
+      window.removeEventListener("focus", maybeRefresh);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", maybeRefresh);
+    };
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{ user, loading, login, logout, setUser, refreshProfile }}
