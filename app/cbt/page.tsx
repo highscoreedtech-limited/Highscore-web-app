@@ -7,7 +7,7 @@ import {
   ArrowLeft, Clock, Check, X, ChevronLeft, ChevronRight, RotateCcw,
 } from "lucide-react";
 import { CBT_BANK, CBT_EXAMS, CbtQuestion } from "@/lib/cbt-bank";
-import { api } from "@/lib/api";
+import { quizApi } from "@/lib/api";
 
 type Phase = "select" | "exam" | "result";
 
@@ -71,10 +71,7 @@ export default function CbtPage() {
   useEffect(() => {
     if (phase !== "result" || credited.current) return;
     credited.current = true;
-    api("/api/quiz/credit", {
-      method: "POST",
-      body: { score: correctCount * 5, total: questions.length, exam_type: exam, subject },
-    }).catch(() => {});
+    quizApi.credit(subject, correctCount * 5).catch(() => {});
   }, [phase, correctCount, questions.length, exam, subject]);
 
   const reset = () => { credited.current = false; setPhase("select"); };

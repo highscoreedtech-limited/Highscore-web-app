@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
-import { api } from "@/lib/api";
+import { quizApi } from "@/lib/api";
 import { realtime } from "@/lib/realtime/client";
 import { useAuth } from "../hooks/useAuth";
 import FindPlayers from "./FindPlayers";
@@ -234,7 +234,7 @@ export default function QuizPage() {
             onClaim={async (totalXP) => {
               if (claimed.current || totalXP <= 0) return;
               claimed.current = true; setClaiming(true);
-              try { await api("/api/quiz/credit", { method: "POST", body: { score: totalXP, total: 10, exam_type: "JAMB", subject } }); setDidClaim(true); }
+              try { await quizApi.credit(subject, totalXP); setDidClaim(true); }
               catch { claimed.current = false; }
               finally { setClaiming(false); }
             }}

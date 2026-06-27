@@ -6,20 +6,20 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { ArrowLeft, Coins, ArrowRightLeft, Sparkles, Check } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { api, dashApi, pointsFromRank } from "@/lib/api";
+import { api, dashApi, pointsFromRank, quizApi } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
 import { stagger, item } from "@/components/Reveal";
 
 type Social = "youtube" | "instagram" | "whatsapp";
-interface EarnItem { icon: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; social?: Social; }
+interface EarnItem { icon: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; social?: Social; claim?: "week" | "top10" }
 
 const EARN: EarnItem[] = [
   { icon: "⚔️", title: "Win a PVP Battle", pts: "+200", sub: "Beat an opponent — credited automatically when the match ends", auto: true },
   { icon: "🎯", title: "Solo Quiz", pts: "+10", sub: "Each correct answer adds 10 pts automatically", auto: true },
   { icon: "📚", title: "CBT Practice", pts: "+5", sub: "Per correct answer — claim from the result screen", auto: true },
   { icon: "🔥", title: "Daily Streak", pts: "+10", sub: "Come back every day to keep your streak alive", auto: true },
-  { icon: "🏆", title: "Week Streak Milestone", pts: "+70", sub: "7 days in a row — claim your special bonus!" },
-  { icon: "📈", title: "Reach Top 10 Leaderboard", pts: "+50", sub: "Land in the top 10 this week to claim" },
+  { icon: "🏆", title: "Week Streak Milestone", pts: "+70", sub: "7 days in a row — claim your special bonus!", claim: "week" },
+  { icon: "📈", title: "Reach Top 10 Leaderboard", pts: "+50", sub: "Land in the top 10 this week to claim", claim: "top10" },
   { icon: "💡", title: "Perfect Score (10/10)", pts: "+100", sub: "Get every question right in a quiz", auto: true },
   { icon: "", social: "youtube", title: "Subscribe on YouTube", pts: "+50", sub: "Open the channel, subscribe, then claim", url: "https://www.youtube.com/@HighScore" },
   { icon: "", social: "instagram", title: "Follow on Instagram", pts: "+40", sub: "Follow our page, then claim your points", url: "https://www.instagram.com/highscore" },
@@ -51,15 +51,65 @@ export default function RewardsPage() {
   const [preset, setPreset] = useState<number | null>(null);
   const [converting, setConverting] = useState(false);
   const [points, setPoints] = useState(0);
+  const [rank, setRank] = useState(0);
+  const [claimed, setClaimed] = useState<Record<string, boolean>>({});
+  const [visited, setVisited] = useState<Record<string, number>>({});
+  const [, setTick] = useState(0); // drives the social cooldown countdown
 
   const hst = user?.hst_balance ?? 0;
   const streak = user?.streak_count ?? 0;
   const done = streak % 7;
+  const COOLDOWN = 15; // seconds — matches the backend claim cooldown
 
-  // Real spendable points balance from the backend (earned via quizzes/CBT/streak).
+  // Real spendable points balance + rank from the backend.
+  const loadRank = () =>
+    dashApi.myRank(user?.exam_type || "JAMB")
+      .then((r) => { setPoints(pointsFromRank(r)); setRank(r?.rank ?? 0); })
+      .catch(() => {});
+  useEffect(() => { loadRank(); }, [user?.exam_type]); // eslint-disable-line
+
+  // Restore claimed/visited state from this device.
   useEffect(() => {
-    dashApi.myRank(user?.exam_type || "JAMB").then((r) => setPoints(pointsFromRank(r))).catch(() => {});
-  }, [user?.exam_type]);
+    try { setClaimed(JSON.parse(localStorage.getItem("hs_earn_claimed") || "{}")); } catch {}
+    try { setVisited(JSON.parse(localStorage.getItem("hs_earn_visited") || "{}")); } catch {}
+  }, []);
+  // Tick every second so cooldown labels count down.
+  useEffect(() => { const t = setInterval(() => setTick((n) => n + 1), 1000); return () => clearInterval(t); }, []);
+
+  // ── Earn-more claim helpers ───────────────────────────────────────────────
+  const persistClaimed = (next: Record<string, boolean>) => { setClaimed(next); localStorage.setItem("hs_earn_claimed", JSON.stringify(next)); };
+  const persistVisited = (next: Record<string, number>) => { setVisited(next); localStorage.setItem("hs_earn_visited", JSON.stringify(next)); };
+
+  const weekKey = () => { const n = new Date(); return `${n.getFullYear()}-${Math.floor((Number(n) - Number(new Date(n.getFullYear(), 0, 1))) / 6048e5)}`; };
+  const earnKey = (e: EarnItem) => {
+    if (e.social) return `social_${e.social}`;
+    if (e.claim === "week") return `week_${Math.floor(streak / 7)}`;
+    if (e.claim === "top10") return `top10_${weekKey()}`;
+    return e.title;
+  };
+  const cooldownLeft = (e: EarnItem) => {
+    const at = visited[earnKey(e)];
+    if (!at) return COOLDOWN; // not opened yet
+    return Math.max(0, COOLDOWN - Math.floor((Date.now() - at) / 1000));
+  };
+  const eligible = (e: EarnItem) => {
+    if (e.claim === "week") return streak > 0 && streak % 7 === 0;
+    if (e.claim === "top10") return rank > 0 && rank <= 10;
+    return true;
+  };
+
+  const doClaim = async (e: EarnItem) => {
+    const pts = parseInt(e.pts.replace(/\D/g, ""), 10) || 0;
+    try {
+      await quizApi.credit("Reward", pts);
+      persistClaimed({ ...claimed, [earnKey(e)]: true });
+      toast.success(`Claimed ${e.pts} points! 🎉`);
+      refreshProfile().catch(() => {});
+      loadRank();
+    } catch (err: any) {
+      toast.error(err?.message || "Couldn't claim — try again in a moment.");
+    }
+  };
 
   const convert = async () => {
     if (!preset) return;
@@ -178,13 +228,19 @@ export default function RewardsPage() {
                   </div>
                   <p className="mt-0.5 line-clamp-2 text-[11px] text-hs-muted">{e.sub}</p>
                 </div>
-                {e.auto ? (
-                  <span className="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-semibold text-green-600"><Check size={12} /> Auto</span>
-                ) : e.url ? (
-                  <button onClick={() => { window.open(e.url, "_blank"); toast.success("Come back and claim your points!"); }} className="rounded-full bg-hs-blue px-3.5 py-1.5 text-xs font-semibold text-white">Open</button>
-                ) : (
-                  <button onClick={() => toast.info("Not eligible yet — keep going!")} className="rounded-full border border-hs-border px-3.5 py-1.5 text-xs font-semibold text-hs-navy">Claim</button>
-                )}
+                <EarnAction
+                  e={e}
+                  isClaimed={!!claimed[earnKey(e)]}
+                  isVisited={!!visited[earnKey(e)]}
+                  cooldown={cooldownLeft(e)}
+                  canClaim={eligible(e)}
+                  onOpen={() => {
+                    window.open(e.url, "_blank", "noopener");
+                    persistVisited({ ...visited, [earnKey(e)]: Date.now() });
+                    toast.success("Done the task? Come back and claim in a few seconds.");
+                  }}
+                  onClaim={() => doClaim(e)}
+                />
               </motion.div>
             ))}
           </motion.div>
@@ -220,4 +276,31 @@ export default function RewardsPage() {
       </div>
     </div>
   );
+}
+
+function EarnAction({ e, isClaimed, isVisited, cooldown, canClaim, onOpen, onClaim }: {
+  e: EarnItem; isClaimed: boolean; isVisited: boolean; cooldown: number; canClaim: boolean;
+  onOpen: () => void; onClaim: () => void;
+}) {
+  if (e.auto) {
+    return <span className="flex shrink-0 items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-semibold text-green-600"><Check size={12} /> Auto</span>;
+  }
+  if (isClaimed) {
+    return <span className="flex shrink-0 items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-[11px] font-semibold text-green-600"><Check size={12} /> Claimed</span>;
+  }
+  // Social tasks: open the link, then claim after a short cooldown.
+  if (e.url) {
+    if (!isVisited) {
+      return <button onClick={onOpen} className="shrink-0 rounded-full bg-hs-blue px-3.5 py-1.5 text-xs font-semibold text-white">Open</button>;
+    }
+    if (cooldown > 0) {
+      return <span className="shrink-0 rounded-full border border-hs-border px-3 py-1.5 text-xs font-semibold text-hs-muted">Wait {cooldown}s</span>;
+    }
+    return <button onClick={onClaim} className="shrink-0 rounded-full bg-hs-amber px-3.5 py-1.5 text-xs font-bold text-hs-amberDark">Claim</button>;
+  }
+  // Milestone tasks: claim only when eligible.
+  if (canClaim) {
+    return <button onClick={onClaim} className="shrink-0 rounded-full bg-hs-amber px-3.5 py-1.5 text-xs font-bold text-hs-amberDark">Claim</button>;
+  }
+  return <span className="shrink-0 rounded-full border border-hs-border px-3 py-1.5 text-xs font-semibold text-hs-placeholder">🔒 Locked</span>;
 }
