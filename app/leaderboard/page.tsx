@@ -84,8 +84,11 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
+      {/* Rank levels — sliding tier strip */}
+      <LevelStrip myPoints={myPoints} />
+
       {/* List */}
-      <div className="mx-auto max-w-2xl px-4 pb-28 pt-3 lg:px-8">
+      <div className="mx-auto max-w-2xl px-4 pb-28 pt-1 lg:px-8">
         {loading ? (
           <div className="flex justify-center py-12"><span className="h-7 w-7 animate-spin rounded-full border-2 border-hs-blue border-t-transparent" /></div>
         ) : entries.length === 0 ? (
@@ -115,6 +118,58 @@ export default function LeaderboardPage() {
           </div>
           <span className="text-sm font-extrabold text-hs-navy">{myPoints} pts</span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Rank tiers (matches the mobile leaderboard level strip).
+const TIERS = [
+  { name: "Wood", emoji: "🪵", color: "#92400E", minPts: 0 },
+  { name: "Bronze", emoji: "🥉", color: "#B45309", minPts: 500 },
+  { name: "Silver", emoji: "🥈", color: "#6B7280", minPts: 1500 },
+  { name: "Gold", emoji: "🥇", color: "#D97706", minPts: 3000 },
+  { name: "Diamond", emoji: "💎", color: "#0EA5E9", minPts: 6000 },
+  { name: "Legend", emoji: "👑", color: "#7C3AED", minPts: 12000 },
+];
+
+function LevelStrip({ myPoints }: { myPoints: number }) {
+  let current = 0;
+  for (let i = TIERS.length - 1; i >= 0; i--) {
+    if (myPoints >= TIERS[i].minPts) { current = i; break; }
+  }
+  const cur = TIERS[current];
+  return (
+    <div className="mx-auto max-w-2xl pt-3 lg:px-8">
+      <div className="flex items-center justify-between px-4 lg:px-0">
+        <span className="text-sm font-bold text-hs-navy">Rank Levels</span>
+        <span className="text-[11px] font-semibold" style={{ color: cur.color }}>
+          You are: {cur.emoji} {cur.name}
+        </span>
+      </div>
+      <div className="mt-2.5 flex gap-2.5 overflow-x-auto px-4 pb-1 lg:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {TIERS.map((t, i) => {
+          const isMe = i === current;
+          const isPast = i < current;
+          return (
+            <div
+              key={t.name}
+              className="flex w-20 shrink-0 flex-col items-center rounded-2xl py-2.5 transition-all"
+              style={{
+                backgroundColor: isMe ? `${t.color}1F` : "#fff",
+                border: `${isMe ? 2 : 1}px solid ${isMe ? t.color : "#E5E7EB"}`,
+                boxShadow: isMe ? `0 3px 10px ${t.color}33` : "none",
+              }}
+            >
+              <span className="text-[22px]">{t.emoji}</span>
+              <span className="mt-1 text-[11px] font-bold" style={{ color: isMe ? t.color : "#042C53" }}>{t.name}</span>
+              <span className="mt-0.5 text-[9px]" style={{ color: isPast ? "#059669" : "#8A8A8A" }}>
+                {t.minPts === 0 ? "Starter" : `${t.minPts}+ pts`}
+              </span>
+              {isPast && <span className="mt-0.5 text-[10px] text-[#059669]">✓</span>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
