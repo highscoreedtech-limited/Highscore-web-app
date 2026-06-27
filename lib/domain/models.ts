@@ -25,6 +25,7 @@ export interface AuthData {
 }
 
 export interface LeaderboardEntry {
+  user_id?: string;
   rank: number;
   first_name: string;
   last_name: string;

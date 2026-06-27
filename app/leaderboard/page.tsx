@@ -26,18 +26,22 @@ export default function LeaderboardPage() {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    const examForRank = exam === "All" ? "JAMB" : exam;
     Promise.all([
       dashApi.leaderboard(exam, 50).catch(() => [] as LeaderboardEntry[]),
-      dashApi.myRank(examForRank).catch(() => ({ rank: 0 })),
+      dashApi.myRank(exam).catch(() => ({ rank: 0 })), // same scope as the list
     ]).then(([list, rank]) => {
       if (!active) return;
-      setEntries(Array.isArray(list) ? list : []);
-      setMyRank(rank?.rank ?? 0);
+      // Always show the board in increasing rank order.
+      const sorted = (Array.isArray(list) ? [...list] : []).sort((a, b) => a.rank - b.rank);
+      setEntries(sorted);
+      // Prefer the rank from the visible board (guaranteed to match a row);
+      // fall back to the my-rank API when the user isn't in the top 50.
+      const mine = user?.id ? sorted.find((e) => e.user_id === user.id) : undefined;
+      setMyRank(mine?.rank ?? rank?.rank ?? 0);
       setMyPoints(pointsFromRank(rank));
     }).finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, [exam]);
+  }, [exam, user?.id]);
 
   const myName = user ? `${user.first_name} ${user.last_name}`.trim() : "You";
   const myInitials = ((user?.first_name?.[0] ?? "") + (user?.last_name?.[0] ?? "")).toUpperCase() || "?";

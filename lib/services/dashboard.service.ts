@@ -10,8 +10,11 @@ export const dashApi = {
     const exam = examType && examType !== "All" ? `exam_type=${encodeURIComponent(examType)}&` : "";
     return api<LeaderboardEntry[]>(`${Endpoints.leaderboard.list}?${exam}limit=${limit}`);
   },
+  // examType "" or "All" → rank within the global board (same scope as
+  // leaderboard()), so the "your rank" bar matches the list being shown.
   myRank(examType: string): Promise<MyRank> {
-    return api<MyRank>(`${Endpoints.leaderboard.myRank}?exam_type=${encodeURIComponent(examType)}`);
+    const exam = examType && examType !== "All" ? `exam_type=${encodeURIComponent(examType)}` : "";
+    return api<MyRank>(`${Endpoints.leaderboard.myRank}${exam ? `?${exam}` : ""}`);
   },
 };
 
