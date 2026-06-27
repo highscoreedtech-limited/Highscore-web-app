@@ -75,13 +75,13 @@ export default function DashboardPage() {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-hs-bg lg:flex">
+    <div className="min-h-screen bg-hs-bg md:flex">
       {/* Desktop sidebar */}
       <SideNav tab={tab} setTab={setTab} />
 
       {/* Main content */}
       <main className="min-w-0 flex-1">
-        <div className="mx-auto w-full max-w-lg pb-24 lg:max-w-6xl lg:pb-10">
+        <div className="mx-auto w-full max-w-lg pb-24 md:max-w-3xl md:pb-10 lg:max-w-6xl">
           {tab === 0 && (
             <HomeTab
               fullName={fullName}
@@ -145,7 +145,7 @@ function HomeTab({
   }, [exam]);
 
   return (
-    <div className="px-4 pt-4 lg:px-8 lg:pt-7">
+    <div className="px-4 pt-4 md:px-6 md:pt-6 lg:px-8 lg:pt-7">
       {/* Top bar */}
       <div className="flex items-center gap-2">
         <button
@@ -613,7 +613,7 @@ function SideNav({ tab, setTab }: { tab: number; setTab: (i: number) => void }) 
   const { logout } = useAuth();
   const router = useRouter();
   return (
-    <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-hs-border bg-white px-3 py-6 lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-hs-border bg-white px-3 py-6 md:flex lg:w-60">
       <div className="px-3">
         <Image src="/highscore-logo-final.png" alt="HighScore" width={140} height={36} className="h-9 w-auto object-contain" priority />
       </div>
@@ -649,7 +649,7 @@ function SideNav({ tab, setTab }: { tab: number; setTab: (i: number) => void }) 
 // ── Mobile bottom nav ─────────────────────────────────────────────────────────
 function BottomNav({ tab, setTab }: { tab: number; setTab: (i: number) => void }) {
   return (
-    <nav className="fixed bottom-0 left-1/2 w-full max-w-lg -translate-x-1/2 border-t border-hs-border bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.06)] lg:hidden">
+    <nav className="fixed bottom-0 left-1/2 w-full max-w-lg -translate-x-1/2 border-t border-hs-border bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.06)] md:hidden">
       <div className="flex items-center justify-around py-1.5">
         {NAV.map((it, i) => {
           const active = i === tab;
