@@ -38,7 +38,9 @@ export default function LeaderboardPage() {
       // fall back to the my-rank API when the user isn't in the top 50.
       const mine = user?.id ? sorted.find((e) => e.user_id === user.id) : undefined;
       setMyRank(mine?.rank ?? rank?.rank ?? 0);
-      setMyPoints(pointsFromRank(rank));
+      // Show the SAME points as the board (total_score) so you spot yourself
+      // easily — not the spendable balance.
+      setMyPoints(mine?.total_score ?? rank?.total_score ?? pointsFromRank(rank));
     }).finally(() => active && setLoading(false));
     return () => { active = false; };
   }, [exam, user?.id]);
