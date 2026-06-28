@@ -26,8 +26,10 @@ export default function OnboardingPage() {
   useEffect(() => {
     const t = setTimeout(() => {
       if (session.isAuthenticated) { router.replace("/dashboard"); return; }
-      const seen = typeof window !== "undefined" && localStorage.getItem(SEEN_KEY) === "1";
-      if (seen) { router.replace("/login"); return; }
+      // TEMP(preview-onboarding): "already seen" skip disabled so the slides
+      // always replay when logged out. Restore the two lines below when done.
+      // const seen = typeof window !== "undefined" && localStorage.getItem(SEEN_KEY) === "1";
+      // if (seen) { router.replace("/login"); return; }
       setPhase("slides");
     }, 2300);
     return () => clearTimeout(t);
