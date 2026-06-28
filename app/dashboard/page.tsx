@@ -20,6 +20,7 @@ import LottieIcon from "@/components/LottieIcon";
 import SubscribeTab from "./SubscribeTab";
 import DownloadsTab from "./DownloadsTab";
 import { AVATARS } from "@/lib/avatars";
+import StreakCelebration from "@/components/StreakCelebration";
 
 const EXAMS = ["JAMB", "WAEC", "NECO", "GCE", "Nursing"];
 
@@ -106,23 +107,14 @@ export default function DashboardPage() {
       {/* Mobile bottom nav */}
       <BottomNav tab={tab} setTab={setTab} />
 
-      {/* Daily streak celebration */}
+      {/* Daily streak celebration — full-screen animated sequence */}
       <AnimatePresence>
         {streakCelebrate && (
-          <motion.div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 px-6" onClick={() => setStreakCelebrate(null)}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className="w-full max-w-sm rounded-3xl bg-hs-navy p-7 text-center text-white" onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.7, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, opacity: 0 }} transition={{ type: "spring", stiffness: 240, damping: 16 }}>
-              <div className="mx-auto mb-2 h-24 w-24"><LottieIcon src="/lottie/fire.json" className="h-24 w-24" fallback={<span className="text-6xl">🔥</span>} /></div>
-              <p className="text-3xl font-extrabold">{streakCelebrate.count}-day streak!</p>
-              <p className="mt-1 text-sm text-[#B8CCE0]">You&apos;re on fire. Keep showing up daily.</p>
-              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-hs-amber/20 px-4 py-2 text-hs-amber">
-                <span className="text-lg">⚡</span>
-                <span className="font-bold">+{streakCelebrate.points} points earned</span>
-              </div>
-              <button onClick={() => setStreakCelebrate(null)} className="mt-6 w-full rounded-full bg-hs-amber py-3 font-bold text-hs-amberDark">Claim & continue</button>
-            </motion.div>
-          </motion.div>
+          <StreakCelebration
+            count={streakCelebrate.count}
+            points={streakCelebrate.points}
+            onDone={() => setStreakCelebrate(null)}
+          />
         )}
       </AnimatePresence>
     </div>
