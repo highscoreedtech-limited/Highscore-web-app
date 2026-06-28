@@ -173,7 +173,7 @@ export default function MarketingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="min-h-[260px] sm:min-h-[300px] lg:min-h-[320px]">
+            <div className="min-h-[340px] sm:min-h-[380px] lg:min-h-[400px]">
               <AnimatePresence mode="wait">
                 {(() => {
                   const s = HERO_SLIDES[heroSlide];
@@ -198,6 +198,16 @@ export default function MarketingPage() {
                         {s.title}
                       </h1>
                       <p className="mt-5 max-w-lg text-lg text-[#D7E3F0]">{s.desc}</p>
+                      <div className="mt-8 flex flex-wrap items-center gap-3">
+                        <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                          <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-7 py-3.5 font-semibold text-hs-amberDark shadow-lg shadow-black/20">
+                            Start learning free <ArrowRight size={18} />
+                          </Link>
+                        </motion.div>
+                        <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/5 px-7 py-3.5 font-semibold text-white backdrop-blur hover:bg-white/10">
+                          I have an account
+                        </Link>
+                      </div>
                     </motion.div>
                   );
                 })()}
@@ -215,21 +225,6 @@ export default function MarketingPage() {
                   />
                 ))}
               </div>
-            </div>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-7 py-3.5 font-semibold text-hs-amberDark shadow-lg shadow-black/20">
-                  Start learning free <ArrowRight size={18} />
-                </Link>
-              </motion.div>
-              <Link href="/login" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/5 px-7 py-3.5 font-semibold text-white backdrop-blur hover:bg-white/10">
-                I have an account
-              </Link>
-            </div>
-            <div className="mt-9 flex flex-wrap gap-x-8 gap-y-3 text-sm text-[#D7E3F0]">
-              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-amber" /> 10 core subjects</span>
-              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-amber" /> Thousands of past questions</span>
-              <span className="flex items-center gap-1.5"><Check size={16} className="text-hs-amber" /> Learn anywhere</span>
             </div>
           </motion.div>
 
