@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -48,10 +48,33 @@ const LIBRARY = [
   { subject: "Economics", topic: "Demand & Supply", img: "/ai.jpg" },
 ];
 
+// Rotating hero pitches — TON/$HST shown first so visitors see it up top.
+const HERO_SLIDES = [
+  {
+    badgeImg: "/ton-logo.svg",
+    badge: "Powered by the TON blockchain",
+    title: (<>Learn. Earn. <span className="text-hs-amber">Own.</span></>),
+    desc: "Meet $HST — the HighScore Token. Ace quizzes, keep streaks and refer friends to earn HST, soon live on TON: fast, low-fee and truly yours.",
+  },
+  {
+    badgeIcon: GraduationCap,
+    badge: "JAMB · WAEC · NECO · Post-UTME",
+    title: (<>Pass your exams with <span className="text-hs-amber">confidence.</span></>),
+    desc: "Nigeria's smartest learning app — video lessons, CBT practice, quiz battles and leaderboards, all in one place. Study smarter and score higher.",
+  },
+];
+
 export default function MarketingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
   const slide = (dir: number) => sliderRef.current?.scrollBy({ left: dir * 360, behavior: "smooth" });
+
+  // Auto-rotate the hero pitch.
+  const [heroSlide, setHeroSlide] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setHeroSlide((s) => (s + 1) % HERO_SLIDES.length), 5000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
     <div className="min-h-screen bg-white font-sans text-hs-body">
@@ -150,16 +173,49 @@ export default function MarketingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 text-xs font-semibold text-hs-amber ring-1 ring-white/20">
-              <GraduationCap size={14} /> JAMB · WAEC · NECO · Post-UTME
-            </span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] text-white sm:text-5xl lg:text-6xl">
-              Pass your exams with <span className="text-hs-amber">confidence.</span>
-            </h1>
-            <p className="mt-5 max-w-lg text-lg text-[#D7E3F0]">
-              Nigeria&apos;s smartest learning app — video lessons, CBT practice, quiz battles
-              and leaderboards, all in one place. Study smarter and score higher.
-            </p>
+            <div className="min-h-[260px] sm:min-h-[300px] lg:min-h-[320px]">
+              <AnimatePresence mode="wait">
+                {(() => {
+                  const s = HERO_SLIDES[heroSlide];
+                  const Icon = s.badgeIcon;
+                  return (
+                    <motion.div
+                      key={heroSlide}
+                      initial={{ opacity: 0, y: 18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -18 }}
+                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 text-xs font-semibold text-hs-amber ring-1 ring-white/20">
+                        {s.badgeImg ? (
+                          <Image src={s.badgeImg} alt="" width={14} height={14} />
+                        ) : Icon ? (
+                          <Icon size={14} />
+                        ) : null}
+                        {s.badge}
+                      </span>
+                      <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] text-white sm:text-5xl lg:text-6xl">
+                        {s.title}
+                      </h1>
+                      <p className="mt-5 max-w-lg text-lg text-[#D7E3F0]">{s.desc}</p>
+                    </motion.div>
+                  );
+                })()}
+              </AnimatePresence>
+
+              {/* Slide dots */}
+              <div className="mt-6 flex gap-2">
+                {HERO_SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setHeroSlide(i)}
+                    aria-label={`Show hero slide ${i + 1}`}
+                    className="h-2 rounded-full transition-all"
+                    style={{ width: i === heroSlide ? 24 : 8, backgroundColor: i === heroSlide ? "#EF9F27" : "rgba(255,255,255,0.35)" }}
+                  />
+                ))}
+              </div>
+            </div>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                 <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-7 py-3.5 font-semibold text-hs-amberDark shadow-lg shadow-black/20">
