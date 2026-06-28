@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { CBT_BANK, CBT_EXAMS, CbtQuestion } from "@/lib/cbt-bank";
 import { quizApi } from "@/lib/api";
+import { markGoal } from "@/lib/home-progress";
 
 type Phase = "select" | "exam" | "result";
 
@@ -71,6 +72,7 @@ export default function CbtPage() {
   useEffect(() => {
     if (phase !== "result" || credited.current) return;
     credited.current = true;
+    markGoal("cbt");
     quizApi.credit(subject, correctCount * 5).catch(() => {});
   }, [phase, correctCount, questions.length, exam, subject]);
 

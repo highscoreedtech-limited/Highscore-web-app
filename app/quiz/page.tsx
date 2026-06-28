@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
 import { quizApi } from "@/lib/api";
 import { realtime } from "@/lib/realtime/client";
+import { markGoal } from "@/lib/home-progress";
 import { useAuth } from "../hooks/useAuth";
 import FindPlayers from "./FindPlayers";
 
@@ -85,6 +86,9 @@ export default function QuizPage() {
     gameTimer.current = null; oppTimer.current = null;
   };
   useEffect(() => () => clearTimers(), []);
+
+  // Mark the daily "play a quiz" goal once the battle reaches its result.
+  useEffect(() => { if (phase === "result") markGoal("quiz"); }, [phase]);
 
   // ── Start / countdown ───────────────────────────────────────────────────────
   const resetGame = () => {

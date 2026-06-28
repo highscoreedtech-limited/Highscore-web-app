@@ -1,15 +1,20 @@
 "use client";
 
+import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, PlayCircle, Clock, BookOpen, Check } from "lucide-react";
 import { SUBJECTS } from "@/lib/subjects";
 import { TOPICS } from "@/lib/topics";
+import { setLastSubject } from "@/lib/home-progress";
 
 export default function SubjectDetailPage() {
   const router = useRouter();
   const params = useParams<{ subject: string }>();
   const name = decodeURIComponent(params.subject || "");
+
+  // Remember this subject so the home card can offer "Continue".
+  useEffect(() => { if (name) setLastSubject(name); }, [name]);
 
   const subject = SUBJECTS.find((s) => s.name === name);
   const topics = TOPICS[name] || [];

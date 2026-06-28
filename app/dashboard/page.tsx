@@ -10,9 +10,12 @@ import {
   Laptop, LineChart, Medal, Gift, Newspaper, UserPlus, ExternalLink,
   Home, ShoppingCart, CloudDownload, MoreHorizontal, LogOut,
   User as UserIcon, Shield, HelpCircle, Star, Info, Wallet, ChevronRight, Pencil,
+  ArrowRight, Check,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { dashApi, LeaderboardEntry, api, profileApi, streakPoints } from "@/lib/api";
+import { dashApi, LeaderboardEntry, api, profileApi, streakPoints, pointsFromRank } from "@/lib/api";
+import { tierFor } from "@/lib/tiers";
+import { goalsToday, getLastSubject, type DailyGoals } from "@/lib/home-progress";
 import LottieIcon from "@/components/LottieIcon";
 import SubscribeTab from "./SubscribeTab";
 import DownloadsTab from "./DownloadsTab";
@@ -135,14 +138,29 @@ function HomeTab({
   const [exam, setExam] = useState(examType);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [myRank, setMyRank] = useState(0);
+  const [myPoints, setMyPoints] = useState(0);
   const [examOpen, setExamOpen] = useState(false);
+  const [goals, setGoals] = useState<DailyGoals>({ quiz: false, cbt: false, streak: false, count: 0, total: 3 });
 
   useEffect(() => {
     let active = true;
     dashApi.leaderboard(exam, 5).then((e) => active && setEntries(e || [])).catch(() => {});
-    dashApi.myRank(exam).then((r) => active && setMyRank(r?.rank ?? 0)).catch(() => {});
+    dashApi.myRank(exam).then((r) => { if (active) { setMyRank(r?.rank ?? 0); setMyPoints(pointsFromRank(r)); } }).catch(() => {});
     return () => { active = false; };
   }, [exam]);
+
+  // Daily goals — read on mount and whenever the user returns to the tab
+  // (so finishing a quiz/CBT updates the ring on return).
+  useEffect(() => {
+    const read = () => setGoals(goalsToday());
+    read();
+    window.addEventListener("focus", read);
+    document.addEventListener("visibilitychange", read);
+    return () => { window.removeEventListener("focus", read); document.removeEventListener("visibilitychange", read); };
+  }, []);
+
+  const tier = tierFor(myPoints);
+  const lastSubject = getLastSubject();
 
   return (
     <div className="px-4 pt-4 md:px-6 md:pt-6 lg:px-8 lg:pt-7">
@@ -199,34 +217,50 @@ function HomeTab({
       {/* Two-pane on desktop: feed + leaderboard side panel */}
       <div className="lg:grid lg:grid-cols-3 lg:gap-6">
         <div className="lg:col-span-2">
-          {/* Welcome card */}
-          <div className="mt-3.5 rounded-2xl bg-hs-navy p-4 shadow-lg shadow-hs-navy/25 lg:p-6">
+          {/* Summary card — habit (streak) · today's goals · standing · next action */}
+          <div className="mt-3.5 rounded-2xl bg-hs-navy p-4 shadow-lg shadow-hs-navy/25 lg:p-5">
+            {/* Greeting + tier */}
             <div className="flex items-start">
               <div className="flex-1">
                 <p className="text-[13px] text-[#B8CCE0]">Welcome back,</p>
-                <p className="text-[13px] font-semibold text-white lg:text-base">{fullName}</p>
+                <p className="text-base font-bold text-white">{fullName}</p>
               </div>
-              <span className="rounded-[10px] border border-white/40 bg-white/15 px-2.5 py-1 text-[13px] font-bold text-white">
-                {myRank > 0 ? `Bronze  #${myRank}` : "Bronze"}
+              <span className="flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-xs font-bold text-white">
+                {tier.emoji} {tier.name}
               </span>
             </div>
 
-            <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-[10px] bg-white/15 px-2.5 py-1.5">
-              <LottieIcon
-                src="/lottie/fire.json"
-                className="h-[22px] w-[22px]"
-                fallback={<span className="text-base">🔥</span>}
-              />
+            {/* Streak — the hero metric */}
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-[10px] bg-white/12 px-2.5 py-1.5">
+              <LottieIcon src="/lottie/fire.json" className="h-[22px] w-[22px]" fallback={<span className="text-base">🔥</span>} />
               <span className="text-[13px] font-semibold text-white">
-                {streak}-day streak — keep it up!
+                {streak}-day streak{goals.streak ? "" : " — study today to keep it"}
               </span>
             </div>
 
-            <div className="mt-3.5 flex gap-1.5">
-              <StatTile value="84%" label="avg score" />
-              <StatTile value="129" label="questions" />
-              <StatTile value={myRank > 0 ? `#${myRank}` : "--"} label="rank" amber />
+            {/* Today's goal ring + standing */}
+            <div className="mt-4 flex items-center gap-4">
+              <GoalRing count={goals.count} total={goals.total} />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-white">
+                  {myPoints.toLocaleString()} pts{myRank > 0 && <span className="text-[#B8CCE0]"> · #{myRank}</span>}
+                </p>
+                <p className="text-[11px] text-[#B8CCE0]">{myRank > 0 ? "your rank this week" : "play to get ranked"}</p>
+                <div className="mt-1.5 flex gap-3 text-[11px] text-[#B8CCE0]">
+                  <GoalDot done={goals.quiz} label="Quiz" />
+                  <GoalDot done={goals.cbt} label="CBT" />
+                  <GoalDot done={goals.streak} label="Streak" />
+                </div>
+              </div>
             </div>
+
+            {/* Primary action — zero-friction path to the core activity */}
+            <button
+              onClick={() => onNav(lastSubject ? `/courses/${encodeURIComponent(lastSubject)}` : "/quiz")}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-hs-amber py-3 text-sm font-extrabold text-hs-amberDark transition-transform active:scale-[0.99]"
+            >
+              {lastSubject ? `Continue ${lastSubject}` : "Start today's quiz"} <ArrowRight size={16} />
+            </button>
           </div>
 
           {/* Search */}
@@ -293,6 +327,37 @@ function StreakChip({ streak }: { streak: number }) {
         {streak}
       </span>
     </div>
+  );
+}
+
+// Today's-goals ring (count / total) — amber on the navy card.
+function GoalRing({ count, total }: { count: number; total: number }) {
+  const r = 22;
+  const circ = 2 * Math.PI * r;
+  const pct = total ? count / total : 0;
+  const complete = count >= total && total > 0;
+  return (
+    <div className="relative h-14 w-14 shrink-0">
+      <svg className="h-14 w-14 -rotate-90" viewBox="0 0 56 56">
+        <circle cx="28" cy="28" r={r} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="5" />
+        <circle cx="28" cy="28" r={r} fill="none" stroke={complete ? "#2ECC71" : "#EF9F27"} strokeWidth="5" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)} style={{ transition: "stroke-dashoffset 0.6s ease" }} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-sm font-extrabold leading-none text-white">{count}/{total}</span>
+        <span className="text-[8px] text-[#B8CCE0]">today</span>
+      </div>
+    </div>
+  );
+}
+
+function GoalDot({ done, label }: { done: boolean; label: string }) {
+  return (
+    <span className="flex items-center gap-1">
+      <span className={`flex h-3 w-3 items-center justify-center rounded-full ${done ? "bg-hs-amber text-hs-amberDark" : "bg-white/15"}`}>
+        {done && <Check size={8} strokeWidth={3} />}
+      </span>
+      {label}
+    </span>
   );
 }
 
