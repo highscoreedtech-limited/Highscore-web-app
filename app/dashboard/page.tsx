@@ -94,6 +94,7 @@ export default function DashboardPage() {
               streak={user?.streak_count ?? 0}
               examType={user?.exam_type || "JAMB"}
               onNav={(href) => router.push(href)}
+              onProfile={() => setTab(3)}
             />
           )}
           {tab === 1 && <SubscribeTab />}
@@ -130,10 +131,10 @@ export default function DashboardPage() {
 
 // ── Home tab ──────────────────────────────────────────────────────────────────
 function HomeTab({
-  fullName, initials, avatarColor, avatarUrl, streak, examType, onNav,
+  fullName, initials, avatarColor, avatarUrl, streak, examType, onNav, onProfile,
 }: {
   fullName: string; initials: string; avatarColor: string; avatarUrl: string;
-  streak: number; examType: string; onNav: (href: string) => void;
+  streak: number; examType: string; onNav: (href: string) => void; onProfile: () => void;
 }) {
   const [exam, setExam] = useState(examType);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
@@ -181,17 +182,19 @@ function HomeTab({
             <Bell size={22} className="text-hs-muted" />
             <span className="absolute right-0 top-0 h-[7px] w-[7px] rounded-full border border-white bg-hs-flame" />
           </div>
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="Avatar" className="h-8 w-8 rounded-full bg-hs-blueTint object-cover" />
-          ) : (
-            <span
-              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
-              style={{ backgroundColor: avatarColor }}
-            >
-              {initials}
-            </span>
-          )}
+          <button onClick={onProfile} aria-label="Open profile" className="transition-transform active:scale-95">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt="Avatar" className="h-8 w-8 rounded-full bg-hs-blueTint object-cover" />
+            ) : (
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white"
+                style={{ backgroundColor: avatarColor }}
+              >
+                {initials}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
