@@ -63,6 +63,7 @@ export default function MarketingPage() {
             <a href="#features" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Features</a>
             <a href="#library" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Video library</a>
             <a href="#pricing" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Pricing</a>
+            <a href="#hst" className="text-sm font-medium text-hs-navy hover:text-hs-blue">$HST</a>
             <Link href="/blog" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Blog</Link>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
@@ -339,6 +340,79 @@ export default function MarketingPage() {
             ))}
           </ul>
         </Reveal>
+      </section>
+
+      {/* HST token · built on TON */}
+      <section id="hst" className="relative overflow-hidden bg-hs-navy">
+        {/* glow accents */}
+        <div className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-[#0098EA]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-hs-amber/15 blur-3xl" />
+
+        <div className="relative mx-auto max-w-6xl px-4 py-20 lg:px-8 lg:py-24">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#0098EA]/40 bg-[#0098EA]/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#5CC2FF]">
+              <Image src="/ton-logo.svg" alt="TON" width={16} height={16} /> Powered by the TON blockchain
+            </span>
+            <h2 className="mt-5 text-3xl font-extrabold leading-tight text-white lg:text-5xl">
+              Learn. Earn. <span className="text-hs-amber">Own.</span>
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-[#B8CCE0] lg:text-lg">
+              Meet <span className="font-bold text-white">$HST</span> — the HighScore Token. Every quiz you ace,
+              every streak you keep and every friend you bring earns you HST. Soon it lands on
+              <span className="font-semibold text-[#5CC2FF]"> TON</span>, the blockchain built for the billions
+              of people already on Telegram — fast, near-zero fees, truly yours.
+            </p>
+          </Reveal>
+
+          {/* HST coin + TON pairing */}
+          <Reveal className="mx-auto mt-12 flex max-w-md items-center justify-center gap-5">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-hs-amber to-[#B97400] text-2xl font-extrabold text-white shadow-[0_12px_40px_-8px_rgba(239,159,39,0.6)]">
+              HST
+            </div>
+            <div className="flex flex-col items-center text-[#B8CCE0]">
+              <span className="text-2xl">⇄</span>
+              <span className="text-[11px] font-semibold uppercase tracking-wide">on-chain</span>
+            </div>
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/5 p-3 ring-1 ring-[#0098EA]/40 shadow-[0_12px_40px_-8px_rgba(0,152,234,0.5)]">
+              <Image src="/ton-logo.svg" alt="The Open Network (TON)" width={72} height={72} />
+            </div>
+          </Reveal>
+
+          {/* Value props */}
+          <div className="mx-auto mt-14 grid max-w-5xl gap-5 sm:grid-cols-3">
+            {[
+              { icon: Medal, title: "Earn as you learn", desc: "Quizzes, streaks, CBT scores and referrals all pay out in HST. The harder you study, the more you stack." },
+              { icon: Gift, title: "Real ownership on TON", desc: "HST settles on The Open Network — your tokens, your wallet, lightning-fast transfers and near-zero fees." },
+              { icon: ArrowRight, title: "Spend it your way", desc: "Unlock premium, redeem rewards, or send HST to a friend. Utility you control, not points trapped in an app." },
+            ].map((c, i) => (
+              <Reveal key={c.title} delay={i * 0.08}>
+                <div className="flex h-full flex-col rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0098EA]/15 text-[#5CC2FF]">
+                    <c.icon size={20} />
+                  </div>
+                  <h3 className="mt-4 text-lg font-bold text-white">{c.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[#9FB3C8]">{c.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* CTA + badge */}
+          <Reveal className="mx-auto mt-12 flex max-w-2xl flex-col items-center gap-5 text-center">
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-7 py-3.5 font-bold text-hs-amberDark">
+                Start earning HST <ArrowRight size={18} />
+              </Link>
+            </motion.div>
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-[#B8CCE0]">
+              <Image src="/ton-logo.svg" alt="TON" width={18} height={18} /> Built on The Open Network
+            </span>
+            <p className="max-w-lg text-[11px] leading-relaxed text-[#6E83A0]">
+              HST is a utility reward token used inside HighScore. On-chain launch on TON is coming soon.
+              This is not financial or investment advice.
+            </p>
+          </Reveal>
+        </div>
       </section>
 
       {/* CTA band */}

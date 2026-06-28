@@ -1,0 +1,5 @@
+<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="TON — The Open Network">
+  <circle cx="28" cy="28" r="28" fill="#0098EA"/>
+  <path d="M18 20 H38 L28 39 Z" fill="#ffffff"/>
+  <path d="M28 20 V39 M19 21.6 L28 31.8 L37 21.6" stroke="#0098EA" stroke-width="2.2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>
