@@ -156,6 +156,22 @@ function HomeTab({
   const tier = tierFor(myPoints);
   const lastSubject = getLastSubject();
 
+  // Animate the streak number rolling up to its value on load.
+  const [streakShown, setStreakShown] = useState(0);
+  useEffect(() => {
+    if (streak <= 0) { setStreakShown(0); return; }
+    const duration = 900;
+    let raf = 0, startTime = 0;
+    const tick = (now: number) => {
+      if (!startTime) startTime = now;
+      const t = Math.min(1, (now - startTime) / duration);
+      setStreakShown(Math.round((1 - Math.pow(1 - t, 3)) * streak));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [streak]);
+
   return (
     <div className="px-4 pt-4 md:px-6 md:pt-6 lg:px-8 lg:pt-7">
       {/* Top bar */}
@@ -230,7 +246,7 @@ function HomeTab({
             <div className="mt-3 inline-flex items-center gap-2 rounded-[10px] bg-white/12 px-2.5 py-1.5">
               <LottieIcon src="/lottie/fire.json" className="-my-1 h-9 w-9" fallback={<span className="text-2xl">🔥</span>} />
               <span className="text-[13px] font-semibold text-white">
-                {streak}-day streak{goals.streak ? "" : " — study today to keep it"}
+                {streakShown}-day streak{goals.streak ? "" : " — study today to keep it"}
               </span>
             </div>
 
