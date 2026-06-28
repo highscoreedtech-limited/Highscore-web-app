@@ -453,6 +453,7 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
   const router = useRouter();
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [redeemOpen, setRedeemOpen] = useState(false);
+  const [rateOpen, setRateOpen] = useState(false);
   const name = user ? `${user.first_name} ${user.last_name}`.trim() : "HighScore User";
   const initials = ((user?.first_name?.[0] ?? "") + (user?.last_name?.[0] ?? "")).toUpperCase() || "?";
   const tier = (user?.subscription_tier ?? "free").toLowerCase();
@@ -512,7 +513,7 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
           </MenuSection>
           <MenuSection>
             <MenuItem icon={HelpCircle} color="#059669" title="Help & support" subtitle="FAQs, report a bug, contact us" onClick={() => router.push("/profile/help")} />
-            <MenuItem icon={Star} color="#D97706" title="Rate the app" subtitle="Enjoying HighScore? Leave a review" />
+            <MenuItem icon={Star} color="#D97706" title="Rate the app" subtitle="Enjoying HighScore? Leave a review" onClick={() => setRateOpen(true)} />
             <MenuItem icon={Info} color="#8A8A8A" title="About" subtitle="Version 1.0.0 · HighScore EdTech Limited" />
           </MenuSection>
           <MenuSection>
@@ -531,6 +532,7 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
 
       <AvatarPickerModal open={avatarOpen} current={avatarUrl} onClose={() => setAvatarOpen(false)} onSaved={() => refreshProfile().catch(() => {})} />
       <RedeemModal open={redeemOpen} balance={user?.hst_balance ?? 0} onClose={() => setRedeemOpen(false)} />
+      <RateModal open={rateOpen} onClose={() => setRateOpen(false)} />
     </div>
   );
 }
@@ -643,6 +645,44 @@ function RedeemModal({ open, balance, onClose }: { open: boolean; balance: numbe
             </div>
 
             <p className="mt-4 text-center text-[11px] text-hs-muted">Earn more HST by converting your points in Rewards.</p>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function RateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [rating, setRating] = useState(0);
+  const PLAY = "https://play.google.com/store/apps/details?id=com.highscore.highscore";
+  useEffect(() => { if (open) setRating(0); }, [open]);
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50" onClick={onClose}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div className="w-full max-w-2xl rounded-t-3xl bg-white p-6 pb-8 text-center" onClick={(e) => e.stopPropagation()}
+            initial={{ y: 80 }} animate={{ y: 0 }} exit={{ y: 80 }} transition={{ type: "spring", stiffness: 300, damping: 32 }}>
+            <div className="mx-auto h-1 w-10 rounded-full bg-hs-border" />
+            <p className="mt-5 text-5xl">⭐</p>
+            <h2 className="mt-2 text-lg font-bold text-hs-navy">Enjoying HighScore?</h2>
+            <p className="mt-1 text-sm text-hs-muted">Tap a star to rate your experience.</p>
+            <div className="mt-4 flex justify-center gap-2">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button key={n} onClick={() => setRating(n)} aria-label={`${n} star`} className="transition-transform active:scale-90">
+                  <Star size={36} className={n <= rating ? "fill-hs-amber text-hs-amber" : "text-hs-border"} />
+                </button>
+              ))}
+            </div>
+            {rating === 0 ? (
+              <p className="mt-6 text-xs text-hs-placeholder">Select a rating to continue</p>
+            ) : rating >= 4 ? (
+              <a href={PLAY} target="_blank" rel="noreferrer" onClick={() => { toast.success("Thank you! 🎉"); onClose(); }}
+                className="mt-6 block rounded-full bg-hs-blue py-3 font-semibold text-white">Rate us on Google Play</a>
+            ) : (
+              <a href="mailto:support@highscore.ng?subject=HighScore%20feedback" onClick={() => { toast.info("Thanks — we'd love to hear how to improve!"); onClose(); }}
+                className="mt-6 block rounded-full bg-hs-navy py-3 font-semibold text-white">Tell us how to improve</a>
+            )}
           </motion.div>
         </motion.div>
       )}
