@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, PlayCircle, BookOpen, Check, Clock, FileText, ListChecks } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, PlayCircle, BookOpen, Check, Clock, FileText, ListChecks, Maximize } from "lucide-react";
 import type { TopicInfo } from "@/lib/topics";
 
 type LessonType = "video" | "reading" | "practice";
@@ -72,6 +72,30 @@ export default function TopicLessons({
     });
   };
 
+  // Custom fullscreen that also rotates to landscape (Android). iOS Safari
+  // ignores orientation lock, but the player still goes fullscreen.
+  const playerRef = useRef<HTMLDivElement>(null);
+  const goFullscreen = async () => {
+    const el = playerRef.current as (HTMLDivElement & { webkitRequestFullscreen?: () => Promise<void> }) | null;
+    if (!el) return;
+    try {
+      if (el.requestFullscreen) await el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+      const o = (screen as unknown as { orientation?: { lock?: (s: string) => Promise<void> } }).orientation;
+      if (o?.lock) { try { await o.lock("landscape"); } catch { /* unsupported */ } }
+    } catch { /* fullscreen denied */ }
+  };
+  useEffect(() => {
+    const onFsChange = () => {
+      if (!document.fullscreenElement) {
+        const o = (screen as unknown as { orientation?: { unlock?: () => void } }).orientation;
+        try { o?.unlock?.(); } catch { /* ignore */ }
+      }
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
   const activeLesson = active >= 0 ? lessons[active] : undefined;
   const totalMin = lessons.reduce((s, l) => s + l.minutes, 0);
   const pct = lessons.length ? Math.round((done.size / lessons.length) * 100) : 0;
@@ -102,7 +126,8 @@ export default function TopicLessons({
         {/* Video player / featured lesson */}
         {activeLesson?.type === "video" && (activeLesson.videoUrl || activeLesson.youtubeId) ? (
           <div
-            className={`mx-auto overflow-hidden rounded-2xl border border-hs-border bg-black ${activeLesson.portrait ? "max-w-[300px] sm:max-w-[340px]" : ""}`}
+            ref={playerRef}
+            className={`group relative mx-auto overflow-hidden rounded-2xl border border-hs-border bg-black ${activeLesson.portrait ? "max-w-[300px] sm:max-w-[340px]" : ""}`}
           >
             <div className="relative w-full" style={{ paddingTop: activeLesson.portrait ? "177.78%" : "56.25%" }}>
               {activeLesson.videoUrl ? (
@@ -140,13 +165,23 @@ export default function TopicLessons({
           <div className="mt-3 rounded-xl border border-hs-border bg-white p-4">
             <p className="text-sm font-bold text-hs-navy">{activeLesson.name}</p>
             <p className="mt-1 text-sm text-hs-muted">{activeLesson.summary}</p>
-            <button
-              onClick={() => active >= 0 && toggleDone(active)}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-white"
-              style={{ backgroundColor: color }}
-            >
-              <Check size={15} /> {done.has(active) ? "Completed" : "Mark complete"}
-            </button>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => active >= 0 && toggleDone(active)}
+                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-white"
+                style={{ backgroundColor: color }}
+              >
+                <Check size={15} /> {done.has(active) ? "Completed" : "Mark complete"}
+              </button>
+              {activeLesson.type === "video" && (activeLesson.videoUrl || activeLesson.youtubeId) && (
+                <button
+                  onClick={goFullscreen}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-hs-border bg-white px-4 py-2 text-sm font-semibold text-hs-navy"
+                >
+                  <Maximize size={15} /> Fullscreen
+                </button>
+              )}
+            </div>
           </div>
         )}
 
