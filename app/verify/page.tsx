@@ -24,7 +24,7 @@ function VerifyContent() {
       router.push("/signup");
       return;
     }
-    if (code.length < 4) {
+    if (code.length < 6) {
       toast.error("Enter the code sent to your email.");
       return;
     }
@@ -76,7 +76,7 @@ function VerifyContent() {
 
           <button
             type="submit"
-            disabled={isSubmitting || code.length < 4}
+            disabled={isSubmitting || code.length < 6}
             className="w-full py-3 text-base font-semibold rounded-full text-white bg-[#185FA5] hover:bg-[#0C447C] disabled:opacity-50 transition-all"
           >
             {isSubmitting ? "Verifying..." : "Verify & Continue"}

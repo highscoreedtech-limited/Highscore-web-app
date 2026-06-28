@@ -12,7 +12,7 @@ export default function ResetPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]); // ✅ OTP as array
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]); // ✅ OTP as array
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [validEmail, setValidEmail] = useState<boolean | null>(null);
@@ -71,7 +71,7 @@ export default function ResetPage() {
 
       toast.success("Reset code sent! Check your email.");
       setStep("otp");
-      setOtp(["", "", "", ""]); // reset OTP inputs
+      setOtp(["", "", "", "", "", ""]); // reset OTP inputs
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong.");
       setErrors(prev => ({ ...prev, email: error?.message || "" }));
@@ -82,8 +82,8 @@ export default function ResetPage() {
 
   const handleVerifyOtp = async () => {
     const otpString = otp.join("");
-    if (otpString.length !== 4) {
-      toast.error("Enter the complete 4-digit OTP.");
+    if (otpString.length !== 6) {
+      toast.error("Enter the complete 6-digit OTP.");
       return;
     }
 
@@ -134,7 +134,7 @@ export default function ResetPage() {
 
      
       setEmail("");
-      setOtp(["", "", "", ""]);
+      setOtp(["", "", "", "", "", ""]);
       setPassword("");
       setConfirmPassword("");
     } catch (error: any) {
@@ -202,7 +202,7 @@ export default function ResetPage() {
             {/* OTP Step */}
             {step === "otp" && (
               <div className="w-full">
-                <div className="flex justify-center gap-3 mb-2">
+                <div className="flex justify-center gap-2 mb-2">
                   {otp.map((digit, i) => (
                     <input
                       key={i}
@@ -225,7 +225,7 @@ export default function ResetPage() {
                           document.getElementById(`otp-${i - 1}`)?.focus();
                         }
                       }}
-                      className="w-12 h-12 text-center text-lg rounded-xl border-2 border-gray-300 focus:border-hs-blue focus:outline-none bg-hs-blueTint"
+                      className="w-11 h-12 text-center text-lg rounded-xl border-2 border-gray-300 focus:border-hs-blue focus:outline-none bg-hs-blueTint"
                     />
                   ))}
                 </div>

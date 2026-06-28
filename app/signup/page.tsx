@@ -237,11 +237,12 @@ export default function SignupPage() {
                 <Input
                   id="otpCode"
                   type="text"
-                  placeholder="0000"
-                  maxLength={4}
-                  className="w-full h-12 text-2xl tracking-[0.75em] text-center px-4 border-2 rounded-xl border-gray-300 focus:border-hs-blue outline-none bg-hs-blueTint"
+                  placeholder="000000"
+                  maxLength={6}
+                  inputMode="numeric"
+                  className="w-full h-12 text-2xl tracking-[0.5em] text-center px-4 border-2 rounded-xl border-gray-300 focus:border-hs-blue outline-none bg-hs-blueTint"
                   value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   required
                 />
                 <div className="flex justify-between items-center px-1">
@@ -256,11 +257,11 @@ export default function SignupPage() {
             <Button
               type="submit"
               className={`w-full py-3 h-12 text-base font-semibold rounded-full transition-all text-white shadow-md active:scale-[0.98] ${
-                isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 4)
+                isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 6)
                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                   : "bg-hs-blue hover:opacity-90"
               }`}
-              disabled={isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 4)}
+              disabled={isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 6)}
             >
               {isSubmitting ? "Processing..." : otpStep ? "Verify & Create Account" : "Submit & Send Code"}
             </Button>
