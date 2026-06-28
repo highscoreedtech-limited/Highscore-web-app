@@ -55,22 +55,20 @@ export default function DashboardPage() {
   const [streakCelebrate, setStreakCelebrate] = useState<{ count: number; points: number } | null>(null);
   useEffect(() => {
     let active = true;
+    // TEMP(preview-streak): always play the celebration on dashboard load,
+    // even if the streak is 0 or the API call fails (demo count = 7).
+    // Restore the gated block below (count > 0 && last !== today) when done.
+    const showPreview = (count: number) => {
+      const demo = count > 0 ? count : 7;
+      setStreakCelebrate({ count: demo, points: streakPoints(demo) });
+    };
     profileApi.touchStreak()
       .then((res) => {
         if (!active) return;
-        const count = res?.streak_count ?? 0;
-        const today = new Date().toISOString().slice(0, 10);
-        const last = localStorage.getItem("hs_last_streak_date");
-        // TEMP(preview-streak): once-per-day gate disabled so the celebration
-        // plays on every dashboard load. Restore the `last !== today` check below.
-        if (count > 0 /* && last !== today */) {
-          void last; void today;
-          // localStorage.setItem("hs_last_streak_date", today);
-          setStreakCelebrate({ count, points: streakPoints(count) });
-        }
+        showPreview(res?.streak_count ?? 0);
         refreshProfile().catch(() => {});
       })
-      .catch(() => {});
+      .catch(() => { if (active) showPreview(0); });
     return () => { active = false; };
   }, [refreshProfile]);
 
