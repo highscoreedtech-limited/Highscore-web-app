@@ -61,8 +61,11 @@ export default function DashboardPage() {
         const count = res?.streak_count ?? 0;
         const today = new Date().toISOString().slice(0, 10);
         const last = localStorage.getItem("hs_last_streak_date");
-        if (count > 0 && last !== today) {
-          localStorage.setItem("hs_last_streak_date", today);
+        // TEMP(preview-streak): once-per-day gate disabled so the celebration
+        // plays on every dashboard load. Restore the `last !== today` check below.
+        if (count > 0 /* && last !== today */) {
+          void last; void today;
+          // localStorage.setItem("hs_last_streak_date", today);
           setStreakCelebrate({ count, points: streakPoints(count) });
         }
         refreshProfile().catch(() => {});
