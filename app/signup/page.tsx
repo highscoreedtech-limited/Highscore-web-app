@@ -27,6 +27,13 @@ export default function SignupPage() {
   const [validPassword, setValidPassword] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [referredBy, setReferredBy] = useState("");
+
+  // Capture a referral code from the invite link (?ref=CODE).
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref) setReferredBy(ref.trim().toUpperCase());
+  }, []);
 
   // 👇 Slides (same as Login)
   const slides = [
@@ -92,6 +99,7 @@ export default function SignupPage() {
         last_name: lastName,
         email,
         password,
+        ...(referredBy ? { referred_by: referredBy } : {}),
       });
 
       toast.success("Account created! Check your email for the code.");
@@ -165,6 +173,11 @@ export default function SignupPage() {
           <form onSubmit={otpStep ? handleVerifyOTP : handleSubmit} className="space-y-3 w-full">
             {!otpStep ? (
               <>
+                {referredBy && (
+                  <div className="flex items-center gap-2 rounded-xl bg-hs-blueTint px-3 py-2 text-xs font-semibold text-hs-blue">
+                    🎉 Referred by a friend — code <span className="font-extrabold">{referredBy}</span> applied
+                  </div>
+                )}
                 {/* Name Inputs */}
                 <div className="flex gap-3">
                   <Input

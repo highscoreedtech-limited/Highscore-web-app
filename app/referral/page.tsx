@@ -27,11 +27,17 @@ export default function ReferralPage() {
   const count = stats.referral_count;
   const points = stats.referral_points;
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [origin, setOrigin] = useState("https://highscoreedtech.com");
 
   useEffect(() => {
+    if (typeof window !== "undefined") setOrigin(window.location.origin);
     let active = true;
     referralApi.get().then((s) => { if (active) setStats(s); }).catch(() => {});
   }, []);
+
+  // Shareable invite link — pre-fills the referral code at signup.
+  const link = `${origin}/signup?ref=${encodeURIComponent(code)}`;
 
   const copy = async () => {
     try {
@@ -41,10 +47,18 @@ export default function ReferralPage() {
     } catch { toast.error("Couldn't copy."); }
   };
 
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 1500);
+    } catch { toast.error("Couldn't copy."); }
+  };
+
   const share = async () => {
-    const msg = `Join me on HighScore and ace your exams! 🎓 Use my code ${code} when you sign up and we both earn 100 points. https://highscoreedtech.com`;
+    const msg = `Join me on HighScore and ace your exams! 🎓 Sign up with my link — we both earn 100 points:\n${link}`;
     if (navigator.share) {
-      try { await navigator.share({ title: "Join HighScore", text: msg }); } catch { /* cancelled */ }
+      try { await navigator.share({ title: "Join HighScore", text: msg, url: link }); } catch { /* cancelled */ }
     } else {
       await navigator.clipboard.writeText(msg);
       toast.success("Invite message copied!");
@@ -79,6 +93,18 @@ export default function ReferralPage() {
             <button onClick={share} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-hs-blue py-3 text-sm font-semibold text-white">
               <Share2 size={16} /> Share
             </button>
+          </div>
+
+          {/* Invite link */}
+          <div className="mt-4 border-t border-hs-border pt-4">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-hs-muted">Your invite link</p>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex-1 truncate rounded-xl bg-hs-bg px-3 py-2.5 text-xs text-hs-navy">{link}</div>
+              <button onClick={copyLink} className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-semibold ${copiedLink ? "bg-green-50 text-green-600" : "bg-hs-blueTint text-hs-blue"}`}>
+                {copiedLink ? <Check size={14} /> : <Copy size={14} />} {copiedLink ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <p className="mt-1.5 text-[11px] text-hs-muted">Friends who sign up with your link get the code filled in automatically.</p>
           </div>
         </motion.div>
 
