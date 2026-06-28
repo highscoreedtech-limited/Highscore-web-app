@@ -318,7 +318,8 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "lessons": 8,
       "hours": 3,
       "progress": 1,
-      "youtubeId": "PnHnbN4i_Q0"
+      "youtubeId": "PnHnbN4i_Q0",
+      "portrait": true
     },
     {
       "name": "Scalars & Vectors",
