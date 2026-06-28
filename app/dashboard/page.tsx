@@ -322,7 +322,11 @@ function StreakChip({ streak }: { streak: number }) {
         active ? "border-hs-flame/35 bg-hs-flame/10" : "border-hs-border bg-[#F5F5F5]"
       }`}
     >
-      <span className="text-[13px]">{active ? "🔥" : "🌑"}</span>
+      {active ? (
+        <LottieIcon src="/lottie/fire.json" className="-my-0.5 h-5 w-5" fallback={<span className="text-[13px]">🔥</span>} />
+      ) : (
+        <span className="text-[13px]">🌑</span>
+      )}
       <span className={`text-[13px] font-extrabold ${active ? "text-hs-flame" : "text-[#AAAAAA]"}`}>
         {streak}
       </span>
