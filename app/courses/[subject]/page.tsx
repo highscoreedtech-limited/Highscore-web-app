@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { ArrowLeft, PlayCircle, Clock, BookOpen, Check } from "lucide-react";
 import { SUBJECTS } from "@/lib/subjects";
-import { TOPICS } from "@/lib/topics";
+import { TOPICS, type TopicInfo } from "@/lib/topics";
 import { setLastSubject } from "@/lib/home-progress";
+import TopicLessons from "./TopicLessons";
 
 export default function SubjectDetailPage() {
   const router = useRouter();
@@ -19,6 +19,7 @@ export default function SubjectDetailPage() {
   const subject = SUBJECTS.find((s) => s.name === name);
   const topics = TOPICS[name] || [];
   const color = subject?.color || "#185FA5";
+  const [openTopic, setOpenTopic] = useState<TopicInfo | null>(null);
 
   const totalLessons = topics.reduce((n, t) => n + t.lessons, 0);
   const totalHours = topics.reduce((n, t) => n + t.hours, 0);
@@ -79,7 +80,7 @@ export default function SubjectDetailPage() {
             return (
               <button
                 key={i}
-                onClick={() => toast.info(`${t.name} — lessons coming soon`)}
+                onClick={() => setOpenTopic(t)}
                 className="flex w-full items-center gap-3 rounded-2xl border border-hs-border bg-white p-3.5 text-left hover:bg-hs-bg"
               >
                 <span
@@ -104,6 +105,15 @@ export default function SubjectDetailPage() {
           })}
         </div>
       </div>
+
+      {openTopic && (
+        <TopicLessons
+          subjectName={name}
+          color={color}
+          topic={openTopic}
+          onBack={() => setOpenTopic(null)}
+        />
+      )}
     </div>
   );
 }

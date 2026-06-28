@@ -1,5 +1,5 @@
 // Per-subject topic lists — ported from the mobile app (subject_data.dart).
-export interface TopicInfo { name: string; lessons: number; hours: number; progress: number; }
+export interface TopicInfo { name: string; lessons: number; hours: number; progress: number; youtubeId?: string; videoUrl?: string; }
 
 export const TOPICS: Record<string, TopicInfo[]> = {
   "English Language": [
@@ -317,7 +317,8 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "name": "Measurements & Units",
       "lessons": 8,
       "hours": 3,
-      "progress": 1
+      "progress": 1,
+      "youtubeId": "PnHnbN4i_Q0"
     },
     {
       "name": "Scalars & Vectors",
