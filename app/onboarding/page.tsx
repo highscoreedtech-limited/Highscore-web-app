@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { session } from "@/lib/api";
-import LottieIcon from "@/components/LottieIcon";
 
 const ARENA = "#0A1628";
 const AMBER = "#EF9F27";
 
 const SLIDES = [
-  { lottie: "/lottie/video-player.json", title: "Video lessons\nfor every topic", subtitle: "Watch expert-taught videos on any subject, anytime — even offline." },
-  { lottie: "/lottie/quiz-games.json", title: "Battle friends in\nlive quiz games", subtitle: "Challenge classmates to real-time quizzes and prove who's the champion." },
-  { lottie: "/lottie/chart-growup.json", title: "Track progress &\nclimb the rank", subtitle: "See exactly where you stand, earn streaks, and watch your score grow." },
+  { svg: "/onboarding/video.svg", title: "Video lessons\nfor every topic", subtitle: "Watch expert-taught videos on any subject, anytime — even offline." },
+  { svg: "/onboarding/gaming.svg", title: "Battle friends in\nlive quiz games", subtitle: "Challenge classmates to real-time quizzes and prove who's the champion." },
+  { svg: "/onboarding/analytics.svg", title: "Track progress &\nclimb the rank", subtitle: "See exactly where you stand, earn streaks, and watch your score grow." },
 ];
 
 const SEEN_KEY = "hs_onboarding_seen";
@@ -69,9 +68,8 @@ export default function OnboardingPage() {
                     transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                     className="flex flex-col items-center text-center"
                   >
-                    <div className="flex h-56 w-56 items-center justify-center rounded-[32px]" style={{ backgroundColor: "#11203A" }}>
-                      <LottieIcon src={SLIDES[index].lottie} className="h-40 w-40" />
-                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={SLIDES[index].svg} alt="" className="h-64 w-64 object-contain sm:h-72 sm:w-72" />
                     <h2 className="mt-10 whitespace-pre-line text-2xl font-extrabold leading-tight text-white">{SLIDES[index].title}</h2>
                     <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/60">{SLIDES[index].subtitle}</p>
                   </motion.div>
