@@ -323,7 +323,7 @@ function StreakChip({ streak }: { streak: number }) {
       }`}
     >
       {active ? (
-        <LottieIcon src="/lottie/fire.json" className="-my-0.5 h-5 w-5" fallback={<span className="text-[13px]">🔥</span>} />
+        <LottieIcon src="/lottie/fire.json" className="-my-2 -ml-1 h-9 w-9" fallback={<span className="text-[13px]">🔥</span>} />
       ) : (
         <span className="text-[13px]">🌑</span>
       )}
