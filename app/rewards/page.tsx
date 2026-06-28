@@ -113,11 +113,12 @@ export default function RewardsPage() {
 
   const convert = async () => {
     if (!preset) return;
-    if (preset > hst) { toast.error("Not enough HST balance."); return; }
+    if (preset > points) { toast.error("Not enough points."); return; }
     setConverting(true);
     try {
-      await api("/api/user/wallet/convert", { method: "POST", body: { amount: preset } });
-      toast.success(`Converted ${preset} HST to points!`);
+      // Backend converts points -> HST (50 points = 1 HST), expects { points }.
+      await api("/api/user/wallet/convert", { method: "POST", body: { points: preset } });
+      toast.success(`Converted ${preset} points to ${Math.floor(preset / 50)} HST!`);
       setPreset(null);
       refreshProfile().catch(() => {});
     } catch (e: any) {
@@ -161,34 +162,8 @@ export default function RewardsPage() {
       </header>
 
       <div className="mx-auto max-w-2xl px-4 lg:px-8">
-        {/* Streak card */}
-        <motion.div
-          className="-mt-4 rounded-2xl border border-hs-border bg-white p-4 shadow-sm"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.5 }}
-        >
-          <div className="flex items-center gap-2">
-            <LottieIcon src="/lottie/fire.json" className="h-7 w-7" fallback={<span>🔥</span>} />
-            <p className="text-sm font-bold text-hs-navy">{streak}-day streak</p>
-            <span className="ml-auto text-xs text-hs-muted">{7 - done} day{7 - done === 1 ? "" : "s"} to bonus</span>
-          </div>
-          <div className="mt-3 flex gap-1.5">
-            {Array.from({ length: 7 }).map((_, i) => {
-              const filled = i < done;
-              return (
-                <motion.div
-                  key={i}
-                  className={`h-2 flex-1 rounded-full ${filled ? "bg-hs-flame" : "bg-hs-border"}`}
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.2 + i * 0.05, duration: 0.4 }}
-                  style={{ originX: 0 }}
-                />
-              );
-            })}
-          </div>
-        </motion.div>
+        {/* Streak card — connected day-circles (matches the mobile design) */}
+        <StreakCardConnected streak={streak} done={done} />
 
         {/* Tabs */}
         <div className="mt-5 flex rounded-full border border-hs-border bg-white p-1">
@@ -246,12 +221,13 @@ export default function RewardsPage() {
           </motion.div>
         ) : (
           <motion.div className="mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <ConversionRateCard />
             <div className="rounded-2xl border border-hs-border bg-white p-5">
               <div className="flex items-center gap-2 text-hs-navy">
                 <ArrowRightLeft size={18} className="text-hs-blue" />
-                <p className="text-sm font-bold">Convert HST to points</p>
+                <p className="text-sm font-bold">Convert points to HST</p>
               </div>
-              <p className="mt-1 text-xs text-hs-muted">Turn your HST wallet balance into leaderboard points.</p>
+              <p className="mt-1 text-xs text-hs-muted">Turn your earned points into HST tokens you can redeem.</p>
               <div className="mt-4 grid grid-cols-4 gap-2">
                 {PRESETS.map((p) => (
                   <button
@@ -268,12 +244,101 @@ export default function RewardsPage() {
                 onClick={convert}
                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-hs-blue py-3 font-semibold text-white disabled:opacity-40"
               >
-                <Sparkles size={18} /> {converting ? "Converting…" : preset ? `Convert ${preset} HST` : "Select an amount"}
+                <Sparkles size={18} /> {converting ? "Converting…" : preset ? `Convert ${preset} pts → ${Math.floor(preset / 50)} HST` : "Select an amount"}
               </button>
             </div>
           </motion.div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Brand-coloured conversion-rate card (50 points = 1 HST).
+function ConversionRateCard() {
+  return (
+    <div className="mb-4 rounded-2xl border border-hs-blue/20 bg-hs-blueTint p-4">
+      <div className="flex items-center gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-hs-blue text-white">
+          <Coins size={22} />
+        </span>
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-wide text-hs-blue">Conversion rate</p>
+          <p className="text-lg font-extrabold text-hs-navy">50 points = <span className="text-hs-amberDark">1 HST</span></p>
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-hs-muted">Turn your earned points into HST tokens, then redeem them for airtime, data and more.</p>
+    </div>
+  );
+}
+
+// Connected day-circles streak card (matches the mobile design).
+const STREAK_FLAME = "#FF6624";
+const STREAK_GREEN = "#059669";
+function StreakCardConnected({ streak, done }: { streak: number; done: number }) {
+  const d = Math.min(done, 7);
+  const daysLeft = 7 - done;
+  return (
+    <div className="-mt-4 rounded-2xl border border-hs-border bg-white p-4 shadow-sm">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <LottieIcon src="/lottie/fire.json" className="h-9 w-9" fallback={<span className="text-xl">🔥</span>} />
+        <div className="min-w-0 flex-1">
+          <p className="text-base font-bold text-hs-navy">{streak}-Day Streak</p>
+          <p className="text-[11px] text-hs-muted">
+            {daysLeft <= 0 ? "🎉 Weekly milestone reached!" : `${daysLeft} day${daysLeft === 1 ? "" : "s"} to 7-day bonus (+70 pts)`}
+          </p>
+        </div>
+        <span className="shrink-0 rounded-xl bg-hs-amberBg px-2.5 py-1 text-center text-[10px] font-bold leading-tight text-hs-amberDark">+70 pts<br />at day 7</span>
+      </div>
+
+      {/* Connected dots */}
+      <div className="relative mt-4 flex items-start justify-between">
+        <div className="absolute left-[18px] right-[18px] top-[16px] h-1 rounded-full bg-hs-border" />
+        <div
+          className="absolute left-[18px] top-[16px] h-1 rounded-full"
+          style={{ width: d > 1 ? `calc((100% - 36px) * ${(d - 1) / 6})` : 0, background: `linear-gradient(90deg, ${STREAK_FLAME}, #FFD700)` }}
+        />
+        {Array.from({ length: 7 }).map((_, i) => {
+          const dayNum = i + 1;
+          const isDone = i < done;
+          const isPast = i < done - 1;
+          const isToday = i === done - 1 && done > 0;
+          return (
+            <div key={i} className="relative z-10 flex flex-col items-center">
+              <span
+                className="flex items-center justify-center rounded-full"
+                style={{
+                  width: isToday ? 40 : 36,
+                  height: isToday ? 40 : 36,
+                  backgroundColor: isDone ? (isPast ? STREAK_GREEN : STREAK_FLAME) : "#fff",
+                  border: `${isToday ? 2.5 : 1.5}px solid ${isToday ? STREAK_FLAME : isDone ? (isPast ? STREAK_GREEN : "#FF9A62") : "#DDDDDD"}`,
+                }}
+              >
+                {isPast ? (
+                  <Check size={16} className="text-white" />
+                ) : isToday ? (
+                  <LottieIcon src="/lottie/fire.json" className="h-7 w-7" fallback={<span>🔥</span>} />
+                ) : (
+                  <span className="text-xs font-bold" style={{ color: isDone ? "#fff" : "#999" }}>{dayNum}</span>
+                )}
+              </span>
+              <span className="mt-1 text-[9px] font-semibold" style={{ color: isDone ? (isPast ? STREAK_GREEN : STREAK_FLAME) : "#999" }}>{dayNum}d</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Progress bar */}
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-hs-bg">
+        <div className="h-full rounded-full" style={{ width: `${(done / 7) * 100}%`, backgroundColor: STREAK_FLAME }} />
+      </div>
+
+      {done > 0 && (
+        <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: STREAK_GREEN }}>
+          <Check size={13} /> {done === 1 ? "Day 1 claimed today" : `Days 1–${done - 1} claimed · Day ${done} active today`}
+        </div>
+      )}
     </div>
   );
 }
