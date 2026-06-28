@@ -93,7 +93,7 @@ export default function DashboardPage() {
               initials={initials}
               avatarColor={user?.avatar_color || "#185FA5"}
               avatarUrl={user?.avatar_url || ""}
-              streak={user?.streak_count ?? 0}
+              streak={(user?.streak_count ?? 0) || 7 /* TEMP(preview-streak): demo 7 when real streak is 0 */}
               examType={user?.exam_type || "JAMB"}
               onNav={(href) => router.push(href)}
               onProfile={() => setTab(3)}
