@@ -231,8 +231,8 @@ function HomeTab({
             </div>
 
             {/* Streak — the hero metric */}
-            <div className="mt-3 inline-flex items-center gap-1.5 rounded-[10px] bg-white/12 px-2.5 py-1.5">
-              <LottieIcon src="/lottie/fire.json" className="h-[22px] w-[22px]" fallback={<span className="text-base">🔥</span>} />
+            <div className="mt-3 inline-flex items-center gap-2 rounded-[10px] bg-white/12 px-2.5 py-1.5">
+              <LottieIcon src="/lottie/fire.json" className="-my-1 h-9 w-9" fallback={<span className="text-2xl">🔥</span>} />
               <span className="text-[13px] font-semibold text-white">
                 {streak}-day streak{goals.streak ? "" : " — study today to keep it"}
               </span>
