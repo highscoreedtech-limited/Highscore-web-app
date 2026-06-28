@@ -22,18 +22,21 @@ export default function StreakCelebration({
   points: number;
   onDone: () => void;
 }) {
-  // Count-up from the previous streak to the new one.
-  const [shown, setShown] = useState(Math.max(0, count - 1));
+  // Count-up: roll from 0 to the streak value (starts after the flame burst).
+  const [shown, setShown] = useState(0);
   useEffect(() => {
-    const start = Math.max(0, count - 1);
-    if (start === count) { setShown(count); return; }
-    let n = start;
-    const t = setInterval(() => {
-      n += 1;
-      setShown(n);
-      if (n >= count) clearInterval(t);
-    }, 110);
-    return () => clearInterval(t);
+    const duration = 1200;
+    let raf = 0;
+    let startTime = 0;
+    const tick = (now: number) => {
+      if (!startTime) startTime = now;
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      setShown(Math.round(eased * count));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    const delay = setTimeout(() => { raf = requestAnimationFrame(tick); }, 450);
+    return () => { clearTimeout(delay); cancelAnimationFrame(raf); };
   }, [count]);
 
   // Auto-dismiss after the sequence has had time to play.
