@@ -23,6 +23,13 @@ import { AVATARS } from "@/lib/avatars";
 import StreakCelebration from "@/components/StreakCelebration";
 
 const EXAMS = ["JAMB", "WAEC", "NECO", "GCE", "Nursing"];
+const EXAM_SUB: Record<string, string> = {
+  JAMB: "Joint Admissions & Matriculation Board",
+  WAEC: "West African Examinations Council",
+  NECO: "National Examinations Council",
+  GCE: "General Certificate of Education",
+  Nursing: "Nursing & Midwifery Council of Nigeria",
+};
 
 const NAV = [
   { icon: Home, label: "Home" },
@@ -206,24 +213,47 @@ function HomeTab({
         </div>
       </div>
 
-      {examOpen && (
-        <div className="mt-2 rounded-xl border border-hs-border bg-white p-2 shadow-sm lg:max-w-xs">
-          {EXAMS.map((e) => (
-            <button
-              key={e}
-              onClick={() => { setExam(e); setExamOpen(false); }}
-              className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm ${
-                e === exam ? "bg-hs-blueTint text-hs-blue font-semibold" : "text-hs-navy"
-              }`}
+      <AnimatePresence>
+        {examOpen && (
+          <motion.div
+            className="fixed inset-0 z-[80] flex items-end justify-center bg-black/50"
+            onClick={() => setExamOpen(false)}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="w-full max-w-md rounded-t-3xl bg-white p-5 pb-8"
+              onClick={(ev) => ev.stopPropagation()}
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 32 }}
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-hs-blueTint text-xs font-bold text-hs-blue">
-                {e[0]}
-              </span>
-              {e}
-            </button>
-          ))}
-        </div>
-      )}
+              <div className="mx-auto h-1 w-10 rounded-full bg-hs-border" />
+              <h2 className="mt-4 text-lg font-bold text-hs-navy">Select Exam Board</h2>
+              <p className="mt-1 text-sm text-hs-muted">Choose the exam you&apos;re preparing for</p>
+              <div className="mt-4 space-y-2.5">
+                {EXAMS.map((e) => {
+                  const sel = e === exam;
+                  return (
+                    <button
+                      key={e}
+                      onClick={() => { setExam(e); setExamOpen(false); }}
+                      className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3.5 text-left ${sel ? "border-hs-blue bg-hs-blueTint" : "border-transparent bg-hs-bg"}`}
+                    >
+                      <span className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${sel ? "bg-hs-blue/15 text-hs-blue" : "bg-white text-hs-muted"}`}>
+                        {e[0]}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className={`text-sm font-semibold ${sel ? "text-hs-blue" : "text-hs-navy"}`}>{e}</p>
+                        <p className="text-[11px] text-hs-muted">{EXAM_SUB[e]}</p>
+                      </div>
+                      {sel && <Check size={18} className="text-hs-blue" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Two-pane on desktop: feed + leaderboard side panel */}
       <div className="lg:grid lg:grid-cols-3 lg:gap-6">
