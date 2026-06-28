@@ -146,14 +146,14 @@ export default function ResetPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden flex items-center justify-center">
+    <div className="relative min-h-screen overflow-hidden flex items-stretch sm:items-center justify-center">
       {/* FULL-SCREEN BACKGROUND */}
       <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100" />
       <div className="absolute inset-0 bg-[#132D46]/70" />
 
-      {/* FORM CARD — centered vertically & horizontally */}
-      <div className="relative z-10 w-full max-w-[400px] mx-4">
-        <div className="bg-white rounded-2xl shadow-2xl px-8 py-6 flex flex-col items-center">
+      {/* FORM CARD — fills the screen on mobile, floats as a card on sm+ */}
+      <div className="relative z-10 flex w-full sm:max-w-[400px] sm:mx-4">
+        <div className="flex w-full flex-col items-center justify-center bg-white px-6 py-8 min-h-screen sm:min-h-0 sm:justify-start sm:rounded-2xl sm:shadow-2xl sm:px-8 sm:py-6">
           
           {/* Logo — centered inside/above card */}
           <div className="relative w-20 h-20 mb-1">
@@ -167,7 +167,7 @@ export default function ResetPage() {
             {step === "email"
               ? "Enter your email and we'll send you a reset code."
               : step === "otp"
-              ? `Enter the 4-digit code sent to ${email}`
+              ? `Enter the 6-digit code sent to ${email}`
               : "Choose a strong new password."}
           </p>
 
@@ -218,7 +218,7 @@ export default function ResetPage() {
                           newOtp[i] = val;
                           return newOtp;
                         });
-                        if (val && i < 3) document.getElementById(`otp-${i + 1}`)?.focus();
+                        if (val && i < 5) document.getElementById(`otp-${i + 1}`)?.focus();
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Backspace" && !otp[i] && i > 0) {

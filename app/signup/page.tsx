@@ -28,12 +28,17 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [referredBy, setReferredBy] = useState("");
+  const [phone, setPhone] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // Capture a referral code from the invite link (?ref=CODE).
   useEffect(() => {
     const ref = new URLSearchParams(window.location.search).get("ref");
     if (ref) setReferredBy(ref.trim().toUpperCase());
   }, []);
+
+  const confirmValid = confirmPassword.length === 0 ? null : confirmPassword === password;
 
   // 👇 Slides (same as Login)
   const slides = [
@@ -86,8 +91,16 @@ export default function SignupPage() {
   // the verification step.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validEmail || !validPassword || !firstName || !lastName) {
+    if (!validEmail || !validPassword || !firstName || !lastName || confirmPassword !== password) {
       toast.error("Please fill all required fields correctly.");
+      return;
+    }
+    if (confirmPassword !== password) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    if (phone.trim() && !/^\+?\d{7,15}$/.test(phone.trim())) {
+      toast.error("Enter a valid phone number (digits only).");
       return;
     }
 
@@ -99,6 +112,7 @@ export default function SignupPage() {
         last_name: lastName,
         email,
         password,
+        ...(phone.trim() ? { phone_number: phone.trim() } : {}),
         ...(referredBy ? { referred_by: referredBy } : {}),
       });
 
@@ -150,14 +164,14 @@ export default function SignupPage() {
 
 
   return (
-    <div className="relative min-h-screen overflow-hidden flex items-center justify-center">
+    <div className="relative min-h-screen overflow-hidden flex items-stretch sm:items-center justify-center">
       {/* FULL-SCREEN BACKGROUND */}
       <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100" />
       <div className="absolute inset-0 bg-[#132D46]/70" />
 
-      {/* FORM CARD — centered vertically & horizontally */}
-      <div className="relative z-10 w-full max-w-[420px] mx-4 my-8">
-        <div className="bg-white rounded-2xl shadow-2xl px-8 py-6 flex flex-col items-center">
+      {/* FORM CARD — fills the screen on mobile, floats as a card on sm+ */}
+      <div className="relative z-10 flex w-full sm:max-w-[420px] sm:mx-4 sm:my-8">
+        <div className="flex w-full flex-col items-center justify-center bg-white px-6 py-8 min-h-screen sm:min-h-0 sm:justify-start sm:rounded-2xl sm:shadow-2xl sm:px-8 sm:py-6">
           
           {/* Logo — centered inside/above card */}
           <div className="relative w-20 h-20 mb-1">
@@ -173,11 +187,6 @@ export default function SignupPage() {
           <form onSubmit={otpStep ? handleVerifyOTP : handleSubmit} className="space-y-3 w-full">
             {!otpStep ? (
               <>
-                {referredBy && (
-                  <div className="flex items-center gap-2 rounded-xl bg-hs-blueTint px-3 py-2 text-xs font-semibold text-hs-blue">
-                    🎉 Referred by a friend — code <span className="font-extrabold">{referredBy}</span> applied
-                  </div>
-                )}
                 {/* Name Inputs */}
                 <div className="flex gap-3">
                   <Input
@@ -240,11 +249,51 @@ export default function SignupPage() {
                   {validPassword === false && <X className="absolute right-3 top-3 text-red-500 h-5 w-5" />}
                   {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
                 </div>
+
+                {/* Confirm Password */}
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirm ? "text" : "password"}
+                    placeholder="Confirm password"
+                    className={`w-full h-10 text-sm px-4 pr-10 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none ${confirmValid === false ? "border-red-500" : confirmValid === true ? "border-green-500" : "border-gray-300 focus:border-hs-blue"}`}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                    {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                  {confirmValid === false && <p className="text-xs text-red-500 mt-1">Passwords don&apos;t match</p>}
+                </div>
+
+                {/* Phone (optional) */}
+                <Input
+                  id="phone"
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="Phone number (optional)"
+                  className="w-full h-10 text-sm px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-hs-blue"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+
+                {/* Referral code (optional) */}
+                <Input
+                  id="referral"
+                  type="text"
+                  placeholder="Referral code (optional)"
+                  className="w-full h-10 text-sm px-4 border-2 rounded-xl outline-none focus-visible:ring-0 focus:ring-0 shadow-none border-gray-300 focus:border-hs-blue uppercase tracking-wider"
+                  value={referredBy}
+                  onChange={(e) => setReferredBy(e.target.value.toUpperCase())}
+                />
+                {referredBy && (
+                  <p className="text-xs font-semibold text-hs-blue">🎉 Referral code applied — you both earn 100 points!</p>
+                )}
               </>
             ) : (
               <div className="space-y-4">
                 <p className="text-gray-600 text-center text-sm">
-                  Enter the 4-digit code sent to <br />
+                  Enter the 6-digit code sent to <br />
                   <span className="font-semibold text-gray-800">{email}</span>
                 </p>
                 <Input
@@ -270,11 +319,11 @@ export default function SignupPage() {
             <Button
               type="submit"
               className={`w-full py-3 h-12 text-base font-semibold rounded-full transition-all text-white shadow-md active:scale-[0.98] ${
-                isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 6)
+                isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName || confirmPassword !== password)) || (otpStep && otpCode.length < 6)
                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                   : "bg-hs-blue hover:opacity-90"
               }`}
-              disabled={isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName)) || (otpStep && otpCode.length < 6)}
+              disabled={isSubmitting || (!otpStep && (!validEmail || !validPassword || !firstName || !lastName || confirmPassword !== password)) || (otpStep && otpCode.length < 6)}
             >
               {isSubmitting ? "Processing..." : otpStep ? "Verify & Create Account" : "Submit & Send Code"}
             </Button>
