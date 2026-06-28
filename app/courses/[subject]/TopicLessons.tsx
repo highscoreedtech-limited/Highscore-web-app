@@ -5,20 +5,22 @@ import { ArrowLeft, PlayCircle, BookOpen, Check, Clock, FileText, ListChecks } f
 import type { TopicInfo } from "@/lib/topics";
 
 type LessonType = "video" | "reading" | "practice";
-interface Lesson { name: string; type: LessonType; minutes: number; youtubeId?: string; summary: string; }
+interface Lesson { name: string; type: LessonType; minutes: number; youtubeId?: string; videoUrl?: string; portrait?: boolean; summary: string; }
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
 
 // Mirrors the mobile `effectiveLessons` generator (subject_data.dart).
 function buildLessons(topic: TopicInfo): Lesson[] {
   const core = clamp(topic.lessons, 2, 5);
-  const hasVideo = !!topic.youtubeId;
+  const hasVideo = !!(topic.youtubeId || topic.videoUrl);
   const out: Lesson[] = [
     {
       name: `Introduction to ${topic.name}`,
       type: hasVideo ? "video" : "reading",
       minutes: hasVideo ? clamp(topic.hours, 1, 20) : 8,
       youtubeId: topic.youtubeId,
+      videoUrl: topic.videoUrl,
+      portrait: topic.portrait,
       summary: `Core concepts and overview of ${topic.name}.`,
     },
   ];
@@ -51,7 +53,7 @@ export default function TopicLessons({
   const storeKey = `lessons_done_${subjectName}_${topic.name}`;
 
   const [done, setDone] = useState<Set<number>>(new Set());
-  const [active, setActive] = useState<number>(() => lessons.findIndex((l) => l.type === "video" && l.youtubeId));
+  const [active, setActive] = useState<number>(() => lessons.findIndex((l) => l.type === "video" && (l.youtubeId || l.videoUrl)));
 
   // Restore completion.
   useEffect(() => {
@@ -98,17 +100,32 @@ export default function TopicLessons({
 
       <div className="mx-auto max-w-3xl px-4 py-5 lg:px-8">
         {/* Video player / featured lesson */}
-        {activeLesson?.type === "video" && activeLesson.youtubeId ? (
-          <div className="overflow-hidden rounded-2xl border border-hs-border bg-black">
-            <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
-              <iframe
-                key={activeLesson.youtubeId}
-                className="absolute inset-0 h-full w-full"
-                src={`https://www.youtube.com/embed/${activeLesson.youtubeId}`}
-                title={activeLesson.name}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+        {activeLesson?.type === "video" && (activeLesson.videoUrl || activeLesson.youtubeId) ? (
+          <div
+            className={`mx-auto overflow-hidden rounded-2xl border border-hs-border bg-black ${activeLesson.portrait ? "max-w-[300px] sm:max-w-[340px]" : ""}`}
+          >
+            <div className="relative w-full" style={{ paddingTop: activeLesson.portrait ? "177.78%" : "56.25%" }}>
+              {activeLesson.videoUrl ? (
+                // Self-hosted video — no related/other videos, full control.
+                <video
+                  key={activeLesson.videoUrl}
+                  className="absolute inset-0 h-full w-full bg-black"
+                  src={activeLesson.videoUrl}
+                  controls
+                  playsInline
+                  controlsList="nodownload"
+                />
+              ) : (
+                // YouTube fallback, hardened (privacy domain, fewer related videos).
+                <iframe
+                  key={activeLesson.youtubeId}
+                  className="absolute inset-0 h-full w-full"
+                  src={`https://www.youtube-nocookie.com/embed/${activeLesson.youtubeId}?rel=0&modestbranding=1&playsinline=1`}
+                  title={activeLesson.name}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              )}
             </div>
           </div>
         ) : (

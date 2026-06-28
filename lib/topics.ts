@@ -1,5 +1,5 @@
 // Per-subject topic lists — ported from the mobile app (subject_data.dart).
-export interface TopicInfo { name: string; lessons: number; hours: number; progress: number; youtubeId?: string; videoUrl?: string; }
+export interface TopicInfo { name: string; lessons: number; hours: number; progress: number; youtubeId?: string; videoUrl?: string; portrait?: boolean; }
 
 export const TOPICS: Record<string, TopicInfo[]> = {
   "English Language": [
