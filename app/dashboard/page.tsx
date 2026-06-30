@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, LeaderboardEntry, api, profileApi, streakPoints, pointsFromRank } from "@/lib/api";
-import { badgeEmoji } from "@/lib/tiers";
+import { tierFor } from "@/lib/tiers";
 import { goalsToday, getLastSubject, type DailyGoals } from "@/lib/home-progress";
 import LottieIcon from "@/components/LottieIcon";
 import SubscribeTab from "./SubscribeTab";
@@ -138,7 +138,6 @@ function HomeTab({
   const [exam, setExam] = useState(examType);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [myRank, setMyRank] = useState(0);
-  const [myBadge, setMyBadge] = useState("Unranked");
   const [myPoints, setMyPoints] = useState(0);
   const [examOpen, setExamOpen] = useState(false);
   const [goals, setGoals] = useState<DailyGoals>({ quiz: false, cbt: false, streak: false, count: 0, total: 3 });
@@ -146,7 +145,8 @@ function HomeTab({
   useEffect(() => {
     let active = true;
     dashApi.leaderboard(exam, 5).then((e) => active && setEntries(e || [])).catch(() => {});
-    dashApi.myRank(exam).then((r) => { if (active) { setMyRank(r?.rank ?? 0); setMyPoints(pointsFromRank(r)); setMyBadge(r?.badge || "Unranked"); } }).catch(() => {});
+    // Tier is based on TOTAL accumulated points (total_score), not spendable.
+    dashApi.myRank(exam).then((r) => { if (active) { setMyRank(r?.rank ?? 0); setMyPoints(r?.total_score ?? pointsFromRank(r)); } }).catch(() => {});
     return () => { active = false; };
   }, [exam]);
 
@@ -161,6 +161,7 @@ function HomeTab({
   }, []);
 
   const lastSubject = getLastSubject();
+  const tier = tierFor(myPoints);
 
   // Animate the streak number rolling up to its value on load.
   const [streakShown, setStreakShown] = useState(0);
@@ -267,7 +268,7 @@ function HomeTab({
                 <p className="text-base font-bold text-white">{fullName}</p>
               </div>
               <span className="flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-xs font-bold text-white">
-                {badgeEmoji(myBadge)} {myBadge}
+                {tier.emoji} {tier.name}
               </span>
             </div>
 
