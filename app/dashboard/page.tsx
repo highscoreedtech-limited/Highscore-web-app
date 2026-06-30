@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, LeaderboardEntry, api, profileApi, streakPoints, pointsFromRank } from "@/lib/api";
-import { tierFor } from "@/lib/tiers";
+import { badgeEmoji } from "@/lib/tiers";
 import { goalsToday, getLastSubject, type DailyGoals } from "@/lib/home-progress";
 import LottieIcon from "@/components/LottieIcon";
 import SubscribeTab from "./SubscribeTab";
@@ -138,6 +138,7 @@ function HomeTab({
   const [exam, setExam] = useState(examType);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [myRank, setMyRank] = useState(0);
+  const [myBadge, setMyBadge] = useState("Unranked");
   const [myPoints, setMyPoints] = useState(0);
   const [examOpen, setExamOpen] = useState(false);
   const [goals, setGoals] = useState<DailyGoals>({ quiz: false, cbt: false, streak: false, count: 0, total: 3 });
@@ -145,7 +146,7 @@ function HomeTab({
   useEffect(() => {
     let active = true;
     dashApi.leaderboard(exam, 5).then((e) => active && setEntries(e || [])).catch(() => {});
-    dashApi.myRank(exam).then((r) => { if (active) { setMyRank(r?.rank ?? 0); setMyPoints(pointsFromRank(r)); } }).catch(() => {});
+    dashApi.myRank(exam).then((r) => { if (active) { setMyRank(r?.rank ?? 0); setMyPoints(pointsFromRank(r)); setMyBadge(r?.badge || "Unranked"); } }).catch(() => {});
     return () => { active = false; };
   }, [exam]);
 
@@ -159,7 +160,6 @@ function HomeTab({
     return () => { window.removeEventListener("focus", read); document.removeEventListener("visibilitychange", read); };
   }, []);
 
-  const tier = tierFor(myPoints);
   const lastSubject = getLastSubject();
 
   // Animate the streak number rolling up to its value on load.
@@ -267,7 +267,7 @@ function HomeTab({
                 <p className="text-base font-bold text-white">{fullName}</p>
               </div>
               <span className="flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-xs font-bold text-white">
-                {tier.emoji} {tier.name}
+                {badgeEmoji(myBadge)} {myBadge}
               </span>
             </div>
 

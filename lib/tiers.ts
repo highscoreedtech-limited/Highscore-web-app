@@ -15,3 +15,8 @@ export function tierFor(points: number): Tier {
   for (const t of TIERS) if (points >= t.minPts) cur = t;
   return cur;
 }
+
+// Emoji for the backend's rank-based badge (Diamond/Platinum/Gold/Silver/Bronze).
+export function badgeEmoji(badge: string): string {
+  return ({ Diamond: "💎", Platinum: "🏆", Gold: "🥇", Silver: "🥈", Bronze: "🥉" } as Record<string, string>)[badge] || "⚪";
+}
