@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, Clock, Check, X, ChevronLeft, ChevronRight, RotateCcw,
 } from "lucide-react";
-import { CBT_BANK, CBT_EXAMS, CbtQuestion } from "@/lib/cbt-bank";
+import { CBT_BANK, CBT_EXAMS, CbtQuestion, cbtTopics } from "@/lib/cbt-bank";
 import { quizApi } from "@/lib/api";
 import { markGoal } from "@/lib/home-progress";
 
@@ -29,6 +29,11 @@ export default function CbtPage() {
   const [phase, setPhase] = useState<Phase>("select");
   const [subject, setSubject] = useState(SUBJECTS[0]);
   const [exam, setExam] = useState("JAMB");
+  const [topics, setTopics] = useState<string[]>([]); // empty = all topics
+
+  const subjectTopics = cbtTopics(subject);
+  const toggleTopic = (t: string) =>
+    setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
 
   const [questions, setQuestions] = useState<CbtQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -47,7 +52,10 @@ export default function CbtPage() {
   useEffect(() => () => stopTimer(), []);
 
   const start = () => {
-    const qs = shuffle(CBT_BANK[subject]).slice(0, cfg.qs);
+    const pool = topics.length
+      ? CBT_BANK[subject].filter((q) => topics.includes(q.topic))
+      : CBT_BANK[subject];
+    const qs = shuffle(pool).slice(0, cfg.qs);
     setQuestions(qs);
     setAnswers({});
     setCurrent(0);
@@ -87,7 +95,7 @@ export default function CbtPage() {
             {SUBJECTS.map((s) => (
               <button
                 key={s}
-                onClick={() => setSubject(s)}
+                onClick={() => { setSubject(s); setTopics([]); }}
                 className={`rounded-xl border px-3 py-3 text-sm font-semibold ${
                   subject === s ? "border-hs-blue bg-hs-blueTint text-hs-blue" : "border-hs-border bg-white text-hs-navy"
                 }`}
@@ -95,6 +103,34 @@ export default function CbtPage() {
                 {s}
               </button>
             ))}
+          </div>
+
+          {/* Topics — multi-select, "All topics" = whole subject */}
+          <h2 className="mt-6 text-sm font-bold text-hs-navy">Choose topics</h2>
+          <p className="mt-0.5 text-xs text-hs-muted">Leave on “All topics”, or pick the ones you want to be tested on.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              onClick={() => setTopics([])}
+              className={`rounded-full border px-3.5 py-2 text-xs font-semibold ${
+                topics.length === 0 ? "border-hs-blue bg-hs-blue text-white" : "border-hs-border bg-white text-hs-navy"
+              }`}
+            >
+              All topics
+            </button>
+            {subjectTopics.map((t) => {
+              const sel = topics.includes(t);
+              return (
+                <button
+                  key={t}
+                  onClick={() => toggleTopic(t)}
+                  className={`rounded-full border px-3.5 py-2 text-xs font-semibold ${
+                    sel ? "border-hs-blue bg-hs-blueTint text-hs-blue" : "border-hs-border bg-white text-hs-navy"
+                  }`}
+                >
+                  {t}
+                </button>
+              );
+            })}
           </div>
 
           <h2 className="mt-6 text-sm font-bold text-hs-navy">Choose exam type</h2>
