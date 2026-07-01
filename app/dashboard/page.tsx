@@ -309,21 +309,6 @@ function HomeTab({
                 </span>
               </div>
 
-              {/* Daily quests */}
-              <div className="mt-4 flex items-center gap-4 rounded-2xl bg-white/8 p-3 ring-1 ring-white/10">
-                <GoalRing count={goals.count} total={goals.total} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-extrabold text-white">
-                    Daily quests {goals.count >= goals.total && goals.total > 0 ? "— all cleared! 🎉" : ""}
-                  </p>
-                  <div className="mt-1.5 flex gap-3 text-[11px] text-[#B8CCE0]">
-                    <GoalDot done={goals.quiz} label="Quiz" />
-                    <GoalDot done={goals.cbt} label="CBT" />
-                    <GoalDot done={goals.streak} label="Streak" />
-                  </div>
-                </div>
-              </div>
-
               {/* Primary action */}
               <motion.button
                 whileTap={{ scale: 0.97 }}
@@ -404,37 +389,6 @@ function StreakChip({ streak }: { streak: number }) {
         {streak}
       </span>
     </div>
-  );
-}
-
-// Today's-goals ring (count / total) — amber on the navy card.
-function GoalRing({ count, total }: { count: number; total: number }) {
-  const r = 22;
-  const circ = 2 * Math.PI * r;
-  const pct = total ? count / total : 0;
-  const complete = count >= total && total > 0;
-  return (
-    <div className="relative h-14 w-14 shrink-0">
-      <svg className="h-14 w-14 -rotate-90" viewBox="0 0 56 56">
-        <circle cx="28" cy="28" r={r} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="5" />
-        <circle cx="28" cy="28" r={r} fill="none" stroke={complete ? "#2ECC71" : "#EF9F27"} strokeWidth="5" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ * (1 - pct)} style={{ transition: "stroke-dashoffset 0.6s ease" }} />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-sm font-extrabold leading-none text-white">{count}/{total}</span>
-        <span className="text-[8px] text-[#B8CCE0]">today</span>
-      </div>
-    </div>
-  );
-}
-
-function GoalDot({ done, label }: { done: boolean; label: string }) {
-  return (
-    <span className="flex items-center gap-1">
-      <span className={`flex h-3 w-3 items-center justify-center rounded-full ${done ? "bg-hs-amber text-hs-amberDark" : "bg-white/15"}`}>
-        {done && <Check size={8} strokeWidth={3} />}
-      </span>
-      {label}
-    </span>
   );
 }
 
