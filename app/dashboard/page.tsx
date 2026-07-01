@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, LeaderboardEntry, api, profileApi, streakPoints, pointsFromRank } from "@/lib/api";
-import { tierFor } from "@/lib/tiers";
+import { tierFor, nextTier, tierProgress } from "@/lib/tiers";
 import { goalsToday, getLastSubject, type DailyGoals } from "@/lib/home-progress";
 import LottieIcon from "@/components/LottieIcon";
 import SubscribeTab from "./SubscribeTab";
@@ -265,50 +265,75 @@ function HomeTab({
       {/* Two-pane on desktop: feed + leaderboard side panel */}
       <div className="lg:grid lg:grid-cols-3 lg:gap-6">
         <div className="lg:col-span-2">
-          {/* Summary card — habit (streak) · today's goals · standing · next action */}
-          <div className="mt-3.5 rounded-2xl bg-hs-navy p-4 shadow-lg shadow-hs-navy/25 lg:p-5">
-            {/* Greeting + tier */}
-            <div className="flex items-start">
-              <div className="flex-1">
-                <p className="text-[13px] text-[#B8CCE0]">Welcome back,</p>
-                <p className="text-base font-bold text-white">{fullName}</p>
+          {/* Summary card — gamified: level + XP bar + daily quests + streak */}
+          <div className="relative mt-3.5 overflow-hidden rounded-3xl p-4 shadow-lg shadow-hs-navy/30 lg:p-5"
+            style={{ background: "linear-gradient(135deg, #0E3D6E 0%, #042C53 55%, #06223E 100%)" }}>
+            {/* Glow accents — game energy, not banking flatness */}
+            <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-hs-amber/25 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-14 -left-10 h-40 w-40 rounded-full bg-[#2E90FA]/25 blur-3xl" />
+            <span className="pointer-events-none absolute right-16 top-3 text-xs opacity-60">✦</span>
+            <span className="pointer-events-none absolute right-6 top-12 text-[9px] opacity-40">✦</span>
+
+            <div className="relative">
+              {/* Greeting + level chip */}
+              <div className="flex items-start">
+                <div className="flex-1">
+                  <p className="text-base font-extrabold text-white">Hey, {fullName.split(" ")[0]}! 👋</p>
+                  <p className="text-[12px] text-[#B8CCE0]">{myRank > 0 ? `Ranked #${myRank} this week — keep climbing` : "Play today to enter the rankings"}</p>
+                </div>
+                <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-extrabold text-white ring-1 ring-white/30"
+                  style={{ background: "linear-gradient(90deg, rgba(239,159,39,0.35), rgba(239,159,39,0.15))" }}>
+                  <span className="text-sm">{tier.emoji}</span> {tier.name}
+                </span>
               </div>
-              <span className="flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-xs font-bold text-white">
-                {tier.emoji} {tier.name}
-              </span>
-            </div>
 
-            {/* Streak — the hero metric */}
-            <div className="mt-3 inline-flex items-center gap-2 rounded-[10px] bg-white/12 px-2.5 py-1.5">
-              <LottieIcon src="/lottie/fire.json" className="-my-1 h-9 w-9" fallback={<span className="text-2xl">🔥</span>} />
-              <span className="text-[13px] font-semibold text-white">
-                {streakShown}-day streak{goals.streak ? "" : " — study today to keep it"}
-              </span>
-            </div>
-
-            {/* Today's goal ring + standing */}
-            <div className="mt-4 flex items-center gap-4">
-              <GoalRing count={goals.count} total={goals.total} />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-white">
-                  {myPoints.toLocaleString()} pts{myRank > 0 && <span className="text-[#B8CCE0]"> · #{myRank}</span>}
-                </p>
-                <p className="text-[11px] text-[#B8CCE0]">{myRank > 0 ? "your rank this week" : "play to get ranked"}</p>
-                <div className="mt-1.5 flex gap-3 text-[11px] text-[#B8CCE0]">
-                  <GoalDot done={goals.quiz} label="Quiz" />
-                  <GoalDot done={goals.cbt} label="CBT" />
-                  <GoalDot done={goals.streak} label="Streak" />
+              {/* XP bar → next tier */}
+              <div className="mt-4">
+                <div className="flex items-end justify-between text-[11px]">
+                  <span className="font-extrabold text-hs-amber">⭐ {myPoints.toLocaleString()} XP</span>
+                  <span className="font-semibold text-[#B8CCE0]">
+                    {(() => { const n = nextTier(myPoints); return n ? `${(n.minPts - myPoints).toLocaleString()} XP to ${n.emoji} ${n.name}` : "👑 Max level!"; })()}
+                  </span>
+                </div>
+                <div className="mt-1.5 h-3 w-full overflow-hidden rounded-full bg-white/12 ring-1 ring-white/10">
+                  <div className="h-full rounded-full transition-[width] duration-700"
+                    style={{ width: `${Math.max(4, tierProgress(myPoints) * 100)}%`, background: "linear-gradient(90deg, #EF9F27, #FFC85C)", boxShadow: "0 0 10px rgba(239,159,39,0.7)" }} />
                 </div>
               </div>
-            </div>
 
-            {/* Primary action — zero-friction path to the core activity */}
-            <button
-              onClick={() => onNav(lastSubject ? `/courses/${encodeURIComponent(lastSubject)}` : "/quiz")}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-hs-amber py-3 text-sm font-extrabold text-hs-amberDark transition-transform active:scale-[0.99]"
-            >
-              {lastSubject ? `Continue ${lastSubject}` : "Start today's quiz"} <ArrowRight size={16} />
-            </button>
+              {/* Streak quest chip */}
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/12 py-1.5 pl-1.5 pr-3.5 ring-1 ring-white/15">
+                <LottieIcon src="/lottie/fire.json" className="-my-1 h-9 w-9" fallback={<span className="text-2xl">🔥</span>} />
+                <span className="text-[13px] font-bold text-white">
+                  {streakShown}-day streak{goals.streak ? " 🔒 locked in!" : " — play to keep the flame!"}
+                </span>
+              </div>
+
+              {/* Daily quests */}
+              <div className="mt-4 flex items-center gap-4 rounded-2xl bg-white/8 p-3 ring-1 ring-white/10">
+                <GoalRing count={goals.count} total={goals.total} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-extrabold text-white">
+                    Daily quests {goals.count >= goals.total && goals.total > 0 ? "— all cleared! 🎉" : ""}
+                  </p>
+                  <div className="mt-1.5 flex gap-3 text-[11px] text-[#B8CCE0]">
+                    <GoalDot done={goals.quiz} label="Quiz" />
+                    <GoalDot done={goals.cbt} label="CBT" />
+                    <GoalDot done={goals.streak} label="Streak" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Primary action */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => onNav(lastSubject ? `/courses/${encodeURIComponent(lastSubject)}` : "/quiz")}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-extrabold text-hs-amberDark"
+                style={{ background: "linear-gradient(90deg, #FFC85C, #EF9F27)", boxShadow: "0 6px 20px -4px rgba(239,159,39,0.6)" }}
+              >
+                ⚡ {lastSubject ? `Continue ${lastSubject}` : "Play today's quiz"} <ArrowRight size={16} />
+              </motion.button>
+            </div>
           </div>
 
           {/* Search */}

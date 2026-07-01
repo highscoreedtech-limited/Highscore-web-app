@@ -16,6 +16,21 @@ export function tierFor(points: number): Tier {
   return cur;
 }
 
+/// The tier after the current one, or null at max level.
+export function nextTier(points: number): Tier | null {
+  const cur = tierFor(points);
+  const i = TIERS.indexOf(cur);
+  return i + 1 < TIERS.length ? TIERS[i + 1] : null;
+}
+
+/// 0..1 progress through the current tier toward the next.
+export function tierProgress(points: number): number {
+  const cur = tierFor(points);
+  const nxt = nextTier(points);
+  if (!nxt) return 1;
+  return Math.min(1, Math.max(0, (points - cur.minPts) / (nxt.minPts - cur.minPts)));
+}
+
 // Emoji for the backend's rank-based badge (Diamond/Platinum/Gold/Silver/Bronze).
 export function badgeEmoji(badge: string): string {
   return ({ Diamond: "💎", Platinum: "🏆", Gold: "🥇", Silver: "🥈", Bronze: "🥉" } as Record<string, string>)[badge] || "⚪";
