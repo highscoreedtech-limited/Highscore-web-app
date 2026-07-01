@@ -43,6 +43,12 @@ export default function DashboardPage() {
   const { user, refreshProfile } = useAuth();
   const [tab, setTab] = useState(0);
 
+  // Allow deep-linking to a tab (e.g. /dashboard?tab=1 opens Unlock subjects).
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t !== null && !Number.isNaN(Number(t))) setTab(Number(t));
+  }, []);
+
   // Verify a Paystack payment when the user is redirected back with a reference.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

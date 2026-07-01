@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, PlayCircle, Clock, BookOpen, Check } from "lucide-react";
+import { ArrowLeft, PlayCircle, Clock, BookOpen, Check, Lock } from "lucide-react";
 import { SUBJECTS } from "@/lib/subjects";
 import { TOPICS, type TopicInfo } from "@/lib/topics";
 import { setLastSubject } from "@/lib/home-progress";
+import { api } from "@/lib/api";
 import TopicLessons from "./TopicLessons";
 
 export default function SubjectDetailPage() {
@@ -20,6 +21,20 @@ export default function SubjectDetailPage() {
   const topics = TOPICS[name] || [];
   const color = subject?.color || "#185FA5";
   const [openTopic, setOpenTopic] = useState<TopicInfo | null>(null);
+
+  // Per-subject access gate.
+  const [locked, setLocked] = useState(false);
+  useEffect(() => {
+    if (!name) return;
+    api<{ subjects: { subject: string }[] }>("/api/user/subject-access")
+      .then((d) => setLocked(!(d?.subjects || []).some((s) => s.subject === name)))
+      .catch(() => setLocked(false)); // fail open — don't block on a network error
+  }, [name]);
+
+  const openTopicGated = (t: TopicInfo) => {
+    if (locked) { router.push("/dashboard?tab=1"); return; }
+    setOpenTopic(t);
+  };
 
   const totalLessons = topics.reduce((n, t) => n + t.lessons, 0);
   const totalHours = topics.reduce((n, t) => n + t.hours, 0);
@@ -65,6 +80,22 @@ export default function SubjectDetailPage() {
           </div>
         )}
 
+        {locked && (
+          <button
+            onClick={() => router.push("/dashboard?tab=1")}
+            className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-hs-amber/40 bg-hs-amberBg p-4 text-left"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-hs-amber/20 text-hs-amberDark">
+              <Lock size={16} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-hs-amberDark">{name} is locked</p>
+              <p className="text-[11px] text-hs-amberDark/80">Unlock its lessons, CBT & quiz — tap to choose a plan.</p>
+            </div>
+            <span className="rounded-full bg-hs-amber px-3 py-1.5 text-xs font-bold text-hs-amberDark">Unlock</span>
+          </button>
+        )}
+
         <h2 className="mb-3 text-sm font-bold text-hs-navy">Topics</h2>
 
         {topics.length === 0 && (
@@ -80,7 +111,7 @@ export default function SubjectDetailPage() {
             return (
               <button
                 key={i}
-                onClick={() => setOpenTopic(t)}
+                onClick={() => openTopicGated(t)}
                 className="flex w-full items-center gap-3 rounded-2xl border border-hs-border bg-white p-3.5 text-left hover:bg-hs-bg"
               >
                 <span
