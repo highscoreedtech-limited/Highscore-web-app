@@ -15,6 +15,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, LeaderboardEntry, api, profileApi, streakPoints, pointsFromRank } from "@/lib/api";
 import { tierFor, nextTier, tierProgress } from "@/lib/tiers";
+import { realtime } from "@/lib/realtime/client";
 import { goalsToday, getLastSubject, type DailyGoals } from "@/lib/home-progress";
 import LottieIcon from "@/components/LottieIcon";
 import SubscribeTab from "./SubscribeTab";
@@ -200,10 +201,7 @@ function HomeTab({
 
         <div className="ml-auto flex items-center gap-2.5">
           <StreakChip streak={streak} />
-          <div className="relative">
-            <Bell size={22} className="text-hs-muted" />
-            <span className="absolute right-0 top-0 h-[7px] w-[7px] rounded-full border border-white bg-hs-flame" />
-          </div>
+          <NotificationBell />
           <button onClick={onProfile} aria-label="Open profile" className="transition-transform active:scale-95">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -372,6 +370,89 @@ function HomeTab({
 }
 
 // ── Pieces ──────────────────────────────────────────────────────────────────
+interface AppNotification { id: number; type: string; title: string; body: string; read: boolean; created_at: string }
+
+const NOTIF_ICON: Record<string, string> = { referral: "🎉", unlock: "🔓", challenge: "⚔️", system: "🔔" };
+
+function timeAgo(iso: string): string {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
+function NotificationBell() {
+  const [items, setItems] = useState<AppNotification[]>([]);
+  const [unread, setUnread] = useState(0);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api<{ notifications: AppNotification[]; unread: number }>("/api/notifications")
+      .then((d) => { if (active) { setItems(d?.notifications || []); setUnread(d?.unread ?? 0); } })
+      .catch(() => {});
+    // Live: new notifications arrive over the shared WebSocket.
+    const off = realtime.on("notification", (n: AppNotification) => {
+      setItems((prev) => [n, ...prev].slice(0, 50));
+      setUnread((u) => u + 1);
+    });
+    return () => { active = false; off(); };
+  }, []);
+
+  const toggle = () => {
+    const next = !open;
+    setOpen(next);
+    if (next && unread > 0) {
+      setUnread(0);
+      api("/api/notifications/read", { method: "POST" }).catch(() => {});
+      setItems((prev) => prev.map((n) => ({ ...n, read: true })));
+    }
+  };
+
+  return (
+    <div className="relative">
+      <button onClick={toggle} aria-label="Notifications" className="relative flex h-8 w-8 items-center justify-center">
+        <Bell size={22} className="text-hs-muted" />
+        {unread > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-hs-flame px-1 text-[9px] font-extrabold text-white">
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+            <motion.div
+              initial={{ opacity: 0, y: -6, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.98 }}
+              className="absolute right-0 z-50 mt-2 max-h-[70vh] w-[320px] overflow-y-auto rounded-2xl border border-hs-border bg-white p-2 shadow-xl"
+            >
+              <p className="px-3 py-2 text-sm font-bold text-hs-navy">Notifications</p>
+              {items.length === 0 && (
+                <p className="px-3 pb-5 pt-2 text-center text-sm text-hs-muted">Nothing yet — go earn some! 🎯</p>
+              )}
+              {items.map((n) => (
+                <div key={n.id} className={`flex gap-2.5 rounded-xl px-3 py-2.5 ${n.read ? "" : "bg-hs-blueTint"}`}>
+                  <span className="text-lg">{NOTIF_ICON[n.type] || "🔔"}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-bold text-hs-navy">{n.title}</p>
+                    <p className="text-xs leading-snug text-hs-muted">{n.body}</p>
+                    <p className="mt-0.5 text-[10px] text-hs-placeholder">{timeAgo(n.created_at)}</p>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function StreakChip({ streak }: { streak: number }) {
   const active = streak > 0;
   return (
