@@ -290,7 +290,7 @@ export default function QuizPage() {
     <div className="min-h-screen" style={{ backgroundColor: C.bg, color: C.text, fontFamily: "var(--font-poppins), Poppins, sans-serif" }}>
       <div className="mx-auto max-w-xl">
         {phase === "lobby" && (
-          <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onFind={() => setPhase("find")} onBack={() => router.push("/dashboard")} />
+          <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onFind={() => setPhase("find")} onGroup={() => router.push("/arena")} onBack={() => router.push("/dashboard")} />
         )}
         {phase === "find" && (
           <FindPlayers subject={subject} onBack={() => setPhase("lobby")} />
@@ -346,7 +346,7 @@ export default function QuizPage() {
 }
 
 // ── Lobby ─────────────────────────────────────────────────────────────────────
-function Lobby({ subject, setSubject, myName, onSolo, onFind, onBack }: { subject: string; setSubject: (s: string) => void; myName: string; onSolo: () => void; onFind: () => void; onBack: () => void; }) {
+function Lobby({ subject, setSubject, myName, onSolo, onFind, onGroup, onBack }: { subject: string; setSubject: (s: string) => void; myName: string; onSolo: () => void; onFind: () => void; onGroup: () => void; onBack: () => void; }) {
   return (
     <div className="px-4 pb-6 pt-4">
       {/* Nav row */}
@@ -408,6 +408,11 @@ function Lobby({ subject, setSubject, myName, onSolo, onFind, onBack }: { subjec
         style={{ background: "linear-gradient(135deg,#7C3AED,#9F67FF)", boxShadow: "0 6px 16px rgba(124,58,237,0.4)" }}
         onClick={onFind}>
         🌐 Find Players Online ›
+      </button>
+      <button className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-extrabold text-white"
+        style={{ background: "linear-gradient(135deg,#0EA5E9,#2563EB)", boxShadow: "0 6px 16px rgba(37,99,235,0.4)" }}
+        onClick={onGroup}>
+        👥 Group Battle (3–8) ›
       </button>
       <motion.button whileTap={{ scale: 0.98 }} onClick={onSolo}
         className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-extrabold text-white"
