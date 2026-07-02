@@ -191,25 +191,25 @@ export default function ArenaPage() {
 
         {/* ── Entry ── */}
         {screen === "entry" && (
-          <div className="mt-8 space-y-6">
-            <div className="rounded-2xl p-5" style={{ backgroundColor: C.surf }}>
-              <p className="text-sm font-bold">Create a battle</p>
-              <p className="mt-1 text-xs" style={{ color: C.text2 }}>Pick a subject, then share the code with friends (up to 8 players).</p>
-              <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
+            <div className="rounded-2xl p-4 sm:p-5" style={{ backgroundColor: C.surf }}>
+              <p className="text-sm font-bold">Start a battle</p>
+              <p className="mt-1 text-xs leading-relaxed" style={{ color: C.text2 }}>Pick a subject, create the room, then tap your friends to invite them straight in (up to 8 players). No codes to type.</p>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {SUBJECTS.slice(0, 6).map((s) => (
-                  <button key={s} onClick={() => setSubject(s)} className="rounded-xl px-3 py-2.5 text-xs font-bold"
+                  <button key={s} onClick={() => setSubject(s)} className="min-w-0 truncate rounded-xl px-3 py-2.5 text-xs font-bold"
                     style={subject === s ? { backgroundColor: `${C.brand}33`, border: `1px solid ${C.brand}`, color: C.brandLight } : { backgroundColor: C.surf2, color: C.text2 }}>{s}</button>
                 ))}
               </div>
-              <button onClick={create} disabled={busy} className="mt-4 w-full rounded-full py-3 text-sm font-extrabold text-white disabled:opacity-50" style={{ background: `linear-gradient(135deg,${C.brand},${C.brandDark})` }}>Create battle</button>
+              <button onClick={create} disabled={busy} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-extrabold text-white disabled:opacity-50" style={{ background: `linear-gradient(135deg,${C.brand},${C.brandDark})` }}><Users size={16} /> Create & invite friends</button>
             </div>
 
-            <div className="rounded-2xl p-5" style={{ backgroundColor: C.surf }}>
-              <p className="text-sm font-bold">Join with a code</p>
-              <div className="mt-3 flex gap-2">
+            <div className="rounded-2xl p-4 sm:p-5" style={{ backgroundColor: C.surf }}>
+              <p className="text-xs font-bold" style={{ color: C.text2 }}>Got a code from a friend? Join here</p>
+              <div className="mt-2.5 flex gap-2">
                 <input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ENTER CODE" maxLength={5}
-                  className="flex-1 rounded-xl px-4 py-3 text-center text-lg font-extrabold tracking-[0.3em] outline-none" style={{ backgroundColor: C.surf2, color: C.text }} />
-                <button onClick={join} disabled={busy} className="rounded-xl px-5 text-sm font-bold text-white disabled:opacity-50" style={{ backgroundColor: C.brand }}>Join</button>
+                  className="min-w-0 flex-1 rounded-xl px-3 py-3 text-center text-base font-extrabold tracking-[0.25em] outline-none sm:text-lg sm:tracking-[0.3em]" style={{ backgroundColor: C.surf2, color: C.text }} />
+                <button onClick={join} disabled={busy} className="shrink-0 rounded-xl px-5 text-sm font-bold text-white disabled:opacity-50" style={{ backgroundColor: C.surf2, border: `1px solid ${C.brand}66`, color: C.brandLight }}>Join</button>
               </div>
             </div>
           </div>
@@ -217,45 +217,47 @@ export default function ArenaPage() {
 
         {/* ── Lobby ── */}
         {screen === "lobby" && (
-          <div className="mt-8">
-            <div className="rounded-2xl p-5 text-center" style={{ backgroundColor: C.surf }}>
-              <p className="text-xs font-semibold" style={{ color: C.text2 }}>SHARE THIS CODE</p>
-              <button onClick={copyCode} className="mt-2 inline-flex items-center gap-2">
-                <span className="text-4xl font-black tracking-[0.3em]" style={{ color: C.brandLight }}>{code}</span>
-                {copied ? <Check size={18} style={{ color: C.green }} /> : <Copy size={16} style={{ color: C.text2 }} />}
-              </button>
-              {count !== null && <p className="mt-3 text-lg font-extrabold" style={{ color: C.brand }}>{count > 0 ? `Starting in ${count}…` : "GO!"}</p>}
-            </div>
-
-            <p className="mt-6 text-sm font-bold">Players ({players.length})</p>
-            <div className="mt-3 space-y-2">
-              {sorted.map((p) => (
-                <div key={p.id} className="flex items-center gap-3 rounded-xl p-3" style={{ backgroundColor: C.surf, border: p.id === myId ? `1px solid ${C.brand}66` : "1px solid transparent" }}>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold" style={{ backgroundColor: C.surf2, color: C.brandLight }}>{p.name[0]?.toUpperCase()}</span>
-                  <span className="flex-1 text-sm font-semibold">{p.name}{p.id === myId ? " (you)" : ""}</span>
-                  {p.id === hostId && <span className="rounded-md px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${C.brand}26`, color: C.brandLight }}>HOST</span>}
-                </div>
-              ))}
-            </div>
-
-            {/* Invite friends */}
-            <p className="mt-6 text-sm font-bold">Invite friends</p>
+          <div className="mt-6 sm:mt-8">
+            {/* Invite friends — primary way in */}
+            <p className="text-sm font-bold">Invite friends</p>
+            <p className="mt-0.5 text-xs" style={{ color: C.text2 }}>Tap to send them straight into this battle.</p>
             {friends.length === 0 ? (
-              <p className="mt-2 text-xs" style={{ color: C.text2 }}>No friends yet. Add some from Find Players.</p>
+              <p className="mt-3 rounded-xl p-3 text-xs" style={{ backgroundColor: C.surf, color: C.text2 }}>No friends yet. Add some from Find Players, or share the code below.</p>
             ) : (
-              <div className="mt-2 space-y-2">
+              <div className="mt-3 space-y-2">
                 {friends.map((f) => {
                   const already = players.some((p) => p.id === f.id);
                   return (
-                    <div key={f.id} className="flex items-center gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold" style={{ backgroundColor: C.surf2, color: C.brandLight }}>{(f.first_name || "?")[0]?.toUpperCase()}</span>
-                      <span className="flex-1 truncate text-sm font-semibold">{`${f.first_name ?? ""} ${f.last_name ?? ""}`.trim() || "Friend"}</span>
-                      <button onClick={() => !already && invite(f)} disabled={already} className="rounded-full px-3.5 py-1.5 text-xs font-bold" style={already ? { backgroundColor: C.surf2, color: C.text2 } : { backgroundColor: `${C.brand}33`, color: C.brandLight, border: `1px solid ${C.brand}66` }}>{already ? "Joined" : "Invite"}</button>
+                    <div key={f.id} className="flex items-center gap-3 rounded-xl p-2.5" style={{ backgroundColor: C.surf }}>
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold" style={{ backgroundColor: C.surf2, color: C.brandLight }}>{(f.first_name || "?")[0]?.toUpperCase()}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-semibold">{`${f.first_name ?? ""} ${f.last_name ?? ""}`.trim() || "Friend"}</span>
+                      <button onClick={() => !already && invite(f)} disabled={already} className="shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold" style={already ? { backgroundColor: C.surf2, color: C.text2 } : { backgroundColor: `${C.brand}33`, color: C.brandLight, border: `1px solid ${C.brand}66` }}>{already ? "Joined" : "Invite"}</button>
                     </div>
                   );
                 })}
               </div>
             )}
+
+            {/* Share code — secondary fallback */}
+            <div className="mt-5 rounded-2xl p-4 text-center" style={{ backgroundColor: C.surf }}>
+              <p className="text-[11px] font-semibold" style={{ color: C.text2 }}>OR SHARE THIS CODE</p>
+              <button onClick={copyCode} className="mt-1.5 inline-flex items-center gap-2">
+                <span className="text-3xl font-black tracking-[0.25em] sm:text-4xl sm:tracking-[0.3em]" style={{ color: C.brandLight }}>{code}</span>
+                {copied ? <Check size={18} style={{ color: C.green }} /> : <Copy size={16} style={{ color: C.text2 }} />}
+              </button>
+              {count !== null && <p className="mt-2 text-lg font-extrabold" style={{ color: C.brand }}>{count > 0 ? `Starting in ${count}…` : "GO!"}</p>}
+            </div>
+
+            <p className="mt-6 text-sm font-bold">In this battle ({players.length})</p>
+            <div className="mt-3 space-y-2">
+              {sorted.map((p) => (
+                <div key={p.id} className="flex items-center gap-3 rounded-xl p-3" style={{ backgroundColor: C.surf, border: p.id === myId ? `1px solid ${C.brand}66` : "1px solid transparent" }}>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold" style={{ backgroundColor: C.surf2, color: C.brandLight }}>{p.name[0]?.toUpperCase()}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold">{p.name}{p.id === myId ? " (you)" : ""}</span>
+                  {p.id === hostId && <span className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${C.brand}26`, color: C.brandLight }}>HOST</span>}
+                </div>
+              ))}
+            </div>
 
             {isHost ? (
               <button onClick={start} disabled={players.length < 2 || count !== null} className="mt-6 w-full rounded-full py-3.5 text-sm font-extrabold text-white disabled:opacity-40" style={{ background: `linear-gradient(135deg,${C.brand},${C.brandDark})` }}>
