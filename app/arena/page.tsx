@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Users, Copy, Check } from "lucide-react";
 import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
 import { useAuth } from "../hooks/useAuth";
-import { api } from "@/lib/api";
+import { api, gameApi, OnlineUser } from "@/lib/api";
 
 const WS = "wss://highscore-mobile-production.up.railway.app";
 const SUBJECTS = Object.keys(QUIZ_BANK);
@@ -52,12 +52,14 @@ export default function ArenaPage() {
   const [timeLeft, setTimeLeft] = useState(15);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [friends, setFriends] = useState<OnlineUser[]>([]);
 
   const wsRef = useRef<WebSocket | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const answeredRef = useRef(false);
   const qRef = useRef(0);
 
+  const joinedRef = useRef(false);
   const clearTimer = () => { if (timer.current) clearInterval(timer.current); timer.current = null; };
   const closeWs = () => { try { wsRef.current?.close(); } catch { /* ignore */ } wsRef.current = null; };
   useEffect(() => () => { clearTimer(); closeWs(); }, []);
@@ -145,6 +147,20 @@ export default function ArenaPage() {
 
   const start = () => send({ type: "start" });
 
+  // Load friends (to invite) and auto-join if arriving from an invite (?join=CODE).
+  useEffect(() => {
+    if (!myId) return;
+    gameApi.friends().then((f) => setFriends(Array.isArray(f) ? f : [])).catch(() => {});
+    if (joinedRef.current) return;
+    const p = new URLSearchParams(window.location.search).get("join");
+    if (p) { joinedRef.current = true; const cc = p.toUpperCase(); setCode(cc); connect(cc); }
+  }, [myId, connect]);
+
+  const invite = async (u: OnlineUser) => {
+    try { await gameApi.arenaInvite(code, u.id); toast.success(`Invited ${u.first_name || "friend"} 👋`); }
+    catch { toast.error("Could not invite."); }
+  };
+
   const pick = (idx: number) => {
     if (answeredRef.current) return;
     const q = questions[currentQ];
@@ -221,6 +237,25 @@ export default function ArenaPage() {
                 </div>
               ))}
             </div>
+
+            {/* Invite friends */}
+            <p className="mt-6 text-sm font-bold">Invite friends</p>
+            {friends.length === 0 ? (
+              <p className="mt-2 text-xs" style={{ color: C.text2 }}>No friends yet. Add some from Find Players.</p>
+            ) : (
+              <div className="mt-2 space-y-2">
+                {friends.map((f) => {
+                  const already = players.some((p) => p.id === f.id);
+                  return (
+                    <div key={f.id} className="flex items-center gap-3">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold" style={{ backgroundColor: C.surf2, color: C.brandLight }}>{(f.first_name || "?")[0]?.toUpperCase()}</span>
+                      <span className="flex-1 truncate text-sm font-semibold">{`${f.first_name ?? ""} ${f.last_name ?? ""}`.trim() || "Friend"}</span>
+                      <button onClick={() => !already && invite(f)} disabled={already} className="rounded-full px-3.5 py-1.5 text-xs font-bold" style={already ? { backgroundColor: C.surf2, color: C.text2 } : { backgroundColor: `${C.brand}33`, color: C.brandLight, border: `1px solid ${C.brand}66` }}>{already ? "Joined" : "Invite"}</button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {isHost ? (
               <button onClick={start} disabled={players.length < 2 || count !== null} className="mt-6 w-full rounded-full py-3.5 text-sm font-extrabold text-white disabled:opacity-40" style={{ background: `linear-gradient(135deg,${C.brand},${C.brandDark})` }}>

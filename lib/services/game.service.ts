@@ -23,4 +23,6 @@ export const gameApi = {
     api(Endpoints.challenge.send, { method: "POST", body: { to_user_id: toUserId, subject } }),
   respondChallenge: (challengeId: string, accept: boolean) =>
     api(Endpoints.challenge.respond, { method: "POST", body: { challenge_id: challengeId, accept } }),
+  arenaInvite: (code: string, toUserId: string) =>
+    api("/api/arena/invite", { method: "POST", body: { code, to_user_id: toUserId } }),
 };
