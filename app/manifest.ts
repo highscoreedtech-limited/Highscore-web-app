@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "HighScore — Learn & Win",
+    name: "HighScore, Learn & Win",
     short_name: "HighScore",
-    description: "Master JAMB, WAEC, NECO & Post-UTME — video lessons, CBT practice, quiz battles and rewards.",
+    description: "Master JAMB, WAEC, NECO & Post-UTME, video lessons, CBT practice, quiz battles and rewards.",
     start_url: "/onboarding",
     scope: "/",
     display: "standalone",

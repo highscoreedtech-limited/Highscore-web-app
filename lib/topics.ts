@@ -1,4 +1,4 @@
-// Per-subject topic lists — ported from the mobile app (subject_data.dart).
+// Per-subject topic lists: ported from the mobile app (subject_data.dart).
 export interface TopicInfo { name: string; lessons: number; hours: number; progress: number; youtubeId?: string; videoUrl?: string; portrait?: boolean; }
 
 export const TOPICS: Record<string, TopicInfo[]> = {
@@ -222,7 +222,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.88
     },
     {
-      "name": "Plane Geometry — Lines & Angles",
+      "name": "Plane Geometry: Lines & Angles",
       "lessons": 8,
       "hours": 3,
       "progress": 0.75
@@ -240,19 +240,19 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.65
     },
     {
-      "name": "Mensuration — Areas & Perimeters",
+      "name": "Mensuration: Areas & Perimeters",
       "lessons": 8,
       "hours": 3,
       "progress": 0.78
     },
     {
-      "name": "Mensuration — Volumes & Surface Area",
+      "name": "Mensuration: Volumes & Surface Area",
       "lessons": 8,
       "hours": 3,
       "progress": 0.72
     },
     {
-      "name": "Trigonometry — Ratios & Identities",
+      "name": "Trigonometry: Ratios & Identities",
       "lessons": 10,
       "hours": 4,
       "progress": 0.68
@@ -264,7 +264,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.7
     },
     {
-      "name": "Coordinate Geometry — Straight Lines",
+      "name": "Coordinate Geometry: Straight Lines",
       "lessons": 8,
       "hours": 3,
       "progress": 0.65
@@ -276,7 +276,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.6
     },
     {
-      "name": "Statistics — Mean, Mode & Median",
+      "name": "Statistics: Mean, Mode & Median",
       "lessons": 8,
       "hours": 3,
       "progress": 0.8
@@ -327,13 +327,13 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 1
     },
     {
-      "name": "Kinematics — Linear Motion",
+      "name": "Kinematics: Linear Motion",
       "lessons": 7,
       "hours": 4,
       "progress": 1
     },
     {
-      "name": "Kinematics — Projectile Motion",
+      "name": "Kinematics: Projectile Motion",
       "lessons": 6,
       "hours": 3,
       "progress": 0.92
@@ -441,13 +441,13 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.85
     },
     {
-      "name": "Light — Reflection",
+      "name": "Light: Reflection",
       "lessons": 8,
       "hours": 3,
       "progress": 0.82
     },
     {
-      "name": "Light — Refraction & Lenses",
+      "name": "Light: Refraction & Lenses",
       "lessons": 8,
       "hours": 3,
       "progress": 0.8
@@ -489,7 +489,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.65
     },
     {
-      "name": "Electronics — Semiconductors & Diodes",
+      "name": "Electronics: Semiconductors & Diodes",
       "lessons": 8,
       "hours": 3,
       "progress": 0.6
@@ -533,7 +533,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.95
     },
     {
-      "name": "Chemical Bonding — Ionic & Covalent",
+      "name": "Chemical Bonding: Ionic & Covalent",
       "lessons": 10,
       "hours": 4,
       "progress": 1
@@ -623,19 +623,19 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.78
     },
     {
-      "name": "Organic Chemistry — Hydrocarbons",
+      "name": "Organic Chemistry: Hydrocarbons",
       "lessons": 10,
       "hours": 4,
       "progress": 0.85
     },
     {
-      "name": "Organic Chemistry — Functional Groups",
+      "name": "Organic Chemistry: Functional Groups",
       "lessons": 12,
       "hours": 5,
       "progress": 0.8
     },
     {
-      "name": "Organic Chemistry — Polymers",
+      "name": "Organic Chemistry: Polymers",
       "lessons": 6,
       "hours": 2,
       "progress": 0.75
@@ -673,7 +673,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 1
     },
     {
-      "name": "Cell Division — Mitosis & Meiosis",
+      "name": "Cell Division: Mitosis & Meiosis",
       "lessons": 10,
       "hours": 4,
       "progress": 1
@@ -733,7 +733,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.95
     },
     {
-      "name": "Excretion — Kidney, Liver & Skin",
+      "name": "Excretion: Kidney, Liver & Skin",
       "lessons": 10,
       "hours": 4,
       "progress": 0.92
@@ -775,7 +775,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.95
     },
     {
-      "name": "Genetics — Mendelian Inheritance",
+      "name": "Genetics: Mendelian Inheritance",
       "lessons": 12,
       "hours": 5,
       "progress": 0.95
@@ -811,7 +811,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.95
     },
     {
-      "name": "Ecology — Biomes & Habitats",
+      "name": "Ecology: Biomes & Habitats",
       "lessons": 8,
       "hours": 3,
       "progress": 0.9
@@ -837,19 +837,19 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 1
     },
     {
-      "name": "Poetry — Figurative Language & Devices",
+      "name": "Poetry: Figurative Language & Devices",
       "lessons": 10,
       "hours": 4,
       "progress": 0.9
     },
     {
-      "name": "Poetry Analysis — African Poets",
+      "name": "Poetry Analysis: African Poets",
       "lessons": 10,
       "hours": 4,
       "progress": 0.85
     },
     {
-      "name": "Poetry Analysis — Non-African Poets",
+      "name": "Poetry Analysis: Non-African Poets",
       "lessons": 10,
       "hours": 4,
       "progress": 0.8
@@ -867,49 +867,49 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.75
     },
     {
-      "name": "Prose — Narrative Techniques",
+      "name": "Prose: Narrative Techniques",
       "lessons": 8,
       "hours": 3,
       "progress": 0.72
     },
     {
-      "name": "Prose — Character & Characterization",
+      "name": "Prose: Character & Characterization",
       "lessons": 8,
       "hours": 3,
       "progress": 0.7
     },
     {
-      "name": "Prose — Theme, Setting & Plot",
+      "name": "Prose: Theme, Setting & Plot",
       "lessons": 8,
       "hours": 3,
       "progress": 0.68
     },
     {
-      "name": "Prose — Point of View & Style",
+      "name": "Prose: Point of View & Style",
       "lessons": 6,
       "hours": 2,
       "progress": 0.65
     },
     {
-      "name": "Prose — African Novels (set texts)",
+      "name": "Prose: African Novels (set texts)",
       "lessons": 10,
       "hours": 4,
       "progress": 0.62
     },
     {
-      "name": "Drama — Structure & Elements",
+      "name": "Drama: Structure & Elements",
       "lessons": 8,
       "hours": 3,
       "progress": 0.6
     },
     {
-      "name": "Drama — Tragedy & Comedy",
+      "name": "Drama: Tragedy & Comedy",
       "lessons": 8,
       "hours": 3,
       "progress": 0.55
     },
     {
-      "name": "Drama — Conflict & Resolution",
+      "name": "Drama: Conflict & Resolution",
       "lessons": 6,
       "hours": 2,
       "progress": 0.52
@@ -921,13 +921,13 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.5
     },
     {
-      "name": "Oral Literature — Folktales & Myths",
+      "name": "Oral Literature: Folktales & Myths",
       "lessons": 6,
       "hours": 2,
       "progress": 0.48
     },
     {
-      "name": "Oral Literature — Proverbs & Riddles",
+      "name": "Oral Literature: Proverbs & Riddles",
       "lessons": 5,
       "hours": 2,
       "progress": 0.45
@@ -1075,7 +1075,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
   ],
   "Government": [
     {
-      "name": "Basic Concepts — State, Power & Authority",
+      "name": "Basic Concepts: State, Power & Authority",
       "lessons": 8,
       "hours": 3,
       "progress": 0.9
@@ -1093,7 +1093,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.88
     },
     {
-      "name": "Federalism — Features, Merits & Demerits",
+      "name": "Federalism: Features, Merits & Demerits",
       "lessons": 8,
       "hours": 3,
       "progress": 0.75
@@ -1129,7 +1129,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.58
     },
     {
-      "name": "Constitution — Types & Features",
+      "name": "Constitution: Types & Features",
       "lessons": 8,
       "hours": 3,
       "progress": 0.55
@@ -1409,7 +1409,7 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.52
     },
     {
-      "name": "Coordinate Geometry — Circles",
+      "name": "Coordinate Geometry: Circles",
       "lessons": 8,
       "hours": 3,
       "progress": 0.45
@@ -1439,31 +1439,31 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.48
     },
     {
-      "name": "Differentiation — Rules & Techniques",
+      "name": "Differentiation: Rules & Techniques",
       "lessons": 12,
       "hours": 5,
       "progress": 0.42
     },
     {
-      "name": "Differentiation — Maxima & Minima",
+      "name": "Differentiation: Maxima & Minima",
       "lessons": 8,
       "hours": 3,
       "progress": 0.38
     },
     {
-      "name": "Differentiation — Kinematics (Motion)",
+      "name": "Differentiation: Kinematics (Motion)",
       "lessons": 6,
       "hours": 2,
       "progress": 0.35
     },
     {
-      "name": "Integration — Indefinite & Definite",
+      "name": "Integration: Indefinite & Definite",
       "lessons": 12,
       "hours": 5,
       "progress": 0.35
     },
     {
-      "name": "Integration — Areas & Volumes of Revolution",
+      "name": "Integration: Areas & Volumes of Revolution",
       "lessons": 8,
       "hours": 3,
       "progress": 0.3
@@ -1475,31 +1475,31 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "progress": 0.28
     },
     {
-      "name": "Statistics — Variance & Standard Deviation",
+      "name": "Statistics: Variance & Standard Deviation",
       "lessons": 8,
       "hours": 3,
       "progress": 0.3
     },
     {
-      "name": "Statistics — Normal Distribution",
+      "name": "Statistics: Normal Distribution",
       "lessons": 6,
       "hours": 2,
       "progress": 0.25
     },
     {
-      "name": "Probability — Discrete Distributions",
+      "name": "Probability: Discrete Distributions",
       "lessons": 8,
       "hours": 3,
       "progress": 0.22
     },
     {
-      "name": "Mechanics — Kinematics in 2D",
+      "name": "Mechanics: Kinematics in 2D",
       "lessons": 8,
       "hours": 3,
       "progress": 0.2
     },
     {
-      "name": "Mechanics — Newton",
+      "name": "Mechanics: Newton",
       "lessons": 8,
       "hours": 3,
       "progress": 0.18

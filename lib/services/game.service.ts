@@ -1,4 +1,4 @@
-// Game service — matchmaking (online users, friends, challenges).
+// Game service, matchmaking (online users, friends, challenges).
 import { api } from "@/lib/api/http";
 import { Endpoints } from "@/lib/api/endpoints";
 import type { OnlineUser } from "@/lib/domain/models";

@@ -87,7 +87,7 @@ export default function SignupPage() {
   };
 
 
-  // Step 1 — register on the Go backend. Backend emails an OTP; we then show
+  // Step 1, register on the Go backend. Backend emails an OTP; we then show
   // the verification step.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +128,7 @@ export default function SignupPage() {
     }
   };
 
-  // Step 2 — verify the emailed OTP. The backend returns tokens + user, so the
+  // Step 2, verify the emailed OTP. The backend returns tokens + user, so the
   // user is logged straight into the web app.
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,11 +169,11 @@ export default function SignupPage() {
       <div className="absolute inset-0 bg-[url('/hero-students-computers.png')] bg-cover bg-center -scale-x-100" />
       <div className="absolute inset-0 bg-[#132D46]/70" />
 
-      {/* FORM CARD — fills the screen on mobile, floats as a card on sm+ */}
+      {/* FORM CARD, fills the screen on mobile, floats as a card on sm+ */}
       <div className="relative z-10 flex w-full sm:max-w-[420px] sm:mx-4 sm:my-8">
         <div className="flex w-full flex-col items-center justify-center bg-white px-6 py-8 min-h-screen sm:min-h-0 sm:justify-start sm:rounded-2xl sm:shadow-2xl sm:px-8 sm:py-6">
           
-          {/* Logo — centered inside/above card */}
+          {/* Logo, centered inside/above card */}
           <div className="relative w-20 h-20 mb-1">
             <Image src="/highscore-logo-final.png" alt="HighScore Logo" fill className="object-contain" priority />
           </div>
@@ -287,7 +287,7 @@ export default function SignupPage() {
                   onChange={(e) => setReferredBy(e.target.value.toUpperCase())}
                 />
                 {referredBy && (
-                  <p className="text-xs font-semibold text-hs-blue">🎉 Referral code applied — you both earn 100 points!</p>
+                  <p className="text-xs font-semibold text-hs-blue">🎉 Referral code applied, you both earn 100 points!</p>
                 )}
               </>
             ) : (

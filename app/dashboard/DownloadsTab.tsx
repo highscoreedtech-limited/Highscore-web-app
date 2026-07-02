@@ -16,11 +16,11 @@ const SUBJECT_COLOR: Record<string, string> = {
 };
 
 const SAMPLE: Material[] = [
-  { id: "1", title: "Physics: Mechanics & Motion — Complete Notes", subject: "Physics", type: "pdf", file_size: 13_000_000, url: "#", category: "Notes" },
+  { id: "1", title: "Physics: Mechanics & Motion, Complete Notes", subject: "Physics", type: "pdf", file_size: 13_000_000, url: "#", category: "Notes" },
   { id: "2", title: "Chemistry: The Mole Concept (Video)", subject: "Chemistry", type: "video", file_size: 48_000_000, url: "#", category: "Video" },
-  { id: "3", title: "Mathematics: Quadratic Equations — Past Questions", subject: "Mathematics", type: "pdf", file_size: 4_200_000, url: "#", category: "Past Questions" },
+  { id: "3", title: "Mathematics: Quadratic Equations, Past Questions", subject: "Mathematics", type: "pdf", file_size: 4_200_000, url: "#", category: "Past Questions" },
   { id: "4", title: "Biology: Cell Structure & Function (Video)", subject: "Biology", type: "video", file_size: 52_000_000, url: "#", category: "Video" },
-  { id: "5", title: "English: Comprehension & Summary — Notes", subject: "English Language", type: "pdf", file_size: 2_800_000, url: "#", category: "Notes" },
+  { id: "5", title: "English: Comprehension & Summary, Notes", subject: "English Language", type: "pdf", file_size: 2_800_000, url: "#", category: "Notes" },
 ];
 
 function sizeLabel(b: number) {
@@ -53,7 +53,7 @@ export default function DownloadsTab() {
       <header className="bg-hs-navy px-4 pb-6 pt-5 lg:px-8 lg:pt-7">
         <div className="mx-auto max-w-2xl">
           <h1 className="text-xl font-bold text-white">Downloads</h1>
-          <p className="mt-1.5 text-sm text-white/70">Study materials — notes, past questions & videos</p>
+          <p className="mt-1.5 text-sm text-white/70">Study materials, notes, past questions & videos</p>
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-white px-3.5 py-2.5">
             <Search size={18} className="text-hs-placeholder" />
             <input

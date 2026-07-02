@@ -4,14 +4,9 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import LottieIcon from "@/components/LottieIcon";
 
-const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
 /**
- * Full-screen daily-streak celebration. Plays a short sequence — flame burst →
- * count-up → "day streak" → weekday tracker — then can be dismissed.
- *
- * Sequence mirrors the reference reel (built original, brand-themed): an orange
- * takeover with our fire animation, animated count and a week progress row.
+ * Full-screen daily-streak celebration. Plays a short sequence: flame burst,
+ * count-up, "day streak", then a numbered day tracker.
  */
 export default function StreakCelebration({
   count,
@@ -45,9 +40,9 @@ export default function StreakCelebration({
     return () => clearTimeout(t);
   }, [onDone]);
 
-  // Real week progress: days before today done, today just completed.
-  const todayIdx = new Date().getDay(); // 0 = Sun
-  const weekDone = Math.min(count, todayIdx + 1);
+  // Numbered day tracker: a rolling window of 7 ending at the current streak.
+  const start = Math.max(1, count - 6);
+  const nums = Array.from({ length: 7 }, (_, i) => start + i);
 
   return (
     <motion.div
@@ -119,15 +114,15 @@ export default function StreakCelebration({
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 1.4, duration: 0.5 }}
       >
-        {DAYS.map((d, i) => {
-          const done = i < weekDone;
-          const isToday = i === todayIdx;
+        {nums.map((num, i) => {
+          const done = num < count;
+          const isCurrent = num === count;
           return (
-            <div key={d} className="flex flex-col items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-white/70">{d}</span>
+            <div key={num} className="flex flex-col items-center gap-1.5">
+              <span className="text-[11px] font-semibold text-white/70">{num}</span>
               <motion.span
                 className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
-                  isToday
+                  isCurrent
                     ? "bg-white text-[#EA6A00] ring-2 ring-white"
                     : done
                     ? "bg-white/90 text-[#EA6A00]"
@@ -137,7 +132,7 @@ export default function StreakCelebration({
                 animate={{ scale: 1 }}
                 transition={{ delay: 1.5 + i * 0.06, type: "spring", stiffness: 300, damping: 16 }}
               >
-                {done || isToday ? "✓" : ""}
+                {done || isCurrent ? "✓" : ""}
               </motion.span>
             </div>
           );

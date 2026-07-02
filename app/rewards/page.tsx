@@ -14,11 +14,11 @@ type Social = "youtube" | "instagram" | "whatsapp";
 interface EarnItem { icon: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; social?: Social; claim?: "week" | "top10" }
 
 const EARN: EarnItem[] = [
-  { icon: "⚔️", title: "Win a PVP Battle", pts: "+200", sub: "Beat an opponent — credited automatically when the match ends", auto: true },
+  { icon: "⚔️", title: "Win a PVP Battle", pts: "+200", sub: "Beat an opponent, credited automatically when the match ends", auto: true },
   { icon: "🎯", title: "Solo Quiz", pts: "+10", sub: "Each correct answer adds 10 pts automatically", auto: true },
-  { icon: "📚", title: "CBT Practice", pts: "+5", sub: "Per correct answer — claim from the result screen", auto: true },
+  { icon: "📚", title: "CBT Practice", pts: "+5", sub: "Per correct answer, claim from the result screen", auto: true },
   { icon: "🔥", title: "Daily Streak", pts: "+10", sub: "Come back every day to keep your streak alive", auto: true },
-  { icon: "🏆", title: "Week Streak Milestone", pts: "+70", sub: "7 days in a row — claim your special bonus!", claim: "week" },
+  { icon: "🏆", title: "Week Streak Milestone", pts: "+70", sub: "7 days in a row, claim your special bonus!", claim: "week" },
   { icon: "📈", title: "Reach Top 10 Leaderboard", pts: "+50", sub: "Land in the top 10 this week to claim", claim: "top10" },
   { icon: "💡", title: "Perfect Score (10/10)", pts: "+100", sub: "Get every question right in a quiz", auto: true },
   { icon: "", social: "youtube", title: "Subscribe on YouTube", pts: "+50", sub: "Open the channel, subscribe, then claim", url: "https://www.youtube.com/@HighScore" },
@@ -59,7 +59,7 @@ export default function RewardsPage() {
   const hst = user?.hst_balance ?? 0;
   const streak = user?.streak_count ?? 0;
   const done = streak % 7;
-  const COOLDOWN = 15; // seconds — matches the backend claim cooldown
+  const COOLDOWN = 15; // seconds, matches the backend claim cooldown
 
   // Real spendable points balance + rank from the backend.
   const loadRank = () =>
@@ -107,7 +107,7 @@ export default function RewardsPage() {
       refreshProfile().catch(() => {});
       loadRank();
     } catch (err: any) {
-      toast.error(err?.message || "Couldn't claim — try again in a moment.");
+      toast.error(err?.message || "Couldn't claim, try again in a moment.");
     }
   };
 
@@ -162,7 +162,7 @@ export default function RewardsPage() {
       </header>
 
       <div className="mx-auto max-w-2xl px-4 lg:px-8">
-        {/* Streak card — connected day-circles (matches the mobile design) */}
+        {/* Streak card, connected day-circles (matches the mobile design) */}
         <StreakCardConnected streak={streak} done={done} />
 
         {/* Tabs */}

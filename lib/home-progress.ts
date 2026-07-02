@@ -1,5 +1,5 @@
 // Lightweight, device-local progress signals for the home summary card.
-// (Per-day goal completion + the last subject opened — used to drive the
+// (Per-day goal completion + the last subject opened, used to drive the
 // "today's goals" ring and the "Continue" action.)
 
 function todayKey(): string {

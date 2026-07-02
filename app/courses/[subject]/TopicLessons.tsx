@@ -25,7 +25,7 @@ function buildLessons(topic: TopicInfo): Lesson[] {
     },
   ];
   for (let p = 2; p <= core; p++) {
-    out.push({ name: `${topic.name} — Part ${p}`, type: "video", minutes: 10 + p, summary: `Worked examples and deeper coverage of ${topic.name}.` });
+    out.push({ name: `${topic.name}, Part ${p}`, type: "video", minutes: 10 + p, summary: `Worked examples and deeper coverage of ${topic.name}.` });
   }
   out.push({ name: "Key points & summary", type: "reading", minutes: 6, summary: `Quick revision notes for ${topic.name}.` });
   out.push({ name: "Practice questions", type: "practice", minutes: 12, summary: `Test yourself on ${topic.name}.` });
@@ -131,7 +131,7 @@ export default function TopicLessons({
           >
             <div className="relative w-full" style={{ paddingTop: activeLesson.portrait ? "177.78%" : "56.25%" }}>
               {activeLesson.videoUrl ? (
-                // Self-hosted video — no related/other videos, full control.
+                // Self-hosted video, no related/other videos, full control.
                 <video
                   key={activeLesson.videoUrl}
                   className="absolute inset-0 h-full w-full bg-black"

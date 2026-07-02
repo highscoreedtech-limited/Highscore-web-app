@@ -105,7 +105,7 @@ export default function CbtPage() {
             ))}
           </div>
 
-          {/* Topics — multi-select, "All topics" = whole subject */}
+          {/* Topics, multi-select, "All topics" = whole subject */}
           <h2 className="mt-6 text-sm font-bold text-hs-navy">Choose topics</h2>
           <p className="mt-0.5 text-xs text-hs-muted">Leave on “All topics”, or pick the ones you want to be tested on.</p>
           <div className="mt-3 flex flex-wrap gap-2">

@@ -1,4 +1,4 @@
-// Quiz battle bank — ported from the mobile app (quiz_constants.dart).
+// Quiz battle bank, ported from the mobile app (quiz_constants.dart).
 export interface QuizQuestion { q: string; opts: string[]; ans: number; }
 
 export const QUIZ_BANK: Record<string, QuizQuestion[]> = {

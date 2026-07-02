@@ -1,4 +1,4 @@
-// Dashboard service — leaderboard + rank for the home tab.
+// Dashboard service, leaderboard + rank for the home tab.
 import { api } from "@/lib/api/http";
 import { Endpoints } from "@/lib/api/endpoints";
 import type { LeaderboardEntry } from "@/lib/domain/models";

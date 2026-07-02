@@ -1,4 +1,4 @@
-// lib/api.ts — backward-compatible facade over the layered architecture.
+// lib/api.ts, backward-compatible facade over the layered architecture.
 //
 // Internals now live in focused modules:
 //   api/config       network origins

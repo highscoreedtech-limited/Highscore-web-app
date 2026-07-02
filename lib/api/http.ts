@@ -1,4 +1,4 @@
-// HTTP client — the single gateway to the Go backend.
+// HTTP client, the single gateway to the Go backend.
 // Responsibilities: attach bearer token, unwrap the { data } envelope, surface
 // { message } errors as ApiError, and auto-refresh on 401 (single-flight).
 import { API_BASE } from "./config";
@@ -50,7 +50,7 @@ async function refreshAccessToken(): Promise<string | null> {
     session.save(data.access_token, data.refresh_token);
     return data.access_token as string;
   } catch {
-    // Transient failure — keep tokens so the user can retry.
+    // Transient failure, keep tokens so the user can retry.
     return null;
   }
 }

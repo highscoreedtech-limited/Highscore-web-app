@@ -1,4 +1,4 @@
-// Performance service — analytics for the /analytics screen.
+// Performance service, analytics for the /analytics screen.
 import { api } from "@/lib/api/http";
 import { Endpoints } from "@/lib/api/endpoints";
 import type { SubjectPerformance } from "@/lib/domain/models";

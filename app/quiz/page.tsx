@@ -114,7 +114,7 @@ export default function QuizPage() {
   }, []);
 
   // Listen for the opponent accepting the challenge over the SHARED realtime
-  // socket (same connection used for profile sync) — no second WebSocket.
+  // socket (same connection used for profile sync), no second WebSocket.
   useEffect(() => {
     if (!user?.id) return;
     realtime.connect(user.id);

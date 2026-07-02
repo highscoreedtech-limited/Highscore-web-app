@@ -96,8 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Cross-device sync (Tier 1 fallback): re-pull the profile whenever the
   // user returns to the app (tab focus / visible) or the device comes back
-  // online. This makes changes made on the mobile app — avatar, streak, points,
-  // subscription — show up on the PWA as soon as it's opened. Debounced so we
+  // online. This makes changes made on the mobile app, avatar, streak, points,
+  // subscription, show up on the PWA as soon as it's opened. Debounced so we
   // don't spam the backend on rapid focus/blur.
   useEffect(() => {
     if (typeof window === "undefined") return;

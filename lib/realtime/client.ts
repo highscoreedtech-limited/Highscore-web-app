@@ -1,7 +1,7 @@
 // Single, shared realtime connection for the whole tab.
 //
 // Best practice at scale: ONE WebSocket per user per tab, multiplexed via a
-// typed pub/sub bus — never one socket per feature. Features subscribe to the
+// typed pub/sub bus, never one socket per feature. Features subscribe to the
 // event types they care about (profile_updated, challenge_accepted, …).
 //
 // Resilience: auto-reconnect with exponential backoff + jitter (capped),

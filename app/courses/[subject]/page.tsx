@@ -28,7 +28,7 @@ export default function SubjectDetailPage() {
     if (!name) return;
     api<{ subjects: { subject: string }[] }>("/api/user/subject-access")
       .then((d) => setLocked(!(d?.subjects || []).some((s) => s.subject === name)))
-      .catch(() => setLocked(false)); // fail open — don't block on a network error
+      .catch(() => setLocked(false)); // fail open, don't block on a network error
   }, [name]);
 
   const openTopicGated = (t: TopicInfo) => {
@@ -90,7 +90,7 @@ export default function SubjectDetailPage() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-hs-amberDark">{name} is locked</p>
-              <p className="text-[11px] text-hs-amberDark/80">Unlock its lessons, CBT & quiz — tap to choose a plan.</p>
+              <p className="text-[11px] text-hs-amberDark/80">Unlock its lessons, CBT & quiz, tap to choose a plan.</p>
             </div>
             <span className="rounded-full bg-hs-amber px-3 py-1.5 text-xs font-bold text-hs-amberDark">Unlock</span>
           </button>

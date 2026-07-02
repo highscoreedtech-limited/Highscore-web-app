@@ -1,4 +1,4 @@
-// Domain models — the canonical shapes the app reasons about.
+// Domain models, the canonical shapes the app reasons about.
 // Pure types only; no I/O, no framework. Services map backend JSON → these.
 
 export interface User {

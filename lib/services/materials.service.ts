@@ -1,4 +1,4 @@
-// Materials service — downloadable study materials for the Downloads tab.
+// Materials service, downloadable study materials for the Downloads tab.
 import { api } from "@/lib/api/http";
 import { Endpoints } from "@/lib/api/endpoints";
 

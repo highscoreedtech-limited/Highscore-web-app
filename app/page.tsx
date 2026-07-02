@@ -18,7 +18,7 @@ const FEATURES = [
   { icon: Gamepad2, lottie: "/lottie/quiz-games.json", title: "Quiz battles", desc: "Challenge friends in live 1-v-1 quiz games and climb the ranks.", color: "#854F0B", bg: "#FAEEDA" },
   { icon: Medal, lottie: "/lottie/chart-growup.json", title: "Leaderboards", desc: "Compete with students across Nigeria and earn your spot at the top.", color: "#854F0B", bg: "#FAEEDA" },
   { icon: LineChart, lottie: "/lottie/graph.json", title: "Analytics", desc: "Track your progress, spot weak topics and study smarter, not harder.", color: "#185FA5", bg: "#E6F1FB" },
-  { icon: Gift, lottie: "/lottie/reward.json", title: "Rewards", desc: "Earn points and streaks as you learn — and turn them into real rewards.", color: "#854F0B", bg: "#FAEEDA" },
+  { icon: Gift, lottie: "/lottie/reward.json", title: "Rewards", desc: "Earn points and streaks as you learn, and turn them into real rewards.", color: "#854F0B", bg: "#FAEEDA" },
 ];
 
 const PLANS = [
@@ -48,19 +48,19 @@ const LIBRARY = [
   { subject: "Economics", topic: "Demand & Supply", img: "/ai.jpg" },
 ];
 
-// Rotating hero pitches — TON/$HST shown first so visitors see it up top.
+// Rotating hero pitches, TON/$HST shown first so visitors see it up top.
 const HERO_SLIDES = [
   {
     badgeImg: "/ton-logo.svg",
     badge: "Powered by the TON blockchain",
     title: (<>Learn. Earn. <span className="text-hs-amber">Own.</span></>),
-    desc: "Meet $HST — the HighScore Token. Ace quizzes, keep streaks and refer friends to earn HST, soon live on TON: fast, low-fee and truly yours.",
+    desc: "Meet $HST, the HighScore Token. Ace quizzes, keep streaks and refer friends to earn HST, soon live on TON: fast, low-fee and truly yours.",
   },
   {
     badgeIcon: GraduationCap,
     badge: "JAMB · WAEC · NECO · Post-UTME",
     title: (<>Pass your exams with <span className="text-hs-amber">confidence.</span></>),
-    desc: "Nigeria's smartest learning app — video lessons, CBT practice, quiz battles and leaderboards, all in one place. Study smarter and score higher.",
+    desc: "Nigeria's smartest learning app, video lessons, CBT practice, quiz battles and leaderboards, all in one place. Study smarter and score higher.",
   },
 ];
 
@@ -157,7 +157,7 @@ export default function MarketingPage() {
         )}
       </AnimatePresence>
 
-      {/* Hero — full-bleed background image */}
+      {/* Hero, full-bleed background image */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image src="/hero-students-computers.png" alt="" fill priority className="object-cover" />
@@ -259,7 +259,7 @@ export default function MarketingPage() {
       <section id="features" className="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-20">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-extrabold text-hs-navy lg:text-4xl">Everything you need to ace it</h2>
-          <p className="mt-3 text-hs-muted">One app for lessons, practice, competition and tracking — built for Nigerian students.</p>
+          <p className="mt-3 text-hs-muted">One app for lessons, practice, competition and tracking, built for Nigerian students.</p>
         </Reveal>
         <motion.div
           className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
@@ -301,7 +301,7 @@ export default function MarketingPage() {
               <Play size={13} /> Video library
             </span>
             <h2 className="mt-4 text-3xl font-extrabold text-white lg:text-4xl">Dive into our vast video library</h2>
-            <p className="mt-3 text-[#B8CCE0]">Animated, exam-focused lessons across every subject we cover — from English to Further Maths.</p>
+            <p className="mt-3 text-[#B8CCE0]">Animated, exam-focused lessons across every subject we cover, from English to Further Maths.</p>
           </Reveal>
 
           <div className="relative mt-12">
@@ -364,7 +364,7 @@ export default function MarketingPage() {
       <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 lg:px-8 lg:py-20">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-extrabold text-hs-navy lg:text-4xl">Simple, affordable plans</h2>
-          <p className="mt-3 text-hs-muted">Same full experience on every plan — no hidden locks. Start with a free trial.</p>
+          <p className="mt-3 text-hs-muted">Same full experience on every plan, no hidden locks. Start with a free trial.</p>
         </Reveal>
 
         <div className="mx-auto mt-12 grid max-w-5xl items-stretch gap-6 sm:grid-cols-3">
@@ -408,10 +408,10 @@ export default function MarketingPage() {
               Learn. Earn. <span className="text-hs-amber">Own.</span>
             </h2>
             <p className="mt-4 text-base leading-relaxed text-[#B8CCE0] lg:text-lg">
-              Meet <span className="font-bold text-white">$HST</span> — the HighScore Token. Every quiz you ace,
+              Meet <span className="font-bold text-white">$HST</span>, the HighScore Token. Every quiz you ace,
               every streak you keep and every friend you bring earns you HST. Soon it lands on
               <span className="font-semibold text-[#5CC2FF]"> TON</span>, the blockchain built for the billions
-              of people already on Telegram — fast, near-zero fees, truly yours.
+              of people already on Telegram, fast, near-zero fees, truly yours.
             </p>
           </Reveal>
 
@@ -433,7 +433,7 @@ export default function MarketingPage() {
           <div className="mx-auto mt-14 grid max-w-5xl gap-5 sm:grid-cols-3">
             {[
               { icon: Medal, title: "Earn as you learn", desc: "Quizzes, streaks, CBT scores and referrals all pay out in HST. The harder you study, the more you stack." },
-              { icon: Gift, title: "Real ownership on TON", desc: "HST settles on The Open Network — your tokens, your wallet, lightning-fast transfers and near-zero fees." },
+              { icon: Gift, title: "Real ownership on TON", desc: "HST settles on The Open Network, your tokens, your wallet, lightning-fast transfers and near-zero fees." },
               { icon: ArrowRight, title: "Spend it your way", desc: "Unlock premium, redeem rewards, or send HST to a friend. Utility you control, not points trapped in an app." },
             ].map((c, i) => (
               <Reveal key={c.title} delay={i * 0.08}>
@@ -485,7 +485,7 @@ export default function MarketingPage() {
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2 lg:col-span-1">
               <Image src="/highscore-logo-final.png" alt="HighScore" width={260} height={66} className="h-14 w-auto object-contain brightness-0 invert" />
-              <p className="mt-4 max-w-xs text-sm">Nigeria&apos;s smartest exam-prep app — lessons, CBT, quiz battles and rewards in one place.</p>
+              <p className="mt-4 max-w-xs text-sm">Nigeria&apos;s smartest exam-prep app, lessons, CBT, quiz battles and rewards in one place.</p>
               <div className="mt-5 flex gap-3">
                 {[Instagram, Twitter, Youtube].map((Icon, i) => (
                   <a key={i} href="#" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Social link">

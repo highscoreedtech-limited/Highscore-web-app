@@ -121,7 +121,7 @@ export default function DashboardPage() {
       {/* Mobile bottom nav */}
       <BottomNav tab={tab} setTab={setTab} />
 
-      {/* Daily streak celebration — full-screen animated sequence */}
+      {/* Daily streak celebration, full-screen animated sequence */}
       <AnimatePresence>
         {streakCelebrate && (
           <StreakCelebration
@@ -157,7 +157,7 @@ function HomeTab({
     return () => { active = false; };
   }, [exam]);
 
-  // Daily goals — read on mount and whenever the user returns to the tab
+  // Daily goals, read on mount and whenever the user returns to the tab
   // (so finishing a quiz/CBT updates the ring on return).
   useEffect(() => {
     const read = () => setGoals(goalsToday());
@@ -200,7 +200,6 @@ function HomeTab({
         </button>
 
         <div className="ml-auto flex items-center gap-2.5">
-          <StreakChip streak={streak} />
           <NotificationBell />
           <button onClick={onProfile} aria-label="Open profile" className="transition-transform active:scale-95">
             {avatarUrl ? (
@@ -263,10 +262,10 @@ function HomeTab({
       {/* Two-pane on desktop: feed + leaderboard side panel */}
       <div className="lg:grid lg:grid-cols-3 lg:gap-6">
         <div className="lg:col-span-2">
-          {/* Summary card — gamified: level + XP bar + daily quests + streak */}
+          {/* Summary card, gamified: level + XP bar + daily quests + streak */}
           <div className="relative mt-3.5 overflow-hidden rounded-3xl p-4 shadow-lg shadow-hs-navy/30 lg:p-5"
             style={{ background: "linear-gradient(135deg, #0E3D6E 0%, #042C53 55%, #06223E 100%)" }}>
-            {/* Glow accents — game energy, not banking flatness */}
+            {/* Glow accents, game energy, not banking flatness */}
             <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-hs-amber/25 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-14 -left-10 h-40 w-40 rounded-full bg-[#2E90FA]/25 blur-3xl" />
             <span className="pointer-events-none absolute right-16 top-3 text-xs opacity-60">✦</span>
@@ -277,7 +276,7 @@ function HomeTab({
               <div className="flex items-start">
                 <div className="flex-1">
                   <p className="text-base font-extrabold text-white">Hey, {fullName.split(" ")[0]}! 👋</p>
-                  <p className="text-[12px] text-[#B8CCE0]">{myRank > 0 ? `Ranked #${myRank} this week — keep climbing` : "Play today to enter the rankings"}</p>
+                  <p className="text-[12px] text-[#B8CCE0]">{myRank > 0 ? `Ranked #${myRank} this week, keep climbing` : "Play today to enter the rankings"}</p>
                 </div>
                 <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-extrabold text-white ring-1 ring-white/30"
                   style={{ background: "linear-gradient(90deg, rgba(239,159,39,0.35), rgba(239,159,39,0.15))" }}>
@@ -303,7 +302,7 @@ function HomeTab({
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/12 py-1.5 pl-1.5 pr-3.5 ring-1 ring-white/15">
                 <LottieIcon src="/lottie/fire.json" className="-my-1 h-9 w-9" fallback={<span className="text-2xl">🔥</span>} />
                 <span className="text-[13px] font-bold text-white">
-                  {streakShown}-day streak{goals.streak ? " 🔒 locked in!" : " — play to keep the flame!"}
+                  {streakShown}-day streak{goals.streak ? " 🔒 locked in!" : ", play to keep the flame!"}
                 </span>
               </div>
 
@@ -334,7 +333,7 @@ function HomeTab({
               <CategoryCard
                 key={c.name}
                 cat={c}
-                onClick={() => (c.href ? onNav(c.href) : toast.info(`${c.name} — coming soon`))}
+                onClick={() => (c.href ? onNav(c.href) : toast.info(`${c.name}, coming soon`))}
               />
             ))}
           </div>
@@ -370,108 +369,32 @@ function HomeTab({
 }
 
 // ── Pieces ──────────────────────────────────────────────────────────────────
-interface AppNotification { id: number; type: string; title: string; body: string; read: boolean; created_at: string }
-
-const NOTIF_ICON: Record<string, string> = { referral: "🎉", unlock: "🔓", challenge: "⚔️", system: "🔔" };
-
-function timeAgo(iso: string): string {
-  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
-  if (s < 60) return "just now";
-  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
-  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
-  return `${Math.floor(s / 86400)}d ago`;
-}
-
 function NotificationBell() {
-  const [items, setItems] = useState<AppNotification[]>([]);
+  const router = useRouter();
   const [unread, setUnread] = useState(0);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
-    api<{ notifications: AppNotification[]; unread: number }>("/api/notifications")
-      .then((d) => { if (active) { setItems(d?.notifications || []); setUnread(d?.unread ?? 0); } })
+    api<{ unread: number }>("/api/notifications")
+      .then((d) => { if (active) setUnread(d?.unread ?? 0); })
       .catch(() => {});
-    // Live: new notifications arrive over the shared WebSocket.
-    const off = realtime.on("notification", (n: AppNotification) => {
-      setItems((prev) => [n, ...prev].slice(0, 50));
-      setUnread((u) => u + 1);
-    });
+    // Live: bump the badge when a new notification arrives.
+    const off = realtime.on("notification", () => setUnread((u) => u + 1));
     return () => { active = false; off(); };
   }, []);
 
-  const toggle = () => {
-    const next = !open;
-    setOpen(next);
-    if (next && unread > 0) {
-      setUnread(0);
-      api("/api/notifications/read", { method: "POST" }).catch(() => {});
-      setItems((prev) => prev.map((n) => ({ ...n, read: true })));
-    }
-  };
-
   return (
-    <div className="relative">
-      <button onClick={toggle} aria-label="Notifications" className="relative flex h-8 w-8 items-center justify-center">
-        <Bell size={22} className="text-hs-muted" />
-        {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-hs-flame px-1 text-[9px] font-extrabold text-white">
-            {unread > 9 ? "9+" : unread}
-          </span>
-        )}
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <>
-            <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-            <motion.div
-              initial={{ opacity: 0, y: -6, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.98 }}
-              className="absolute right-0 z-50 mt-2 max-h-[70vh] w-[320px] overflow-y-auto rounded-2xl border border-hs-border bg-white p-2 shadow-xl"
-            >
-              <p className="px-3 py-2 text-sm font-bold text-hs-navy">Notifications</p>
-              {items.length === 0 && (
-                <p className="px-3 pb-5 pt-2 text-center text-sm text-hs-muted">Nothing yet — go earn some! 🎯</p>
-              )}
-              {items.map((n) => (
-                <div key={n.id} className={`flex gap-2.5 rounded-xl px-3 py-2.5 ${n.read ? "" : "bg-hs-blueTint"}`}>
-                  <span className="text-lg">{NOTIF_ICON[n.type] || "🔔"}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-bold text-hs-navy">{n.title}</p>
-                    <p className="text-xs leading-snug text-hs-muted">{n.body}</p>
-                    <p className="mt-0.5 text-[10px] text-hs-placeholder">{timeAgo(n.created_at)}</p>
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function StreakChip({ streak }: { streak: number }) {
-  const active = streak > 0;
-  return (
-    <div
-      className={`flex items-center gap-1 rounded-full border px-2.5 py-1 ${
-        active ? "border-hs-flame/35 bg-hs-flame/10" : "border-hs-border bg-[#F5F5F5]"
-      }`}
-    >
-      {active ? (
-        <LottieIcon src="/lottie/fire.json" className="-my-2 -ml-1 h-9 w-9" fallback={<span className="text-[13px]">🔥</span>} />
-      ) : (
-        <span className="text-[13px]">🌑</span>
+    <button onClick={() => router.push("/notifications")} aria-label="Notifications" className="relative flex h-8 w-8 items-center justify-center">
+      <Bell size={22} className="text-hs-muted" />
+      {unread > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-hs-flame px-1 text-[9px] font-extrabold text-white">
+          {unread > 9 ? "9+" : unread}
+        </span>
       )}
-      <span className={`text-[13px] font-extrabold ${active ? "text-hs-flame" : "text-[#AAAAAA]"}`}>
-        {streak}
-      </span>
-    </div>
+    </button>
   );
 }
+
 
 function StatTile({ value, label, amber }: { value: string; label: string; amber?: boolean }) {
   return (
@@ -712,7 +635,7 @@ function RedeemModal({ open, balance, onClose }: { open: boolean; balance: numbe
             </div>
 
             <h2 className="mt-6 text-base font-bold text-hs-navy">Redeem for</h2>
-            <p className="text-xs text-hs-muted">Pick a reward — we&apos;ll process it within 24 hours.</p>
+            <p className="text-xs text-hs-muted">Pick a reward, we&apos;ll process it within 24 hours.</p>
 
             <div className="mt-4 space-y-3">
               {options.map((o) => {
@@ -788,7 +711,7 @@ function RateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
               <a href={PLAY} target="_blank" rel="noreferrer" onClick={() => { toast.success("Thank you! 🎉"); onClose(); }}
                 className="mt-6 block rounded-full bg-hs-blue py-3 font-semibold text-white">Rate us on Google Play</a>
             ) : (
-              <a href="mailto:support@highscore.ng?subject=HighScore%20feedback" onClick={() => { toast.info("Thanks — we'd love to hear how to improve!"); onClose(); }}
+              <a href="mailto:support@highscore.ng?subject=HighScore%20feedback" onClick={() => { toast.info("Thanks, we'd love to hear how to improve!"); onClose(); }}
                 className="mt-6 block rounded-full bg-hs-navy py-3 font-semibold text-white">Tell us how to improve</a>
             )}
           </motion.div>
@@ -810,7 +733,7 @@ function MenuItem({
 }) {
   return (
     <button
-      onClick={onClick ?? (() => toast.info(`${title} — coming soon`))}
+      onClick={onClick ?? (() => toast.info(`${title}, coming soon`))}
       className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-hs-bg"
     >
       <span className="flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ backgroundColor: `${color}1A`, color }}>

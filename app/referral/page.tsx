@@ -36,7 +36,7 @@ export default function ReferralPage() {
     referralApi.get().then((s) => { if (active) setStats(s); }).catch(() => {});
   }, []);
 
-  // Shareable invite link — pre-fills the referral code at signup.
+  // Shareable invite link, pre-fills the referral code at signup.
   const link = `${origin}/signup?ref=${encodeURIComponent(code)}`;
 
   const copy = async () => {
@@ -56,7 +56,7 @@ export default function ReferralPage() {
   };
 
   const share = async () => {
-    const msg = `Join me on HighScore and ace your exams! 🎓 Sign up with my link — we both earn 100 points:\n${link}`;
+    const msg = `Join me on HighScore and ace your exams! 🎓 Sign up with my link, we both earn 100 points:\n${link}`;
     if (navigator.share) {
       try { await navigator.share({ title: "Join HighScore", text: msg, url: link }); } catch { /* cancelled */ }
     } else {
@@ -77,7 +77,7 @@ export default function ReferralPage() {
             <div className="ml-auto h-16 w-16"><LottieIcon src="/lottie/refer-and-earn.json" className="h-16 w-16" fallback={<Users className="text-hs-amber" />} /></div>
           </div>
           <h2 className="mt-3 text-2xl font-extrabold leading-tight text-white">Invite friends,<br />earn free points!</h2>
-          <p className="mt-2 text-sm text-[#B8CCE0]">Share your code — when a friend signs up and verifies, you both earn 100 pts.</p>
+          <p className="mt-2 text-sm text-[#B8CCE0]">Share your code, when a friend signs up and verifies, you both earn 100 pts.</p>
         </div>
       </header>
 
@@ -108,7 +108,7 @@ export default function ReferralPage() {
           </div>
         </motion.div>
 
-        {/* Stats — referral points live here now */}
+        {/* Stats, referral points live here now */}
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-2xl border border-hs-border bg-white p-4">
             <Users size={20} className="text-hs-blue" />

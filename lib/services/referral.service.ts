@@ -1,4 +1,4 @@
-// Referral service — code + stats for the /referral screen.
+// Referral service, code + stats for the /referral screen.
 // Prefers the dedicated endpoints, falls back to the cached user object so the
 // screen still works if those endpoints aren't populated yet.
 import { api } from "@/lib/api/http";

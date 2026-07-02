@@ -7,12 +7,12 @@ import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { Reveal, stagger, item } from "@/components/Reveal";
 
 const POSTS = [
-  { title: "JAMB 2026: 7 study habits that actually move your score", tag: "JAMB", date: "Jun 20, 2026", img: "/study-background.jpg", excerpt: "The difference between a 200 and a 300 isn't talent — it's these repeatable habits you can start today." },
-  { title: "How to master CBT practice before exam day", tag: "CBT", date: "Jun 14, 2026", img: "/cbt-banner.jpg", excerpt: "Timed practice, error logs and spaced repetition — a simple system for walking into the hall calm and ready." },
+  { title: "JAMB 2026: 7 study habits that actually move your score", tag: "JAMB", date: "Jun 20, 2026", img: "/study-background.jpg", excerpt: "The difference between a 200 and a 300 isn't talent, it's these repeatable habits you can start today." },
+  { title: "How to master CBT practice before exam day", tag: "CBT", date: "Jun 14, 2026", img: "/cbt-banner.jpg", excerpt: "Timed practice, error logs and spaced repetition, a simple system for walking into the hall calm and ready." },
   { title: "WAEC vs NECO: what really changes in your prep", tag: "WAEC", date: "Jun 8, 2026", img: "/english.jpg", excerpt: "Same syllabus, different examiners. Here's how to tune your revision for each board." },
-  { title: "Beat exam anxiety with quiz battles", tag: "Wellbeing", date: "Jun 1, 2026", img: "/quiz.jpg", excerpt: "Turning revision into a game lowers stress and boosts recall. The science — and how to use it." },
+  { title: "Beat exam anxiety with quiz battles", tag: "Wellbeing", date: "Jun 1, 2026", img: "/quiz.jpg", excerpt: "Turning revision into a game lowers stress and boosts recall. The science, and how to use it." },
   { title: "The maths topics that show up every single year", tag: "Mathematics", date: "May 25, 2026", img: "/maths.jpg", excerpt: "Focus your energy where it counts. These high-frequency topics deserve the most practice." },
-  { title: "From the bottom to top 10: a HighScore streak story", tag: "Story", date: "May 18, 2026", img: "/physics.jpg", excerpt: "How a 7-day streak turned into a habit — and a leaderboard climb that changed one student's results." },
+  { title: "From the bottom to top 10: a HighScore streak story", tag: "Story", date: "May 18, 2026", img: "/physics.jpg", excerpt: "How a 7-day streak turned into a habit, and a leaderboard climb that changed one student's results." },
 ];
 
 export default function BlogPage() {
@@ -38,7 +38,7 @@ export default function BlogPage() {
           <h1 className="mt-4 max-w-2xl text-4xl font-extrabold leading-tight text-hs-navy lg:text-5xl">
             Tips, guides & stories to help you <span className="text-hs-blue">score higher.</span>
           </h1>
-          <p className="mt-3 max-w-xl text-lg text-hs-muted">Exam strategy, study science and real student wins — straight from the HighScore team.</p>
+          <p className="mt-3 max-w-xl text-lg text-hs-muted">Exam strategy, study science and real student wins, straight from the HighScore team.</p>
         </Reveal>
       </section>
 

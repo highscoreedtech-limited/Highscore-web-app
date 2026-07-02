@@ -1,4 +1,4 @@
-// Realtime URLs — derive WebSocket endpoints from config + the endpoint registry.
+// Realtime URLs, derive WebSocket endpoints from config + the endpoint registry.
 import { WS_BASE } from "./config";
 import { Endpoints } from "./endpoints";
 

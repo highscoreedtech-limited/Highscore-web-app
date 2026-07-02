@@ -1,4 +1,4 @@
-// Centralised endpoint registry — mirrors the mobile app's api_endpoints.dart.
+// Centralised endpoint registry, mirrors the mobile app's api_endpoints.dart.
 // Keeping every path in one place removes magic strings from feature code and
 // makes backend contract changes a one-file edit.
 export const Endpoints = {

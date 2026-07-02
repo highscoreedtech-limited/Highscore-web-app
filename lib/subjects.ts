@@ -1,4 +1,4 @@
-// Local subject catalog — mirrors the mobile app's kSubjects (subject_data.dart).
+// Local subject catalog, mirrors the mobile app's kSubjects (subject_data.dart).
 // Header/summary metadata only; lessons/curriculum come later from the backend.
 
 export interface SubjectInfo {

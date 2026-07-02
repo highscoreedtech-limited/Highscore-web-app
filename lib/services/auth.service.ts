@@ -1,4 +1,4 @@
-// Auth service — wraps the /auth/* endpoints and owns the login/logout side
+// Auth service, wraps the /auth/* endpoints and owns the login/logout side
 // effects on the session store. Mirrors the mobile AuthNotifier.
 import { api } from "@/lib/api/http";
 import { Endpoints } from "@/lib/api/endpoints";

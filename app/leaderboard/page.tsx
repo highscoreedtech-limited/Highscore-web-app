@@ -39,7 +39,7 @@ export default function LeaderboardPage() {
       const mine = user?.id ? sorted.find((e) => e.user_id === user.id) : undefined;
       setMyRank(mine?.rank ?? rank?.rank ?? 0);
       // Show the SAME points as the board (total_score) so you spot yourself
-      // easily — not the spendable balance.
+      // easily, not the spendable balance.
       setMyPoints(mine?.total_score ?? rank?.total_score ?? pointsFromRank(rank));
     }).finally(() => active && setLoading(false));
     return () => { active = false; };
@@ -51,7 +51,7 @@ export default function LeaderboardPage() {
   const share = async () => {
     const msg = `I'm ranked #${myRank || 1} on the HighScore ${exam} leaderboard with ${myPoints} points! 💪 Think you can beat me? https://highscoreedtech.com`;
     if (navigator.share) { try { await navigator.share({ title: "My HighScore rank", text: msg }); } catch { /* cancelled */ } }
-    else { await navigator.clipboard.writeText(msg); toast.success("Rank copied — go flex!"); }
+    else { await navigator.clipboard.writeText(msg); toast.success("Rank copied, go flex!"); }
   };
 
   return (
@@ -86,7 +86,7 @@ export default function LeaderboardPage() {
         </div>
       </div>
 
-      {/* Rank levels — sliding tier strip */}
+      {/* Rank levels, sliding tier strip */}
       <LevelStrip myPoints={myPoints} />
 
       {/* List */}
@@ -96,7 +96,7 @@ export default function LeaderboardPage() {
         ) : entries.length === 0 ? (
           <div className="flex flex-col items-center py-16 text-center">
             <span className="text-5xl">🏆</span>
-            <p className="mt-3 text-sm font-semibold text-hs-muted">No entries yet — be the first to climb!</p>
+            <p className="mt-3 text-sm font-semibold text-hs-muted">No entries yet, be the first to climb!</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -112,7 +112,7 @@ export default function LeaderboardPage() {
       {/* Sticky "your rank" bar */}
       <div className="fixed bottom-0 left-1/2 w-full max-w-2xl -translate-x-1/2 border-t border-hs-border bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] lg:px-8">
         <div className="flex items-center gap-3">
-          <span className="w-12 text-center text-sm font-extrabold text-hs-blue">{myRank > 0 ? `#${myRank}` : "#—"}</span>
+          <span className="w-12 text-center text-sm font-extrabold text-hs-blue">{myRank > 0 ? `#${myRank}` : "#, "}</span>
           <span className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white" style={{ backgroundColor: user?.avatar_color || "#185FA5" }}>{myInitials}</span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-bold text-hs-navy">{myName} <span className="text-hs-muted">(you)</span></p>
@@ -201,7 +201,7 @@ function Row({ e }: { e: LeaderboardEntry }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-hs-navy">{fullName(e)}</p>
-        <p className="text-[11px] text-hs-muted">{e.state || "—"} · {e.badge}</p>
+        <p className="text-[11px] text-hs-muted">{e.state || ", "} · {e.badge}</p>
       </div>
       {isFirst && <span className="rounded-md bg-white px-1.5 py-0.5 text-[11px] font-bold text-hs-amberDark">top</span>}
       <span className="text-sm font-bold" style={{ color: isFirst ? "#854F0B" : "#042C53" }}>{e.total_score}</span>

@@ -1,4 +1,4 @@
-// CBT question bank — questions tagged by topic so students can pick which
+// CBT question bank, questions tagged by topic so students can pick which
 // topics to be tested on. Kept in sync with the mobile app (cbt_practice_screen).
 export interface CbtQuestion { q: string; opts: string[]; ans: number; topic: string }
 

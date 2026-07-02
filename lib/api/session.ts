@@ -1,4 +1,4 @@
-// Session store — the only module that touches token persistence.
+// Session store, the only module that touches token persistence.
 // SSR-safe (guards `window`). Keeps tokens in localStorage and mirrors a
 // non-sensitive `hs_auth` cookie so middleware can gate routes.
 import type { User } from "@/lib/domain/models";

@@ -10,7 +10,7 @@ const ARENA = "#0A1628";
 const AMBER = "#EF9F27";
 
 const SLIDES = [
-  { svg: "/onboarding/video.svg", title: "Video lessons\nfor every topic", subtitle: "Watch expert-taught videos on any subject, anytime — even offline." },
+  { svg: "/onboarding/video.svg", title: "Video lessons\nfor every topic", subtitle: "Watch expert-taught videos on any subject, anytime, even offline." },
   { svg: "/onboarding/gaming.svg", title: "Battle friends in\nlive quiz games", subtitle: "Challenge classmates to real-time quizzes and prove who's the champion." },
   { svg: "/onboarding/analytics.svg", title: "Track progress &\nclimb the rank", subtitle: "See exactly where you stand, earn streaks, and watch your score grow." },
 ];

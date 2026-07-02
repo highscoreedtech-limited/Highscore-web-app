@@ -9,12 +9,12 @@ const FILTERS = ["All", "JAMB Update", "Exam Tips", "Results", "General"] as con
 
 interface Article { title: string; category: string; date: string; color: string; excerpt: string; }
 const ARTICLES: Article[] = [
-  { title: "JAMB announces 2026 UTME registration dates", category: "JAMB Update", date: "Jun 22, 2026", color: "#185FA5", excerpt: "Registration opens next month — here's everything you need to prepare your documents and avoid last-minute rush." },
-  { title: "5 proven techniques to memorise faster", category: "Exam Tips", date: "Jun 18, 2026", color: "#7C3AED", excerpt: "Spaced repetition, active recall and more — the study science that actually moves your scores." },
+  { title: "JAMB announces 2026 UTME registration dates", category: "JAMB Update", date: "Jun 22, 2026", color: "#185FA5", excerpt: "Registration opens next month, here's everything you need to prepare your documents and avoid last-minute rush." },
+  { title: "5 proven techniques to memorise faster", category: "Exam Tips", date: "Jun 18, 2026", color: "#7C3AED", excerpt: "Spaced repetition, active recall and more, the study science that actually moves your scores." },
   { title: "WAEC releases May/June results", category: "Results", date: "Jun 12, 2026", color: "#059669", excerpt: "How to check your results online, what to do if there's a discrepancy, and next steps for admission." },
   { title: "How to stay calm on exam day", category: "General", date: "Jun 6, 2026", color: "#DC2626", excerpt: "Practical, science-backed ways to manage nerves so your preparation actually shows up in the hall." },
   { title: "NECO timetable: what changed this year", category: "Exam Tips", date: "May 30, 2026", color: "#7C3AED", excerpt: "Key date shifts and how to re-plan your revision schedule around them." },
-  { title: "Top scholarship opportunities for 2026", category: "General", date: "May 24, 2026", color: "#DC2626", excerpt: "Funding you can apply for right now — eligibility, deadlines and application tips." },
+  { title: "Top scholarship opportunities for 2026", category: "General", date: "May 24, 2026", color: "#DC2626", excerpt: "Funding you can apply for right now, eligibility, deadlines and application tips." },
 ];
 
 export default function NewsPage() {

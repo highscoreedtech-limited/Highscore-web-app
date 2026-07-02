@@ -64,7 +64,7 @@ export default function SubscribeTab() {
       <header className="bg-hs-navy px-4 pb-6 pt-5 lg:px-8 lg:pt-7">
         <div className="mx-auto max-w-2xl">
           <h1 className="text-xl font-bold text-white">Unlock subjects</h1>
-          <p className="mt-1.5 text-sm text-white/70">Pay only for the subjects you need — {naira(PRICE.weekly)}/week or {naira(PRICE.monthly)}/month each.</p>
+          <p className="mt-1.5 text-sm text-white/70">Pay only for the subjects you need, {naira(PRICE.weekly)}/week or {naira(PRICE.monthly)}/month each.</p>
         </div>
       </header>
 
@@ -143,7 +143,7 @@ export default function SubscribeTab() {
             className="flex h-12 items-center justify-center gap-2 rounded-full bg-hs-blue px-6 text-sm font-bold text-white disabled:opacity-50"
           >
             {loading ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              : <><Lock size={15} /> Unlock {picked.size > 0 ? `— ${naira(total)}` : "subjects"}</>}
+              : <><Lock size={15} /> Unlock {picked.size > 0 ? `,  ${naira(total)}` : "subjects"}</>}
           </button>
         </div>
         <p className="mx-auto mt-2 max-w-2xl text-center text-[11px] text-hs-muted md:text-left">Powered by Paystack · Secure payment</p>

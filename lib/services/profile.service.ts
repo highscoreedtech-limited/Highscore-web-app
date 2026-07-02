@@ -1,4 +1,4 @@
-// Profile service — read/update the current user.
+// Profile service, read/update the current user.
 import { api } from "@/lib/api/http";
 import { Endpoints } from "@/lib/api/endpoints";
 import { session } from "@/lib/api/session";

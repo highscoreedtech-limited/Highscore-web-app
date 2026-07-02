@@ -1,4 +1,4 @@
-// Payment service — Paystack initialize + verify.
+// Payment service, Paystack initialize + verify.
 import { api } from "@/lib/api/http";
 import { Endpoints } from "@/lib/api/endpoints";
 import type { PaymentInit } from "@/lib/domain/models";
