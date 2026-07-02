@@ -19,5 +19,30 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// No fetch interception — let every request go to the network as normal.
+// No fetch interception, let every request go to the network as normal.
 self.addEventListener("fetch", () => {});
+
+// Web push: show the notification even when the PWA is closed.
+self.addEventListener("push", (event) => {
+  let data = { title: "HighScore", body: "You have a new notification." };
+  try { if (event.data) data = event.data.json(); } catch (e) { /* keep default */ }
+  event.waitUntil(
+    self.registration.showNotification(data.title || "HighScore", {
+      body: data.body || "",
+      icon: "/icons/Icon-192.png",
+      badge: "/icons/Icon-192.png",
+      tag: "highscore",
+    })
+  );
+});
+
+// Tapping the notification focuses (or opens) the app.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list) { if ("focus" in c) return c.focus(); }
+      if (self.clients.openWindow) return self.clients.openWindow("/dashboard");
+    })
+  );
+});

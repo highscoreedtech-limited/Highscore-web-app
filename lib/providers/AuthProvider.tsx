@@ -12,6 +12,7 @@ import {
 } from "react";
 import { authApi, session, User } from "@/lib/api";
 import { realtime } from "@/lib/realtime/client";
+import { enableWebPush } from "@/lib/webpush";
 
 interface AuthContextValue {
   user: User | null;
@@ -82,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user?.id) return;
     realtime.connect(user.id);
+    enableWebPush(); // subscribe this browser to PWA push (no-op if unsupported)
     const off = realtime.on("profile_updated", (data) => {
       if (data && typeof data === "object" && data.id) {
         const fresh = data as User;
