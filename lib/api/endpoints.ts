@@ -39,6 +39,8 @@ export const Endpoints = {
   friends: {
     list: "/api/friends",
     add: "/api/friends/add",
+    requests: "/api/friends/requests",
+    respond: "/api/friends/respond",
   },
   referral: {
     code: "/api/referral/my-code",

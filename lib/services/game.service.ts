@@ -3,11 +3,22 @@ import { api } from "@/lib/api/http";
 import { Endpoints } from "@/lib/api/endpoints";
 import type { OnlineUser } from "@/lib/domain/models";
 
+export interface FriendRequest {
+  request_id: number;
+  id: string;
+  first_name: string;
+  last_name: string;
+  avatar_color?: string;
+}
+
 export const gameApi = {
   onlineUsers: () => api<OnlineUser[]>(Endpoints.users.online),
   friends: () => api<OnlineUser[]>(Endpoints.friends.list),
   searchUsers: (q: string) => api<OnlineUser[]>(`${Endpoints.users.search}?q=${encodeURIComponent(q)}`),
   addFriend: (userId: string) => api(Endpoints.friends.add, { method: "POST", body: { user_id: userId } }),
+  friendRequests: () => api<FriendRequest[]>(Endpoints.friends.requests),
+  respondFriendRequest: (requestId: number, accept: boolean) =>
+    api(Endpoints.friends.respond, { method: "POST", body: { request_id: requestId, accept } }),
   sendChallenge: (toUserId: string, subject: string) =>
     api(Endpoints.challenge.send, { method: "POST", body: { to_user_id: toUserId, subject } }),
   respondChallenge: (challengeId: string, accept: boolean) =>

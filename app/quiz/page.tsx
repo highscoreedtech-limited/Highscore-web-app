@@ -124,6 +124,14 @@ export default function QuizPage() {
     return () => off();
   }, [user?.id, startPvp]);
 
+  // Accepting a challenge navigates here with ?battle=1 — start the same seeded match.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get("battle") !== "1") return;
+    startPvp(p.get("opp") || "Opponent", p.get("subject") || "Mathematics", Number(p.get("seed")) || 0);
+    window.history.replaceState({}, "", "/quiz"); // clean the URL
+  }, [startPvp]);
+
   useEffect(() => {
     if (phase !== "countdown") return;
     if (count <= -1) { setPhase("battle"); return; }

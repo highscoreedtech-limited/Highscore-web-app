@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { gameApi, OnlineUser } from "@/lib/api";
+import type { FriendRequest } from "@/lib/services/game.service";
 
 const C = {
   surf: "#1A1210", surf2: "#241A17", brand: "#FF6624", brandDark: "#C03D27",
@@ -30,10 +31,11 @@ function uinit(u: OnlineUser) {
 }
 
 export default function FindPlayers({ subject, onBack }: { subject: string; onBack: () => void; }) {
-  const [tab, setTab] = useState<"online" | "friends">("online");
+  const [tab, setTab] = useState<"online" | "friends" | "requests">("online");
   const [query, setQuery] = useState("");
   const [online, setOnline] = useState<OnlineUser[]>([]);
   const [friends, setFriends] = useState<OnlineUser[]>([]);
+  const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [results, setResults] = useState<OnlineUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
@@ -41,10 +43,32 @@ export default function FindPlayers({ subject, onBack }: { subject: string; onBa
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    Promise.all([gameApi.onlineUsers().catch(() => []), gameApi.friends().catch(() => [])])
-      .then(([o, f]) => { setOnline(Array.isArray(o) ? o : []); setFriends(Array.isArray(f) ? f : []); })
+    Promise.all([
+      gameApi.onlineUsers().catch(() => []),
+      gameApi.friends().catch(() => []),
+      gameApi.friendRequests().catch(() => []),
+    ])
+      .then(([o, f, r]) => {
+        setOnline(Array.isArray(o) ? o : []);
+        setFriends(Array.isArray(f) ? f : []);
+        setRequests(Array.isArray(r) ? r : []);
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  const respondRequest = async (req: FriendRequest, accept: boolean) => {
+    setRequests((prev) => prev.filter((r) => r.request_id !== req.request_id));
+    try {
+      await gameApi.respondFriendRequest(req.request_id, accept);
+      const name = `${req.first_name} ${req.last_name}`.trim();
+      if (accept) {
+        toast.success(`${name} is now your friend! 🎉`);
+        gameApi.friends().then((f) => setFriends(Array.isArray(f) ? f : [])).catch(() => {});
+      } else {
+        toast(`Request declined.`);
+      }
+    } catch { toast.error("Could not respond to the request."); }
+  };
 
   const onSearch = (q: string) => {
     setQuery(q);
@@ -68,8 +92,8 @@ export default function FindPlayers({ subject, onBack }: { subject: string; onBa
   };
 
   const addFriend = async (u: OnlineUser) => {
-    try { await gameApi.addFriend(u.id); toast.success(`${uname(u)} added as friend! 🎉`); }
-    catch { toast.error("Could not add friend."); }
+    try { await gameApi.addFriend(u.id); toast.success(`Friend request sent to ${uname(u)} 👋`); }
+    catch { toast.error("Could not send request."); }
   };
 
   const list = query.trim() ? results : tab === "online" ? online : friends;
@@ -100,16 +124,46 @@ export default function FindPlayers({ subject, onBack }: { subject: string; onBa
       {/* Tabs (hidden while searching) */}
       {!query.trim() && (
         <div className="mt-3 flex rounded-xl p-1" style={{ backgroundColor: C.surf2 }}>
-          {(["online", "friends"] as const).map((t) => (
+          {(["online", "friends", "requests"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)} className="flex-1 rounded-[10px] py-2 text-xs font-bold"
               style={tab === t ? { backgroundColor: `${C.brand}33`, border: `1px solid ${C.brand}66`, color: C.brandLight } : { color: C.text2 }}>
-              {t === "online" ? "🌐  Online Now" : "👥  Friends"}
+              {t === "online" ? "🌐  Online" : t === "friends" ? "👥  Friends" : `📨  Requests${requests.length ? ` (${requests.length})` : ""}`}
             </button>
           ))}
         </div>
       )}
 
-      {/* List */}
+      {/* Requests list */}
+      {tab === "requests" && !query.trim() ? (
+        <div className="mt-4">
+          {loading ? (
+            <div className="flex justify-center py-10"><span className="h-7 w-7 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: `${C.brand} transparent ${C.brand} ${C.brand}` }} /></div>
+          ) : requests.length === 0 ? (
+            <div className="flex flex-col items-center py-12 text-center">
+              <span className="text-5xl">📭</span>
+              <p className="mt-3 text-sm font-semibold" style={{ color: C.text2 }}>No pending requests</p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {requests.map((r) => {
+                const name = `${r.first_name} ${r.last_name}`.trim() || "Someone";
+                const init = name.split(" ").map((w) => w[0] || "").slice(0, 2).join("").toUpperCase();
+                return (
+                  <div key={r.request_id} className="flex items-center gap-3 rounded-2xl p-3.5" style={{ backgroundColor: C.surf, border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="flex h-[46px] w-[46px] items-center justify-center rounded-[14px] text-base font-extrabold" style={{ backgroundColor: C.surf2, color: C.brandLight }}>{init}</div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold" style={{ color: C.text }}>{name}</p>
+                      <p className="text-[11px] font-semibold" style={{ color: C.text2 }}>wants to be your friend</p>
+                    </div>
+                    <button onClick={() => respondRequest(r, false)} className="flex h-9 w-9 items-center justify-center rounded-[10px]" style={{ backgroundColor: C.surf2, border: "1px solid rgba(255,255,255,0.08)", color: C.text2 }}>✕</button>
+                    <button onClick={() => respondRequest(r, true)} className="flex h-9 w-9 items-center justify-center rounded-[10px] font-extrabold text-white" style={{ backgroundColor: C.green }}>✓</button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      ) : (
       <div className="mt-4">
         {(loading || searching) ? (
           <div className="flex justify-center py-10"><span className="h-7 w-7 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: `${C.brand} transparent ${C.brand} ${C.brand}` }} /></div>
@@ -142,6 +196,7 @@ export default function FindPlayers({ subject, onBack }: { subject: string; onBa
           </div>
         )}
       </div>
+      )}
 
       {/* Waiting sheet */}
       <AnimatePresence>

@@ -13,6 +13,7 @@ import {
 import { authApi, session, User } from "@/lib/api";
 import { realtime } from "@/lib/realtime/client";
 import { enableWebPush } from "@/lib/webpush";
+import IncomingChallengeWatcher from "@/components/IncomingChallengeWatcher";
 
 interface AuthContextValue {
   user: User | null;
@@ -130,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{ user, loading, login, logout, setUser, refreshProfile }}
     >
       {children}
+      <IncomingChallengeWatcher />
     </AuthContext.Provider>
   );
 }
