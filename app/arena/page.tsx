@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ArrowLeft, Users, Copy, Check } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
 import { useAuth } from "../hooks/useAuth";
 import { api, gameApi, OnlineUser } from "@/lib/api";
@@ -41,7 +41,6 @@ export default function ArenaPage() {
   const [screen, setScreen] = useState<Screen>("entry");
   const [subject, setSubject] = useState(SUBJECTS[0]);
   const [code, setCode] = useState("");
-  const [joinCode, setJoinCode] = useState("");
   const [hostId, setHostId] = useState("");
   const [players, setPlayers] = useState<Player[]>([]);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -50,7 +49,6 @@ export default function ArenaPage() {
   const [answered, setAnswered] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(15);
-  const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [friends, setFriends] = useState<OnlineUser[]>([]);
 
@@ -135,16 +133,6 @@ export default function ArenaPage() {
     } catch { toast.error("Could not create the battle."); } finally { setBusy(false); }
   };
 
-  const join = async () => {
-    const c = joinCode.trim().toUpperCase();
-    if (c.length < 4) { toast.error("Enter a valid code."); return; }
-    setBusy(true);
-    try {
-      await api(`/api/arena/${c}`);
-      setCode(c); connect(c);
-    } catch { toast.error("Battle not found. Check the code."); } finally { setBusy(false); }
-  };
-
   const start = () => send({ type: "start" });
 
   // Load friends (to invite) and auto-join if arriving from an invite (?join=CODE).
@@ -174,7 +162,6 @@ export default function ArenaPage() {
   };
 
   const leave = () => { closeWs(); router.push("/quiz"); };
-  const copyCode = () => { navigator.clipboard.writeText(code).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); }).catch(() => {}); };
 
   const sorted = [...players].sort((a, b) => b.score - a.score);
   const isHost = hostId === myId;
@@ -204,14 +191,9 @@ export default function ArenaPage() {
               <button onClick={create} disabled={busy} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm font-extrabold text-white disabled:opacity-50" style={{ background: `linear-gradient(135deg,${C.brand},${C.brandDark})` }}><Users size={16} /> Create & invite friends</button>
             </div>
 
-            <div className="rounded-2xl p-4 sm:p-5" style={{ backgroundColor: C.surf }}>
-              <p className="text-xs font-bold" style={{ color: C.text2 }}>Got a code from a friend? Join here</p>
-              <div className="mt-2.5 flex gap-2">
-                <input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ENTER CODE" maxLength={5}
-                  className="min-w-0 flex-1 rounded-xl px-3 py-3 text-center text-base font-extrabold tracking-[0.25em] outline-none sm:text-lg sm:tracking-[0.3em]" style={{ backgroundColor: C.surf2, color: C.text }} />
-                <button onClick={join} disabled={busy} className="shrink-0 rounded-xl px-5 text-sm font-bold text-white disabled:opacity-50" style={{ backgroundColor: C.surf2, border: `1px solid ${C.brand}66`, color: C.brandLight }}>Join</button>
-              </div>
-            </div>
+            <p className="px-1 text-center text-xs leading-relaxed" style={{ color: C.text2 }}>
+              Invited to a battle? You&apos;ll get a request from your friend — just tap <span className="font-bold" style={{ color: C.brandLight }}>Join</span> when it pops up.
+            </p>
           </div>
         )}
 
@@ -222,7 +204,7 @@ export default function ArenaPage() {
             <p className="text-sm font-bold">Invite friends</p>
             <p className="mt-0.5 text-xs" style={{ color: C.text2 }}>Tap to send them straight into this battle.</p>
             {friends.length === 0 ? (
-              <p className="mt-3 rounded-xl p-3 text-xs" style={{ backgroundColor: C.surf, color: C.text2 }}>No friends yet. Add some from Find Players, or share the code below.</p>
+              <p className="mt-3 rounded-xl p-3 text-xs" style={{ backgroundColor: C.surf, color: C.text2 }}>No friends yet. Add some from Find Players, then invite them here.</p>
             ) : (
               <div className="mt-3 space-y-2">
                 {friends.map((f) => {
@@ -238,15 +220,11 @@ export default function ArenaPage() {
               </div>
             )}
 
-            {/* Share code — secondary fallback */}
-            <div className="mt-5 rounded-2xl p-4 text-center" style={{ backgroundColor: C.surf }}>
-              <p className="text-[11px] font-semibold" style={{ color: C.text2 }}>OR SHARE THIS CODE</p>
-              <button onClick={copyCode} className="mt-1.5 inline-flex items-center gap-2">
-                <span className="text-3xl font-black tracking-[0.25em] sm:text-4xl sm:tracking-[0.3em]" style={{ color: C.brandLight }}>{code}</span>
-                {copied ? <Check size={18} style={{ color: C.green }} /> : <Copy size={16} style={{ color: C.text2 }} />}
-              </button>
-              {count !== null && <p className="mt-2 text-lg font-extrabold" style={{ color: C.brand }}>{count > 0 ? `Starting in ${count}…` : "GO!"}</p>}
-            </div>
+            {count !== null && (
+              <div className="mt-5 rounded-2xl p-4 text-center" style={{ backgroundColor: C.surf }}>
+                <p className="text-lg font-extrabold" style={{ color: C.brand }}>{count > 0 ? `Starting in ${count}…` : "GO!"}</p>
+              </div>
+            )}
 
             <p className="mt-6 text-sm font-bold">In this battle ({players.length})</p>
             <div className="mt-3 space-y-2">

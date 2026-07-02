@@ -24,7 +24,7 @@ export default function IncomingChallengeWatcher() {
   const { user } = useAuth();
   const router = useRouter();
   const [inc, setInc] = useState<Incoming | null>(null);
-  const [arena, setArena] = useState<{ code: string; from: string; subject: string } | null>(null);
+  const [arena, setArena] = useState<{ code: string; from: string; subject: string; players: number } | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -39,7 +39,7 @@ export default function IncomingChallengeWatcher() {
       });
     });
     const offA = realtime.on("arena_invite", (d: Record<string, unknown>) => {
-      setArena({ code: String(d.code ?? ""), from: String(d.from_name ?? "A friend"), subject: String(d.subject ?? "Mathematics") });
+      setArena({ code: String(d.code ?? ""), from: String(d.from_name ?? "A friend"), subject: String(d.subject ?? "Mathematics"), players: Number(d.players) || 1 });
     });
     return () => { off(); offA(); };
   }, [user?.id]);
@@ -90,11 +90,14 @@ export default function IncomingChallengeWatcher() {
             transition={{ type: "spring", stiffness: 260, damping: 18 }}
           >
             <span className="text-5xl">⚔️</span>
-            <p className="mt-3 text-xl font-extrabold">Battle invite!</p>
-            <p className="mt-1.5 text-sm text-[#A08070]">
-              <span className="font-bold text-[#FF9A62]">{inc.from_name}</span> challenged you to a{" "}
-              <span className="font-bold text-white">{inc.subject}</span> quiz battle.
+            <p className="mt-3 text-xl font-extrabold">
+              <span className="text-[#FF9A62]">{inc.from_name}</span> challenged you
             </p>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              <span className="rounded-full bg-[#FF6624]/20 px-3 py-1 text-xs font-bold text-[#FF9A62]">⚔️ 1v1 Duel</span>
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">{inc.subject}</span>
+            </div>
+            <p className="mt-3 text-xs text-[#A08070]">Head-to-head, fastest correct answer advances.</p>
             <div className="mt-6 flex gap-3">
               <button onClick={decline} className="flex-1 rounded-full bg-white/10 py-3 text-sm font-bold text-[#A08070]">Decline</button>
               <button onClick={accept} className="flex-1 rounded-full py-3 text-sm font-extrabold text-white" style={{ background: "linear-gradient(135deg,#FF6624,#C03D27)" }}>Accept ⚔️</button>
@@ -114,11 +117,15 @@ export default function IncomingChallengeWatcher() {
             transition={{ type: "spring", stiffness: 260, damping: 18 }}
           >
             <span className="text-5xl">👥</span>
-            <p className="mt-3 text-xl font-extrabold">Group battle invite!</p>
-            <p className="mt-1.5 text-sm text-[#A08070]">
-              <span className="font-bold text-[#FF9A62]">{arena.from}</span> invited you to a{" "}
-              <span className="font-bold text-white">{arena.subject}</span> group battle.
+            <p className="mt-3 text-xl font-extrabold">
+              <span className="text-[#FF9A62]">{arena.from}</span> invited you
             </p>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+              <span className="rounded-full bg-[#0EA5E9]/20 px-3 py-1 text-xs font-bold text-[#7DD3FC]">👥 Group Battle</span>
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">{arena.subject}</span>
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-[#A08070]">{arena.players} in{arena.players >= 8 ? " (full)" : ""}</span>
+            </div>
+            <p className="mt-3 text-xs text-[#A08070]">Accept to join the lobby before it starts.</p>
             <div className="mt-6 flex gap-3">
               <button onClick={() => setArena(null)} className="flex-1 rounded-full bg-white/10 py-3 text-sm font-bold text-[#A08070]">Later</button>
               <button onClick={() => { const a = arena; setArena(null); router.push(`/arena?join=${a.code}`); }} className="flex-1 rounded-full py-3 text-sm font-extrabold text-white" style={{ background: "linear-gradient(135deg,#0EA5E9,#2563EB)" }}>Join 👥</button>
