@@ -50,8 +50,13 @@ export default function IncomingChallengeWatcher() {
     const c = inc;
     setInc(null);
     try { await gameApi.respondChallenge(c.challenge_id, true); } catch { /* ignore */ }
-    // Both players run the same seeded battle.
-    router.push(`/quiz?battle=1&seed=${c.seed}&subject=${encodeURIComponent(c.subject)}&opp=${encodeURIComponent(c.from_name)}`);
+    // Hand the battle off to the quiz page: sessionStorage covers a fresh mount,
+    // the window event covers already being on /quiz (same-route nav won't remount).
+    const detail = { seed: c.seed, subject: c.subject, opp: c.from_name };
+    try { sessionStorage.setItem("hs_pending_battle", JSON.stringify(detail)); } catch { /* ignore */ }
+    router.push("/quiz");
+    // Fire after navigation so an already-mounted quiz page picks it up.
+    setTimeout(() => window.dispatchEvent(new CustomEvent("hs:start-battle", { detail })), 60);
   };
 
   const decline = async () => {

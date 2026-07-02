@@ -124,12 +124,23 @@ export default function QuizPage() {
     return () => off();
   }, [user?.id, startPvp]);
 
-  // Accepting a challenge navigates here with ?battle=1 — start the same seeded match.
+  // When THIS user accepts a challenge, start the same seeded battle. The intent
+  // is handed off via sessionStorage (covers a fresh /quiz mount) AND a live
+  // window event (covers already being on /quiz — same-route nav won't remount).
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search);
-    if (p.get("battle") !== "1") return;
-    startPvp(p.get("opp") || "Opponent", p.get("subject") || "Mathematics", Number(p.get("seed")) || 0);
-    window.history.replaceState({}, "", "/quiz"); // clean the URL
+    const start = (d: { seed?: unknown; subject?: unknown; opp?: unknown }) => {
+      startPvp(String(d.opp || "Opponent"), String(d.subject || "Mathematics"), Number(d.seed) || 0);
+    };
+    try {
+      const raw = sessionStorage.getItem("hs_pending_battle");
+      if (raw) { sessionStorage.removeItem("hs_pending_battle"); start(JSON.parse(raw)); }
+    } catch { /* ignore */ }
+    const onStart = (e: Event) => {
+      sessionStorage.removeItem("hs_pending_battle");
+      start((e as CustomEvent).detail || {});
+    };
+    window.addEventListener("hs:start-battle", onStart);
+    return () => window.removeEventListener("hs:start-battle", onStart);
   }, [startPvp]);
 
   useEffect(() => {
