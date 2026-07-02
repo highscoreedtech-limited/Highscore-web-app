@@ -12,6 +12,7 @@ interface Incoming {
   from_name: string;
   subject: string;
   seed: number;
+  room_code: string;
 }
 
 /**
@@ -33,6 +34,7 @@ export default function IncomingChallengeWatcher() {
         from_name: String(d.from_name ?? "Someone"),
         subject: String(d.subject ?? "Mathematics"),
         seed: Number(d.seed) || 0,
+        room_code: String(d.room_code ?? ""),
       });
     });
     return () => off();
@@ -52,7 +54,7 @@ export default function IncomingChallengeWatcher() {
     try { await gameApi.respondChallenge(c.challenge_id, true); } catch { /* ignore */ }
     // Hand the battle off to the quiz page: sessionStorage covers a fresh mount,
     // the window event covers already being on /quiz (same-route nav won't remount).
-    const detail = { seed: c.seed, subject: c.subject, opp: c.from_name };
+    const detail = { seed: c.seed, subject: c.subject, opp: c.from_name, roomCode: c.room_code };
     try { sessionStorage.setItem("hs_pending_battle", JSON.stringify(detail)); } catch { /* ignore */ }
     router.push("/quiz");
     // Fire after navigation so an already-mounted quiz page picks it up.

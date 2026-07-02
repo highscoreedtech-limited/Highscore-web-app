@@ -80,12 +80,17 @@ export default function QuizPage() {
   const [claiming, setClaiming] = useState(false);
   const [didClaim, setDidClaim] = useState(false);
 
+  // Live PvP over the shared room WebSocket (server drives advance + scores).
+  const wsRef = useRef<WebSocket | null>(null);
+  const isPvpRef = useRef(false);
+  const closeRoom = () => { try { wsRef.current?.close(); } catch { /* ignore */ } wsRef.current = null; };
+
   const clearTimers = () => {
     if (gameTimer.current) clearInterval(gameTimer.current);
     if (oppTimer.current) clearTimeout(oppTimer.current);
     gameTimer.current = null; oppTimer.current = null;
   };
-  useEffect(() => () => clearTimers(), []);
+  useEffect(() => () => { clearTimers(); closeRoom(); }, []);
 
   // Mark the daily "play a quiz" goal once the battle reaches its result.
   useEffect(() => { if (phase === "result") markGoal("quiz"); }, [phase]);
@@ -99,19 +104,58 @@ export default function QuizPage() {
   };
 
   const startSolo = () => {
+    isPvpRef.current = false; closeRoom();
     setOppName("CPU");
     setQuestions(shuffle(QUIZ_BANK[subject]).slice(0, 10));
     resetGame();
   };
 
   // Start a real match when an opponent accepts your challenge (via presence WS).
-  const startPvp = useCallback((opponentName: string, subj: string, seed: number) => {
+  // Connect to the live room; the server owns the countdown, advancement and
+  // score exchange so both players stay perfectly in sync.
+  const connectRoom = useCallback((code: string, role: "host" | "guest") => {
+    closeRoom();
+    const ws = new WebSocket(
+      `wss://highscore-mobile-production.up.railway.app/ws/rooms/${code}?role=${role}&name=${encodeURIComponent(myName)}`
+    );
+    wsRef.current = ws;
+    ws.onmessage = (ev) => {
+      let m: { type?: string; value?: number; qi?: number; correct?: boolean; opp_score?: number };
+      try { m = JSON.parse(ev.data as string); } catch { return; }
+      switch (m.type) {
+        case "countdown": setCount(Number(m.value)); break;
+        case "game_start": setCount(-1); setPhase("battle"); break;
+        case "opp_answered":
+          setOppAnswered(true); setOppCorrect(!!m.correct);
+          if (typeof m.opp_score === "number") setOppScore(m.opp_score);
+          if (m.correct) { setFlash("opp"); setTimeout(() => setFlash(null), 450); }
+          break;
+        case "next_question":
+          if (gameTimer.current) clearInterval(gameTimer.current);
+          setCurrentQ(Number(m.qi));
+          break;
+        case "game_over":
+          if (gameTimer.current) clearInterval(gameTimer.current);
+          setPhase("result");
+          break;
+        case "opp_left":
+          if (gameTimer.current) clearInterval(gameTimer.current);
+          setPhase("result");
+          break;
+      }
+    };
+    ws.onclose = () => { if (wsRef.current === ws) wsRef.current = null; };
+  }, [myName]);
+
+  const startPvp = useCallback((opponentName: string, subj: string, seed: number, roomCode?: string, role: "host" | "guest" = "host") => {
     const bank = QUIZ_BANK[subj] || QUIZ_BANK[Object.keys(QUIZ_BANK)[0]];
     setSubject(subj);
     setOppName(opponentName || "Opponent");
     setQuestions(seededShuffle(bank, seed).slice(0, 10));
+    if (roomCode) { isPvpRef.current = true; connectRoom(roomCode, role); }
+    else { isPvpRef.current = false; closeRoom(); }
     resetGame();
-  }, []);
+  }, [connectRoom]);
 
   // Listen for the opponent accepting the challenge over the SHARED realtime
   // socket (same connection used for profile sync), no second WebSocket.
@@ -119,7 +163,7 @@ export default function QuizPage() {
     if (!user?.id) return;
     realtime.connect(user.id);
     const off = realtime.on("challenge_accepted", (d) => {
-      startPvp(d.from_name || d.to_name || "Opponent", d.subject || "Mathematics", Number(d.seed) || 0);
+      startPvp(d.from_name || d.to_name || "Opponent", d.subject || "Mathematics", Number(d.seed) || 0, d.room_code, "host");
     });
     return () => off();
   }, [user?.id, startPvp]);
@@ -128,8 +172,9 @@ export default function QuizPage() {
   // is handed off via sessionStorage (covers a fresh /quiz mount) AND a live
   // window event (covers already being on /quiz — same-route nav won't remount).
   useEffect(() => {
-    const start = (d: { seed?: unknown; subject?: unknown; opp?: unknown }) => {
-      startPvp(String(d.opp || "Opponent"), String(d.subject || "Mathematics"), Number(d.seed) || 0);
+    const start = (d: { seed?: unknown; subject?: unknown; opp?: unknown; roomCode?: unknown }) => {
+      const code = d.roomCode ? String(d.roomCode) : undefined;
+      startPvp(String(d.opp || "Opponent"), String(d.subject || "Mathematics"), Number(d.seed) || 0, code, "guest");
     };
     try {
       const raw = sessionStorage.getItem("hs_pending_battle");
@@ -145,6 +190,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (phase !== "countdown") return;
+    if (isPvpRef.current) return; // server drives the PvP countdown over the room WS
     if (count <= -1) { setPhase("battle"); return; }
     const t = setTimeout(() => setCount((c) => c - 1), 850);
     return () => clearTimeout(t);
@@ -160,18 +206,21 @@ export default function QuizPage() {
       setTimeLeft((t) => { if (t <= 1) { return 0; } return t - 1; });
     }, 1000);
 
-    // Simulated AI opponent: answers at a random time with ~62% accuracy.
-    const delay = 2000 + Math.random() * 7000;
-    oppTimer.current = setTimeout(() => {
-      setCurrentQ((qi) => {
-        const ok = Math.random() < 0.62;
-        const remain = Math.max(0, 15 - Math.round(delay / 1000));
-        const bonus = remain >= 10 ? 50 : remain >= 5 ? 25 : 0;
-        if (ok) { setOppScore((s) => s + 100 + bonus); setFlash("opp"); setTimeout(() => setFlash(null), 450); }
-        setOppAnswered(true); setOppCorrect(ok);
-        return qi;
-      });
-    }, delay);
+    // Solo only: simulated AI opponent. In PvP the real opponent's answers
+    // arrive over the room WebSocket (opp_answered).
+    if (!isPvpRef.current) {
+      const delay = 2000 + Math.random() * 7000;
+      oppTimer.current = setTimeout(() => {
+        setCurrentQ((qi) => {
+          const ok = Math.random() < 0.62;
+          const remain = Math.max(0, 15 - Math.round(delay / 1000));
+          const bonus = remain >= 10 ? 50 : remain >= 5 ? 25 : 0;
+          if (ok) { setOppScore((s) => s + 100 + bonus); setFlash("opp"); setTimeout(() => setFlash(null), 450); }
+          setOppAnswered(true); setOppCorrect(ok);
+          return qi;
+        });
+      }, delay);
+    }
   }, []);
 
   // Single deterministic loader: fires once when the battle starts (currentQ 0)
@@ -217,7 +266,12 @@ export default function QuizPage() {
     correctArr.current.push(ok); ptsArr.current.push(earned); timesArr.current.push(elapsed);
     if (ok) showFeedback("✅", "Correct!", `+${earned} pts${bonus > 0 ? " (speed bonus!)" : ""}`);
     else showFeedback("❌", "Wrong!", `Correct was ${KEYS[correctIdx]}`);
-    setTimeout(advance, 1800);
+    if (isPvpRef.current) {
+      // Server advances the whole room (first correct answer / both / timeout).
+      try { wsRef.current?.send(JSON.stringify({ type: "answer", qi: currentQ, correct: ok, pts: earned })); } catch { /* ignore */ }
+    } else {
+      setTimeout(advance, 1800);
+    }
   };
 
   const timeOut = () => {
@@ -225,7 +279,11 @@ export default function QuizPage() {
     setAnswered(true); setSelectedIdx(null); setStreak(0);
     correctArr.current.push(false); ptsArr.current.push(0); timesArr.current.push(15);
     showFeedback("⏱️", "Time's up!", "");
-    setTimeout(advance, 1800);
+    if (isPvpRef.current) {
+      try { wsRef.current?.send(JSON.stringify({ type: "answer", qi: currentQ, correct: false, pts: 0 })); } catch { /* ignore */ }
+    } else {
+      setTimeout(advance, 1800);
+    }
   };
 
   return (
