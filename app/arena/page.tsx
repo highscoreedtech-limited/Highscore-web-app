@@ -121,8 +121,16 @@ export default function ArenaPage() {
     closeWs();
     const ws = new WebSocket(`${WS}/ws/arena/${arenaCode}?user_id=${encodeURIComponent(myId)}&name=${encodeURIComponent(myName)}`);
     wsRef.current = ws;
-    ws.onmessage = (ev) => { try { handle(JSON.parse(ev.data as string)); } catch { /* ignore */ } };
-    ws.onclose = () => { if (wsRef.current === ws) wsRef.current = null; };
+    let joined = false;
+    ws.onmessage = (ev) => {
+      try { const m = JSON.parse(ev.data as string); if (m?.type === "lobby") joined = true; handle(m); } catch { /* ignore */ }
+    };
+    ws.onclose = () => {
+      if (wsRef.current === ws) wsRef.current = null;
+      if (!joined) toast.error("Could not join the battle. It may have ended — ask your friend to invite you again.");
+    };
+    // If no lobby arrives, the socket failed silently (arena gone or on another server).
+    setTimeout(() => { if (wsRef.current === ws && !joined) { toast.error("Battle not found. Ask your friend to invite you again."); closeWs(); } }, 6000);
   }, [myId, myName, handle]);
 
   const create = async () => {
