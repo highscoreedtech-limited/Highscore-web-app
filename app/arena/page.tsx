@@ -51,6 +51,7 @@ export default function ArenaPage() {
   const [timeLeft, setTimeLeft] = useState(15);
   const [busy, setBusy] = useState(false);
   const [friends, setFriends] = useState<OnlineUser[]>([]);
+  const [invited, setInvited] = useState<Set<string>>(new Set());
 
   const wsRef = useRef<WebSocket | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -153,8 +154,10 @@ export default function ArenaPage() {
   }, [myId, connect]);
 
   const invite = async (u: OnlineUser) => {
+    if (invited.has(u.id)) return; // guard against double taps
+    setInvited((s) => new Set(s).add(u.id));
     try { await gameApi.arenaInvite(code, u.id); toast.success(`Invited ${u.first_name || "friend"} 👋`); }
-    catch { toast.error("Could not invite."); }
+    catch { setInvited((s) => { const n = new Set(s); n.delete(u.id); return n; }); toast.error("Could not invite."); }
   };
 
   const pick = (idx: number) => {
@@ -216,12 +219,14 @@ export default function ArenaPage() {
             ) : (
               <div className="mt-3 space-y-2">
                 {friends.map((f) => {
-                  const already = players.some((p) => p.id === f.id);
+                  const joined = players.some((p) => p.id === f.id);
+                  const already = joined || invited.has(f.id);
+                  const label = joined ? "Joined" : invited.has(f.id) ? "Invited" : "Invite";
                   return (
                     <div key={f.id} className="flex items-center gap-3 rounded-xl p-2.5" style={{ backgroundColor: C.surf }}>
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold" style={{ backgroundColor: C.surf2, color: C.brandLight }}>{(f.first_name || "?")[0]?.toUpperCase()}</span>
                       <span className="min-w-0 flex-1 truncate text-sm font-semibold">{`${f.first_name ?? ""} ${f.last_name ?? ""}`.trim() || "Friend"}</span>
-                      <button onClick={() => !already && invite(f)} disabled={already} className="shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold" style={already ? { backgroundColor: C.surf2, color: C.text2 } : { backgroundColor: `${C.brand}33`, color: C.brandLight, border: `1px solid ${C.brand}66` }}>{already ? "Joined" : "Invite"}</button>
+                      <button onClick={() => !already && invite(f)} disabled={already} className="shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold" style={already ? { backgroundColor: C.surf2, color: C.text2 } : { backgroundColor: `${C.brand}33`, color: C.brandLight, border: `1px solid ${C.brand}66` }}>{label}</button>
                     </div>
                   );
                 })}
