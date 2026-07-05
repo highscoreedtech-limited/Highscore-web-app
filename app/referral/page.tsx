@@ -1,19 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { ArrowLeft, Copy, Check, Share2, Users, Coins } from "lucide-react";
+import { ArrowLeft, Copy, Check, Share2, Users, Coins, Lock } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { referralApi } from "@/lib/api";
-import LottieIcon from "@/components/LottieIcon";
+import Asset3D from "@/components/Asset3D";
 
 const STEPS = [
   { n: 1, title: "Share your code", desc: "Send your code to friends via WhatsApp, social media, or wherever." },
   { n: 2, title: "Friend signs up", desc: "Your friend creates an account and enters your referral code." },
   { n: 3, title: "You both earn", desc: "When they verify their email, you both get 100 points instantly." },
 ];
+
+const TIERS = [
+  { n: 1, pts: 10 }, { n: 5, pts: 250 }, { n: 10, pts: 500 },
+  { n: 25, pts: 1000 }, { n: 50, pts: 2500 },
+];
+
+function MilestoneRail({ referrals }: { referrals: number }) {
+  const nextIdx = TIERS.findIndex((t) => referrals < t.n);
+  const next = nextIdx === -1 ? null : TIERS[nextIdx];
+  const remaining = next ? next.n - referrals : 0;
+
+  return (
+    <div className="mt-4 rounded-3xl border border-hs-border bg-[#F3F7FF] p-5 shadow-[0_18px_40px_-16px_rgba(15,40,80,0.18)]">
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <p className="text-sm font-extrabold text-hs-navy">Next Milestone Reward</p>
+          <p className="mt-1 text-xs text-hs-muted">
+            {next
+              ? `Refer ${remaining} more friend${remaining === 1 ? "" : "s"} to unlock ${next.pts} pts bonus!`
+              : "All milestones unlocked. Legend! 👑"}
+          </p>
+        </div>
+        <Asset3D name="gift_purple" fallback="🎁" size={56} float={false} />
+      </div>
+
+      <div className="mt-4 flex items-start">
+        {TIERS.map((t, i) => {
+          const done = referrals >= t.n;
+          const isNext = !!next && t.n === next.n;
+          return (
+            <Fragment key={t.n}>
+              {i > 0 && (
+                <div className={`mt-[18px] h-[3px] flex-1 ${referrals >= t.n ? "bg-green-500" : "bg-[#D9E2F0]"}`} />
+              )}
+              <div className="flex w-10 flex-col items-center">
+                <div className={`flex h-9 w-9 items-center justify-center rounded-full ${done ? "bg-green-500" : isNext ? "bg-hs-blue" : "bg-[#E6ECF6]"}`}>
+                  {done ? <Check size={16} className="text-white" /> : isNext ? <Users size={15} className="text-white" /> : <Lock size={14} className="text-[#9AA8BF]" />}
+                </div>
+                <span className={`mt-1 text-[11px] font-extrabold ${done || isNext ? "text-hs-navy" : "text-hs-muted"}`}>{t.n}</span>
+                <span className="text-[9px] text-hs-muted">{t.pts} pts</span>
+              </div>
+            </Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function ReferralPage() {
   const router = useRouter();
@@ -73,25 +121,32 @@ export default function ReferralPage() {
             <button onClick={() => router.push("/dashboard")} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white" aria-label="Back">
               <ArrowLeft size={16} />
             </button>
-            <h1 className="text-lg font-bold text-white">Refer & Earn</h1>
-            <div className="ml-auto h-16 w-16"><LottieIcon src="/lottie/refer-and-earn.json" className="h-16 w-16" fallback={<Users className="text-hs-amber" />} /></div>
+            <h1 className="text-lg font-bold text-white">Refer &amp; Earn</h1>
           </div>
-          <h2 className="mt-3 text-2xl font-extrabold leading-tight text-white">Invite friends,<br />earn free points!</h2>
-          <p className="mt-2 text-sm text-[#B8CCE0]">Share your code, when a friend signs up and verifies, you both earn 100 pts.</p>
+          <div className="mt-3 flex items-center gap-3">
+            <div className="flex-1">
+              <h2 className="text-2xl font-extrabold leading-tight text-white">Invite friends,<br />earn free points!</h2>
+              <p className="mt-2 text-sm text-[#B8CCE0]">Share your code — when a friend signs up and verifies, you both earn 100 pts.</p>
+            </div>
+            {/* 3D hero — drops in /public/3d/gift.png when available. */}
+            <Asset3D name="gift" fallback="🎁" size={112} />
+          </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-2xl px-4 lg:px-8">
         {/* Code card */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="-mt-6 rounded-2xl border border-hs-border bg-white p-5 shadow-sm">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="-mt-6 rounded-3xl border border-hs-border bg-white p-5 shadow-[0_18px_40px_-12px_rgba(15,40,80,0.20)]">
           <p className="text-center text-[11px] font-bold uppercase tracking-wide text-hs-muted">Your referral code</p>
-          <p className="mt-2 text-center text-3xl font-extrabold tracking-[0.2em] text-hs-navy">{code}</p>
+          <div className="mt-2 rounded-2xl border-2 border-dashed border-hs-blue/30 bg-hs-blueTint/40 py-3">
+            <p className="text-center text-3xl font-extrabold tracking-[0.25em] text-hs-blue">{code}</p>
+          </div>
           <div className="mt-4 flex gap-2.5">
-            <button onClick={copy} className={`flex flex-1 items-center justify-center gap-2 rounded-xl border py-3 text-sm font-semibold ${copied ? "border-green-500 bg-green-50 text-green-600" : "border-hs-border bg-white text-hs-navy"}`}>
+            <button onClick={copy} className={`flex flex-1 items-center justify-center gap-2 rounded-xl border py-3 text-sm font-semibold transition ${copied ? "border-green-500 bg-green-50 text-green-600" : "border-hs-border bg-white text-hs-navy hover:bg-hs-bg"}`}>
               {copied ? <Check size={16} /> : <Copy size={16} />} {copied ? "Copied!" : "Copy code"}
             </button>
-            <button onClick={share} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-hs-blue py-3 text-sm font-semibold text-white">
-              <Share2 size={16} /> Share
+            <button onClick={share} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#2F6BFF] to-[#1D4ED8] py-3 text-sm font-semibold text-white shadow-[0_10px_22px_-6px_rgba(29,78,216,0.6)] transition hover:brightness-110">
+              <Share2 size={16} /> Share Now
             </button>
           </div>
 
@@ -121,6 +176,9 @@ export default function ReferralPage() {
             <p className="text-xs text-hs-muted">Points earned</p>
           </div>
         </div>
+
+        {/* Next milestone reward rail */}
+        <MilestoneRail referrals={count} />
 
         {/* How it works */}
         <p className="mt-6 text-sm font-bold text-hs-navy">How it works</p>
