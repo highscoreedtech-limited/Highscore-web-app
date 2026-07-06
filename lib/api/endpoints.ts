@@ -45,6 +45,7 @@ export const Endpoints = {
   referral: {
     code: "/api/referral/my-code",
     stats: "/api/referral/stats",
+    leaderboard: "/api/referral/leaderboard",
   },
   payment: {
     initialize: "/api/payment/initialize",

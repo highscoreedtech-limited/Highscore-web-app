@@ -4,9 +4,10 @@ import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { ArrowLeft, Copy, Check, Share2, Users, Coins, Lock } from "lucide-react";
+import { ArrowLeft, Copy, Check, Share2, Users, Coins, Lock, ChevronRight } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { referralApi } from "@/lib/api";
+import type { TopReferrer } from "@/lib/services/referral.service";
 import Asset3D from "@/components/Asset3D";
 
 const STEPS = [
@@ -77,11 +78,14 @@ export default function ReferralPage() {
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [origin, setOrigin] = useState("https://highscoreedtech.com");
+  const [leaders, setLeaders] = useState<TopReferrer[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined") setOrigin(window.location.origin);
     let active = true;
     referralApi.get().then((s) => { if (active) setStats(s); }).catch(() => {});
+    referralApi.leaderboard().then((l) => { if (active) setLeaders(l); }).catch(() => {});
+    return () => { active = false; };
   }, []);
 
   // Shareable invite link, pre-fills the referral code at signup.
@@ -125,8 +129,13 @@ export default function ReferralPage() {
           </div>
           <div className="mt-3 flex items-center gap-3">
             <div className="flex-1">
-              <h2 className="text-2xl font-extrabold leading-tight text-white">Invite friends,<br />earn free points!</h2>
-              <p className="mt-2 text-sm text-[#B8CCE0]">Share your code — when a friend signs up and verifies, you both earn 100 pts.</p>
+              <h2 className="text-2xl font-extrabold leading-tight text-white">
+                Invite <span className="text-hs-amber">friends</span>,<br />earn <span className="text-hs-amber">free points!</span>
+              </h2>
+              <p className="mt-2 text-sm text-[#B8CCE0]">
+                Share your code — when a friend signs up and verifies, you both earn{" "}
+                <span className="font-bold text-hs-amber">100 pts</span>.
+              </p>
             </div>
             {/* 3D hero — drops in /public/3d/gift.png when available. */}
             <Asset3D name="gift" fallback="🎁" size={112} />
@@ -193,6 +202,38 @@ export default function ReferralPage() {
             </div>
           ))}
         </div>
+
+        {/* Top referrers */}
+        {leaders.length > 0 && (
+          <div className="mt-4 rounded-3xl border border-hs-border bg-[#FFF9EC] p-4 shadow-[0_18px_40px_-16px_rgba(80,60,15,0.15)]">
+            <div className="flex items-center justify-between">
+              <p className="flex items-center gap-1.5 text-sm font-extrabold text-hs-navy">🏆 Top Referrers</p>
+              <button onClick={() => router.push("/leaderboard")} className="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-hs-navy shadow-sm">
+                View Leaderboard <ChevronRight size={13} />
+              </button>
+            </div>
+            <div className="mt-3 space-y-2">
+              {leaders.slice(0, 3).map((l, i) => {
+                const medal = ["🥇", "🥈", "🥉"][i] ?? `${i + 1}`;
+                const nm = `${l.first_name ?? ""} ${(l.last_name ?? "").charAt(0)}${l.last_name ? "." : ""}`.trim() || "Student";
+                return (
+                  <div key={l.id} className="flex items-center gap-3 rounded-2xl bg-white p-2.5">
+                    <span className="w-5 text-center text-base">{medal}</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white" style={{ backgroundColor: l.avatar_color || "#2563EB" }}>
+                      {(l.first_name || "?").charAt(0).toUpperCase()}
+                    </span>
+                    <span className="flex-1 truncate text-sm font-semibold text-hs-navy">{nm}</span>
+                    <span className="text-xs font-bold text-hs-blue">{l.referral_count} referrals</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <p className="mt-4 flex items-center gap-1.5 text-center text-[11px] text-hs-muted">
+          <span>ℹ️</span> Points never expire. Keep inviting and keep earning!
+        </p>
       </div>
     </div>
   );

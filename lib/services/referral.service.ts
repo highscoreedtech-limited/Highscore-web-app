@@ -6,7 +6,25 @@ import { Endpoints } from "@/lib/api/endpoints";
 import { session } from "@/lib/api/session";
 import type { ReferralStats } from "@/lib/domain/models";
 
+export interface TopReferrer {
+  id: string;
+  first_name: string;
+  last_name: string;
+  avatar_color?: string;
+  avatar_url?: string;
+  referral_count: number;
+}
+
 export const referralApi = {
+  async leaderboard(): Promise<TopReferrer[]> {
+    try {
+      const res = await api<{ leaders?: TopReferrer[] }>(Endpoints.referral.leaderboard);
+      return res?.leaders ?? [];
+    } catch {
+      return [];
+    }
+  },
+
   async get(): Promise<ReferralStats> {
     const user = session.getUser();
     const fallback: ReferralStats = {
