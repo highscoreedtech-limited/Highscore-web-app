@@ -34,6 +34,7 @@ export interface LeaderboardEntry {
   state: string;
   badge: string;
   avatar_color: string;
+  avatar_url?: string;
 }
 
 export interface OnlineUser {

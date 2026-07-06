@@ -148,7 +148,7 @@ export default function LeaderboardPage() {
                         : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}>
                       {center && <span className="absolute -top-4 text-2xl">👑</span>}
                       <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold ring-1 ring-white/20">{place}</span>
-                      <span className={`flex items-center justify-center rounded-full font-extrabold text-white ${center ? "h-16 w-16 text-xl" : "h-12 w-12"}`} style={{ backgroundColor: e.avatar_color || "#2563EB" }}>{e.initials || fullName(e)[0]}</span>
+                      <Avatar url={e.avatar_url} color={e.avatar_color} initials={e.initials || fullName(e)[0]} size={center ? 64 : 48} />
                       <p className={`mt-2 truncate text-center font-bold ${center ? "text-sm" : "text-[13px]"}`}>{fullName(e)}</p>
                       <p className="text-[10px]" style={{ color: tier.color }}>{tier.emoji} {tier.name}</p>
                       <p className={`mt-0.5 font-extrabold ${center ? "text-hs-amber" : "text-white/90"}`}>{e.total_score.toLocaleString()} <span className="text-[10px] font-medium text-white/50">pts</span></p>
@@ -166,7 +166,7 @@ export default function LeaderboardPage() {
                   <motion.div key={`${e.rank}-${i}`} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(i * 0.02, 0.3) }}
                     className="flex items-center gap-3 rounded-2xl bg-white/[0.04] px-3 py-2.5 ring-1 ring-white/[0.06]">
                     <span className="w-5 text-center text-sm font-bold text-white/70">{e.rank}</span>
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white" style={{ backgroundColor: e.avatar_color || "#2563EB" }}>{e.initials || fullName(e)[0]}</span>
+                    <Avatar url={e.avatar_url} color={e.avatar_color} initials={e.initials || fullName(e)[0]} size={36} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">{fullName(e)}</p>
                       <p className="text-[11px]" style={{ color: tier.color }}>{tier.emoji} {tier.name}</p>
@@ -184,7 +184,7 @@ export default function LeaderboardPage() {
       <div className="fixed bottom-0 left-1/2 w-full max-w-2xl -translate-x-1/2 border-t border-white/10 bg-[#0C2038]/95 px-4 py-3 backdrop-blur lg:px-8">
         <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] px-3 py-2 ring-1 ring-white/10">
           <span className="text-sm font-extrabold text-[#8AB4FF]">{myRank > 0 ? `#${myRank}` : "#—"}</span>
-          <span className="relative flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white" style={{ backgroundColor: user?.avatar_color || "#2563EB" }}>{myInitials}</span>
+          <Avatar url={user?.avatar_url} color={user?.avatar_color} initials={myInitials} size={36} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-bold">{myName} <span className="rounded bg-[#2F6BFF] px-1.5 py-0.5 text-[9px] font-extrabold">YOU</span></p>
             <p className="text-[11px]" style={{ color: myTier.color }}>{myTier.emoji} {myTier.name}</p>
@@ -193,6 +193,20 @@ export default function LeaderboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Shows the user's real avatar image when set, else initials on their colour.
+function Avatar({ url, color, initials, size }: { url?: string; color?: string; initials: string; size: number }) {
+  if (url) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={url} alt="" className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />;
+  }
+  return (
+    <span className="flex shrink-0 items-center justify-center rounded-full font-bold text-white"
+      style={{ width: size, height: size, backgroundColor: color || "#2563EB", fontSize: size * 0.36 }}>
+      {initials}
+    </span>
   );
 }
 
