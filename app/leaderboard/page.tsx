@@ -56,7 +56,7 @@ export default function LeaderboardPage() {
     return () => { active = false; };
   }, [exam, user?.id]);
 
-  const myName = user ? `${user.first_name} ${user.last_name}`.trim() : "You";
+  const myName = user?.first_name?.trim() || "You";
   const myInitials = ((user?.first_name?.[0] ?? "") + (user?.last_name?.[0] ?? "")).toUpperCase() || "?";
   const myTier = tierName(myPoints);
 
@@ -149,7 +149,7 @@ export default function LeaderboardPage() {
                       {center && <span className="absolute -top-4 text-2xl">👑</span>}
                       <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold ring-1 ring-white/20">{place}</span>
                       <Avatar url={e.avatar_url} color={e.avatar_color} initials={e.initials || fullName(e)[0]} size={center ? 64 : 48} />
-                      <p className={`mt-2 truncate text-center font-bold ${center ? "text-sm" : "text-[13px]"}`}>{fullName(e)}</p>
+                      <p className={`mt-2 w-full truncate text-center font-bold ${center ? "text-sm" : "text-[13px]"}`}>{e.first_name?.trim() || "Anonymous"}</p>
                       <p className="text-[10px]" style={{ color: tier.color }}>{tier.emoji} {tier.name}</p>
                       <p className={`mt-0.5 font-extrabold ${center ? "text-hs-amber" : "text-white/90"}`}>{e.total_score.toLocaleString()} <span className="text-[10px] font-medium text-white/50">pts</span></p>
                     </div>
@@ -168,7 +168,7 @@ export default function LeaderboardPage() {
                     <span className="w-5 text-center text-sm font-bold text-white/70">{e.rank}</span>
                     <Avatar url={e.avatar_url} color={e.avatar_color} initials={e.initials || fullName(e)[0]} size={36} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">{fullName(e)}</p>
+                      <p className="truncate text-sm font-semibold">{e.first_name?.trim() || "Anonymous"}</p>
                       <p className="text-[11px]" style={{ color: tier.color }}>{tier.emoji} {tier.name}</p>
                     </div>
                     <span className="text-sm font-bold">{e.total_score.toLocaleString()} <span className="text-[10px] font-medium text-white/40">pts</span></span>
