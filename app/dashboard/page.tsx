@@ -448,7 +448,7 @@ function ProgressRail({ xp, goals }: { xp: number; goals: DailyGoals }) {
 interface Cat {
   name: string; subtitle: string; bg: string; fg: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
-  lottie?: string; href?: string; big?: boolean;
+  lottie?: string; href?: string; big?: boolean; gift?: boolean;
 }
 const CATEGORIES: Cat[] = [
   { name: "My Courses", subtitle: "6 active", bg: "#E6F1FB", fg: "#185FA5", icon: PlayCircle, lottie: "/lottie/video-player.json", href: "/courses" },
@@ -456,7 +456,7 @@ const CATEGORIES: Cat[] = [
   { name: "CBT practice", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: Laptop, lottie: "/lottie/cbt.json", href: "/cbt" },
   { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, lottie: "/lottie/graph.json", href: "/analytics" },
   { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal, href: "/leaderboard" },
-  { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, lottie: "/lottie/reward.json", href: "/rewards", big: true },
+  { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, gift: true, href: "/rewards" },
   { name: "News", subtitle: "JAMB updates", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, href: "/news" },
   { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json", href: "/referral", big: true },
 ];
@@ -469,7 +469,9 @@ function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
       className="relative flex aspect-[0.92] flex-col items-start overflow-hidden rounded-2xl p-2.5 text-left shadow-[0_4px_12px_rgba(0,0,0,0.13)] transition-transform hover:-translate-y-0.5 active:scale-95"
       style={{ backgroundColor: cat.bg }}
     >
-      {cat.lottie ? (
+      {cat.gift ? (
+        <Asset3D name="gift" fallback="🎁" size={40} float={false} />
+      ) : cat.lottie ? (
         <LottieIcon
           src={cat.lottie}
           className="h-10 w-10"
