@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,7 +10,7 @@ import {
   Laptop, LineChart, Medal, Gift, Newspaper, UserPlus, ExternalLink,
   Home, ShoppingCart, CloudDownload, MoreHorizontal, LogOut,
   User as UserIcon, Shield, HelpCircle, Star, Info, ChevronRight, Pencil,
-  ArrowRight, Check,
+  ArrowRight, Check, BookOpen, ClipboardCheck,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, LeaderboardEntry, api, profileApi, streakPoints, pointsFromRank } from "@/lib/api";
@@ -265,7 +265,7 @@ function HomeTab({
         <div className="lg:col-span-2">
           {/* Summary card, gamified: level + XP bar + daily quests + streak */}
           <div className="relative mt-3.5 overflow-hidden rounded-3xl p-4 shadow-lg shadow-hs-navy/30 lg:p-5"
-            style={{ background: "linear-gradient(135deg, #0E3D6E 0%, #042C53 55%, #06223E 100%)" }}>
+            style={{ background: "linear-gradient(140deg, #0F3D6B 0%, #10495C 52%, #0E5F4C 100%)" }}>
             {/* Glow accents, game energy, not banking flatness */}
             <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-hs-amber/25 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-14 -left-10 h-40 w-40 rounded-full bg-[#2E90FA]/25 blur-3xl" />
@@ -328,8 +328,8 @@ function HomeTab({
             />
           </div>
 
-          {/* Category grid */}
-          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+          {/* Category grid — 2 columns × 3 rows to match the mockup */}
+          <div className="mt-5 grid grid-cols-2 gap-2.5">
             {CATEGORIES.map((c) => (
               <CategoryCard
                 key={c.name}
@@ -338,6 +338,9 @@ function HomeTab({
               />
             ))}
           </div>
+
+          {/* Your Progress rail */}
+          <ProgressRail xp={myPoints} goals={goals} />
         </div>
 
         {/* Leaderboard panel */}
@@ -402,6 +405,42 @@ function StatTile({ value, label, amber }: { value: string; label: string; amber
     <div className="flex-1 rounded-[10px] bg-white/10 py-2.5 text-center">
       <p className={`text-[13px] font-bold ${amber ? "text-hs-amber" : "text-white"}`}>{value}</p>
       <p className="text-[13px] text-[#B8CCE0]">{label}</p>
+    </div>
+  );
+}
+
+// "Your Progress" rail — medal + XP, then the Learn → Complete → Climb → Redeem journey.
+function ProgressRail({ xp, goals }: { xp: number; goals: DailyGoals }) {
+  const steps = [
+    { icon: BookOpen, label: "Learn", sub: "Earn XP", done: goals.quiz },
+    { icon: ClipboardCheck, label: "Complete", sub: "Earn More", done: goals.cbt },
+    { icon: Star, label: "Climb", sub: "Rank Higher", done: false },
+    { icon: Gift, label: "Redeem", sub: "Great Rewards", done: false },
+  ];
+  return (
+    <div className="mt-3 flex items-center gap-3 rounded-3xl border border-hs-border bg-white p-3.5 shadow-sm">
+      <div className="flex shrink-0 items-center gap-2.5 border-r border-hs-border pr-3">
+        <Asset3D name="medal_progress" fallback="🏅" size={44} float={false} />
+        <div>
+          <p className="text-[12px] font-bold text-hs-navy">Your Progress</p>
+          <p className="text-lg font-extrabold leading-none text-hs-navy">{xp.toLocaleString()} <span className="text-xs font-bold text-hs-muted">XP</span></p>
+          <p className="mt-0.5 text-[10px] text-hs-muted">Keep learning, level up!</p>
+        </div>
+      </div>
+      <div className="flex min-w-0 flex-1 items-start justify-between">
+        {steps.map((s, i) => (
+          <Fragment key={s.label}>
+            {i > 0 && <div className="mt-[18px] flex-1 border-t border-dashed border-hs-border" />}
+            <div className="flex flex-col items-center px-0.5">
+              <span className={`flex h-9 w-9 items-center justify-center rounded-full ${s.done ? "bg-green-100 text-green-600" : "bg-hs-bg text-hs-muted"}`}>
+                <s.icon size={16} />
+              </span>
+              <span className="mt-1 text-[11px] font-bold text-hs-navy">{s.label}</span>
+              <span className="text-[9px] text-hs-muted">{s.sub}</span>
+            </div>
+          </Fragment>
+        ))}
+      </div>
     </div>
   );
 }

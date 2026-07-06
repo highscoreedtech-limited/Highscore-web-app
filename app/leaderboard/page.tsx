@@ -4,21 +4,36 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { ArrowLeft, Share2 } from "lucide-react";
+import { ArrowLeft, Share2, Users, Globe, Zap } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, pointsFromRank, type LeaderboardEntry } from "@/lib/api";
 import Asset3D from "@/components/Asset3D";
 
-const EXAMS = ["All", "JAMB", "WAEC", "NECO", "GCE", "Nursing"];
+const EXAMS = ["All", "JAMB", "WAEC", "NECO", "GCE", "Post UTME"];
+
+// Rank tiers (matches the app's tier system).
+const TIERS = [
+  { name: "Wood", emoji: "🪵", color: "#B08968", minPts: 0, starter: true },
+  { name: "Bronze", emoji: "🥉", color: "#CD7F32", minPts: 500 },
+  { name: "Silver", emoji: "🥈", color: "#C0C0C0", minPts: 1500 },
+  { name: "Gold", emoji: "🥇", color: "#FFD34E", minPts: 3000 },
+  { name: "Diamond", emoji: "💎", color: "#5AC8FA", minPts: 6000 },
+];
 
 function fullName(e: LeaderboardEntry) {
-  return `${e.first_name} ${e.last_name}`.trim().toUpperCase() || "ANONYMOUS";
+  return `${e.first_name} ${e.last_name}`.trim() || "Anonymous";
+}
+function tierName(pts: number) {
+  let t = TIERS[0];
+  for (const x of TIERS) if (pts >= x.minPts) t = x;
+  return t;
 }
 
 export default function LeaderboardPage() {
   const router = useRouter();
   const { user } = useAuth();
   const [exam, setExam] = useState("All");
+  const [scope, setScope] = useState<"weekly" | "all">("weekly");
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [myRank, setMyRank] = useState(0);
@@ -29,18 +44,13 @@ export default function LeaderboardPage() {
     setLoading(true);
     Promise.all([
       dashApi.leaderboard(exam, 50).catch(() => [] as LeaderboardEntry[]),
-      dashApi.myRank(exam).catch(() => ({ rank: 0 })), // same scope as the list
+      dashApi.myRank(exam).catch(() => ({ rank: 0 })),
     ]).then(([list, rank]) => {
       if (!active) return;
-      // Always show the board in increasing rank order.
       const sorted = (Array.isArray(list) ? [...list] : []).sort((a, b) => a.rank - b.rank);
       setEntries(sorted);
-      // Prefer the rank from the visible board (guaranteed to match a row);
-      // fall back to the my-rank API when the user isn't in the top 50.
       const mine = user?.id ? sorted.find((e) => e.user_id === user.id) : undefined;
       setMyRank(mine?.rank ?? rank?.rank ?? 0);
-      // Show the SAME points as the board (total_score) so you spot yourself
-      // easily, not the spendable balance.
       setMyPoints(mine?.total_score ?? rank?.total_score ?? pointsFromRank(rank));
     }).finally(() => active && setLoading(false));
     return () => { active = false; };
@@ -48,164 +58,152 @@ export default function LeaderboardPage() {
 
   const myName = user ? `${user.first_name} ${user.last_name}`.trim() : "You";
   const myInitials = ((user?.first_name?.[0] ?? "") + (user?.last_name?.[0] ?? "")).toUpperCase() || "?";
+  const myTier = tierName(myPoints);
 
   const share = async () => {
-    const msg = `I'm ranked #${myRank || 1} on the HighScore ${exam} leaderboard with ${myPoints} points! 💪 Think you can beat me? https://highscoreedtech.com`;
+    const msg = `I'm ranked #${myRank || 1} on the HighScore ${exam} leaderboard with ${myPoints} points! 💪 Beat me: https://highscoreedtech.com`;
     if (navigator.share) { try { await navigator.share({ title: "My HighScore rank", text: msg }); } catch { /* cancelled */ } }
     else { await navigator.clipboard.writeText(msg); toast.success("Rank copied, go flex!"); }
   };
 
-  return (
-    <div className="min-h-screen bg-hs-bg">
-      {/* Navy header */}
-      <header className="bg-hs-navy px-4 pb-4 pt-5 lg:px-8 lg:pt-7">
-        <div className="mx-auto max-w-2xl">
-          <div className="flex items-center">
-            <button onClick={() => router.push("/dashboard")} className="text-white" aria-label="Back"><ArrowLeft size={18} /></button>
-            <span className="ml-3 text-sm font-bold uppercase tracking-wide text-white">leaderboard</span>
-            <button onClick={share} className="ml-auto flex items-center gap-1.5 rounded-[10px] px-3 py-1.5" style={{ backgroundColor: "rgba(37,211,102,0.2)", border: "1px solid rgba(37,211,102,0.5)" }}>
-              <Share2 size={14} className="text-[#25D366]" />
-              <span className="text-xs font-bold text-[#25D366]">Share rank</span>
-            </button>
-          </div>
-          <div className="mt-3.5 flex gap-2">
-            <HeaderStat value="15k+" label="students" />
-            <HeaderStat value="36" label="states" />
-            <HeaderStat value="live" label="updated" />
-          </div>
-        </div>
-      </header>
+  const top3 = entries.slice(0, 3);
+  const rest = entries.slice(3);
 
-      {/* Exam filters */}
-      <div className="sticky top-0 z-10 border-b border-hs-border bg-hs-bg/95 px-4 py-2.5 backdrop-blur lg:px-8">
-        <div className="mx-auto flex max-w-2xl gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {EXAMS.map((e) => (
-            <button key={e} onClick={() => setExam(e)} className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ${exam === e ? "bg-hs-blue text-white" : "border border-hs-border bg-white text-hs-navy"}`}>
-              {e}
+  return (
+    <div className="min-h-screen pb-28 text-white" style={{ background: "linear-gradient(180deg,#0A1B33 0%,#0B1E38 40%,#081524 100%)" }}>
+      <div className="mx-auto max-w-2xl px-4 pt-5 lg:px-8">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.push("/dashboard")} className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10" aria-label="Back"><ArrowLeft size={16} /></button>
+          <div className="flex-1 text-center">
+            <h1 className="text-xl font-extrabold">Leaderboard</h1>
+            <p className="text-[11px] text-white/60">Top learners. Real champions. 🏆</p>
+          </div>
+          <button onClick={share} className="flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold ring-1 ring-white/15">
+            <Share2 size={13} /> Share
+          </button>
+        </div>
+
+        {/* Stat cards */}
+        <div className="mt-4 grid grid-cols-3 gap-2.5">
+          <StatCard icon={<Users size={16} className="text-[#8AB4FF]" />} value="15K+" label="Students" />
+          <StatCard icon={<Globe size={16} className="text-[#34D399]" />} value="36" label="States" />
+          <StatCard icon={<Zap size={16} className="text-[#FFB020]" />} value="Live" label="Updated" />
+        </div>
+
+        {/* Weekly / All time */}
+        <div className="mt-4 flex rounded-2xl bg-white/5 p-1 ring-1 ring-white/10">
+          {(["weekly", "all"] as const).map((s) => (
+            <button key={s} onClick={() => setScope(s)} className={`relative flex-1 rounded-xl py-2.5 text-sm font-bold ${scope === s ? "text-white" : "text-white/50"}`}>
+              {scope === s && <motion.span layoutId="lbScope" className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#2F6BFF] to-[#1D4ED8]" transition={{ type: "spring", stiffness: 400, damping: 32 }} />}
+              <span className="relative z-10">{s === "weekly" ? "Weekly" : "All Time"}</span>
             </button>
           ))}
         </div>
-      </div>
 
-      {/* Rank levels, sliding tier strip */}
-      <LevelStrip myPoints={myPoints} />
+        {/* Exam filter */}
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {EXAMS.map((e) => (
+            <button key={e} onClick={() => setExam(e)} className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold ${exam === e ? "bg-gradient-to-r from-[#2F6BFF] to-[#1D4ED8] text-white" : "bg-white/5 text-white/70 ring-1 ring-white/10"}`}>{e}</button>
+          ))}
+        </div>
 
-      {/* List */}
-      <div className="mx-auto max-w-2xl px-4 pb-28 pt-1 lg:px-8">
+        {/* Rank levels */}
+        <div className="mt-5 flex items-center justify-between">
+          <span className="text-sm font-bold">Rank Levels</span>
+          <span className="text-[11px] font-semibold text-[#FFB020]">You are: {myTier.emoji} {myTier.name}</span>
+        </div>
+        <div className="mt-2.5 flex gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {TIERS.map((t) => {
+            const isMe = t.name === myTier.name;
+            return (
+              <div key={t.name} className="flex w-[86px] shrink-0 flex-col items-center rounded-2xl py-3"
+                style={{ background: isMe ? "rgba(255,176,32,0.12)" : "rgba(255,255,255,0.04)", border: `1.5px solid ${isMe ? "#FFB020" : "rgba(255,255,255,0.08)"}` }}>
+                <Asset3D name={`medal_${t.name.toLowerCase()}`} fallback={t.emoji} size={38} float={false} />
+                <span className="mt-1 text-[12px] font-bold">{t.name}</span>
+                <span className="text-[9px] text-white/50">{t.starter ? "Starter" : `${t.minPts}+ pts`}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Podium */}
         {loading ? (
-          <div className="flex justify-center py-12"><span className="h-7 w-7 animate-spin rounded-full border-2 border-hs-blue border-t-transparent" /></div>
+          <div className="flex justify-center py-12"><span className="h-7 w-7 animate-spin rounded-full border-2 border-white/40 border-t-transparent" /></div>
         ) : entries.length === 0 ? (
-          <div className="flex flex-col items-center py-16 text-center">
-            <span className="text-5xl">🏆</span>
-            <p className="mt-3 text-sm font-semibold text-hs-muted">No entries yet, be the first to climb!</p>
-          </div>
+          <div className="flex flex-col items-center py-16 text-center"><span className="text-5xl">🏆</span><p className="mt-3 text-sm text-white/60">No entries yet, be the first to climb!</p></div>
         ) : (
-          <div className="space-y-2">
-            {entries.map((e, i) => (
-              <motion.div key={`${e.rank}-${i}`} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(i * 0.02, 0.4) }}>
-                <Row e={e} />
-              </motion.div>
-            ))}
-          </div>
+          <>
+            {top3.length > 0 && (
+              <div className="mt-6 grid grid-cols-3 items-end gap-2.5">
+                {[top3[1], top3[0], top3[2]].map((e, idx) => {
+                  if (!e) return <div key={idx} />;
+                  const place = e.rank; // 1,2,3
+                  const center = place === 1;
+                  const tier = tierName(e.total_score);
+                  return (
+                    <div key={e.user_id ?? idx} className={`relative flex flex-col items-center rounded-2xl p-3 ${center ? "pb-4" : ""}`}
+                      style={center
+                        ? { background: "linear-gradient(180deg,rgba(255,176,32,0.28),rgba(255,176,32,0.08))", border: "1.5px solid #FFB020" }
+                        : { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}>
+                      {center && <span className="absolute -top-4 text-2xl">👑</span>}
+                      <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold ring-1 ring-white/20">{place}</span>
+                      <span className={`flex items-center justify-center rounded-full font-extrabold text-white ${center ? "h-16 w-16 text-xl" : "h-12 w-12"}`} style={{ backgroundColor: e.avatar_color || "#2563EB" }}>{e.initials || fullName(e)[0]}</span>
+                      <p className={`mt-2 truncate text-center font-bold ${center ? "text-sm" : "text-[13px]"}`}>{fullName(e)}</p>
+                      <p className="text-[10px]" style={{ color: tier.color }}>{tier.emoji} {tier.name}</p>
+                      <p className={`mt-0.5 font-extrabold ${center ? "text-hs-amber" : "text-white/90"}`}>{e.total_score.toLocaleString()} <span className="text-[10px] font-medium text-white/50">pts</span></p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Rows 4+ */}
+            <div className="mt-4 space-y-2">
+              {rest.map((e, i) => {
+                const tier = tierName(e.total_score);
+                return (
+                  <motion.div key={`${e.rank}-${i}`} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                    className="flex items-center gap-3 rounded-2xl bg-white/[0.04] px-3 py-2.5 ring-1 ring-white/[0.06]">
+                    <span className="w-5 text-center text-sm font-bold text-white/70">{e.rank}</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white" style={{ backgroundColor: e.avatar_color || "#2563EB" }}>{e.initials || fullName(e)[0]}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">{fullName(e)}</p>
+                      <p className="text-[11px]" style={{ color: tier.color }}>{tier.emoji} {tier.name}</p>
+                    </div>
+                    <span className="text-sm font-bold">{e.total_score.toLocaleString()} <span className="text-[10px] font-medium text-white/40">pts</span></span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
-      {/* Sticky "your rank" bar */}
-      <div className="fixed bottom-0 left-1/2 w-full max-w-2xl -translate-x-1/2 border-t border-hs-border bg-white px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] lg:px-8">
-        <div className="flex items-center gap-3">
-          <span className="w-12 text-center text-sm font-extrabold text-hs-blue">{myRank > 0 ? `#${myRank}` : "#, "}</span>
-          <span className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white" style={{ backgroundColor: user?.avatar_color || "#185FA5" }}>{myInitials}</span>
+      {/* Sticky your-position bar */}
+      <div className="fixed bottom-0 left-1/2 w-full max-w-2xl -translate-x-1/2 border-t border-white/10 bg-[#0C2038]/95 px-4 py-3 backdrop-blur lg:px-8">
+        <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] px-3 py-2 ring-1 ring-white/10">
+          <span className="text-sm font-extrabold text-[#8AB4FF]">{myRank > 0 ? `#${myRank}` : "#—"}</span>
+          <span className="relative flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white" style={{ backgroundColor: user?.avatar_color || "#2563EB" }}>{myInitials}</span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-bold text-hs-navy">{myName} <span className="text-hs-muted">(you)</span></p>
-            <p className="text-[11px] text-hs-muted">{exam === "All" ? "Global" : exam} board</p>
+            <p className="truncate text-sm font-bold">{myName} <span className="rounded bg-[#2F6BFF] px-1.5 py-0.5 text-[9px] font-extrabold">YOU</span></p>
+            <p className="text-[11px]" style={{ color: myTier.color }}>{myTier.emoji} {myTier.name}</p>
           </div>
-          <span className="text-sm font-extrabold text-hs-navy">{myPoints} pts</span>
+          <span className="text-sm font-extrabold text-[#8AB4FF]">{myPoints.toLocaleString()} <span className="text-[10px] font-medium text-white/40">pts</span></span>
         </div>
       </div>
     </div>
   );
 }
 
-// Rank tiers (matches the mobile leaderboard level strip).
-const TIERS = [
-  { name: "Wood", emoji: "🪵", color: "#92400E", minPts: 0 },
-  { name: "Bronze", emoji: "🥉", color: "#B45309", minPts: 500 },
-  { name: "Silver", emoji: "🥈", color: "#6B7280", minPts: 1500 },
-  { name: "Gold", emoji: "🥇", color: "#D97706", minPts: 3000 },
-  { name: "Diamond", emoji: "💎", color: "#0EA5E9", minPts: 6000 },
-  { name: "Legend", emoji: "👑", color: "#7C3AED", minPts: 12000 },
-];
-
-function LevelStrip({ myPoints }: { myPoints: number }) {
-  let current = 0;
-  for (let i = TIERS.length - 1; i >= 0; i--) {
-    if (myPoints >= TIERS[i].minPts) { current = i; break; }
-  }
-  const cur = TIERS[current];
+function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="mx-auto max-w-2xl pt-3 lg:px-8">
-      <div className="flex items-center justify-between px-4 lg:px-0">
-        <span className="text-sm font-bold text-hs-navy">Rank Levels</span>
-        <span className="text-[11px] font-semibold" style={{ color: cur.color }}>
-          You are: {cur.emoji} {cur.name}
-        </span>
+    <div className="flex items-center gap-2 rounded-2xl bg-white/[0.05] px-3 py-3 ring-1 ring-white/10">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">{icon}</span>
+      <div className="min-w-0">
+        <p className="text-sm font-extrabold leading-none">{value}</p>
+        <p className="truncate text-[10px] text-white/55">{label}</p>
       </div>
-      <div className="mt-2.5 flex gap-2.5 overflow-x-auto px-4 pb-1 lg:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {TIERS.map((t, i) => {
-          const isMe = i === current;
-          const isPast = i < current;
-          return (
-            <div
-              key={t.name}
-              className="flex w-20 shrink-0 flex-col items-center rounded-2xl py-2.5 transition-all"
-              style={{
-                backgroundColor: isMe ? `${t.color}1F` : "#fff",
-                border: `${isMe ? 2 : 1}px solid ${isMe ? t.color : "#E5E7EB"}`,
-                boxShadow: isMe ? `0 3px 10px ${t.color}33` : "none",
-              }}
-            >
-              <Asset3D name={`medal_${t.name.toLowerCase()}`} fallback={t.emoji} size={34} float={false} />
-              <span className="mt-1 text-[11px] font-bold" style={{ color: isMe ? t.color : "#042C53" }}>{t.name}</span>
-              <span className="mt-0.5 text-[9px]" style={{ color: isPast ? "#059669" : "#8A8A8A" }}>
-                {t.minPts === 0 ? "Starter" : `${t.minPts}+ pts`}
-              </span>
-              {isPast && <span className="mt-0.5 text-[10px] text-[#059669]">✓</span>}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function HeaderStat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="flex-1 rounded-xl bg-white/10 py-2.5 text-center">
-      <p className="text-base font-extrabold text-white">{value}</p>
-      <p className="text-[11px] text-[#B8CCE0]">{label}</p>
-    </div>
-  );
-}
-
-function Row({ e }: { e: LeaderboardEntry }) {
-  const isFirst = e.rank === 1;
-  return (
-    <div
-      className="flex items-center gap-2.5 rounded-[10px] border px-3 py-2.5"
-      style={isFirst
-        ? { backgroundColor: "#FAEEDA", borderColor: "rgba(133,79,11,0.25)" }
-        : { backgroundColor: "#fff", borderColor: "#E2E2E2" }}
-    >
-      <span className="w-5 text-sm font-bold" style={{ color: isFirst ? "#854F0B" : "#8A8A8A" }}>{e.rank}</span>
-      <span className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold" style={{ backgroundColor: isFirst ? "#EF9F27" : (e.avatar_color || "#185FA5"), color: isFirst ? "#412402" : "#fff" }}>
-        {e.initials || fullName(e)[0]}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-hs-navy">{fullName(e)}</p>
-        <p className="text-[11px] text-hs-muted">{e.state || ", "} · {e.badge}</p>
-      </div>
-      {isFirst && <span className="rounded-md bg-white px-1.5 py-0.5 text-[11px] font-bold text-hs-amberDark">top</span>}
-      <span className="text-sm font-bold" style={{ color: isFirst ? "#854F0B" : "#042C53" }}>{e.total_score}</span>
     </div>
   );
 }
