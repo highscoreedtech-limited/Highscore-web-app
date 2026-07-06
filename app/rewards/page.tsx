@@ -8,6 +8,7 @@ import { ArrowLeft, Coins, ArrowRightLeft, Sparkles, Check } from "lucide-react"
 import { useAuth } from "../hooks/useAuth";
 import { api, dashApi, pointsFromRank, quizApi } from "@/lib/api";
 import LottieIcon from "@/components/LottieIcon";
+import Asset3D from "@/components/Asset3D";
 import { stagger, item } from "@/components/Reveal";
 
 type Social = "youtube" | "instagram" | "whatsapp";
@@ -138,8 +139,8 @@ export default function RewardsPage() {
               <ArrowLeft size={16} />
             </button>
             <h1 className="text-lg font-bold text-white">Rewards</h1>
-            <div className="ml-auto h-16 w-16">
-              <LottieIcon src="/lottie/reward.json" className="h-16 w-16" fallback={<Coins className="text-hs-amber" />} />
+            <div className="ml-auto">
+              <Asset3D name="gift" fallback="🎁" size={64} />
             </div>
           </div>
 
@@ -149,13 +150,19 @@ export default function RewardsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="rounded-2xl bg-white/10 p-4">
-              <p className="text-[11px] text-[#B8CCE0]">Points balance</p>
-              <p className="mt-1 text-2xl font-extrabold text-hs-amber">{points.toLocaleString()}</p>
+            <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-4">
+              <Asset3D name="coin" fallback="🪙" size={38} float={false} />
+              <div>
+                <p className="text-[11px] text-[#B8CCE0]">Points balance</p>
+                <p className="mt-0.5 text-2xl font-extrabold text-hs-amber">{points.toLocaleString()}</p>
+              </div>
             </div>
-            <div className="rounded-2xl bg-white/10 p-4">
-              <p className="text-[11px] text-[#B8CCE0]">HST wallet</p>
-              <p className="mt-1 text-2xl font-extrabold text-white">{hst.toLocaleString()} HST</p>
+            <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-4">
+              <Asset3D name="hst" fallback="🟢" size={38} float={false} />
+              <div>
+                <p className="text-[11px] text-[#B8CCE0]">HST wallet</p>
+                <p className="mt-0.5 text-2xl font-extrabold text-white">{hst.toLocaleString()} HST</p>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -242,7 +249,7 @@ export default function RewardsPage() {
               <button
                 disabled={!preset || converting}
                 onClick={convert}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-hs-blue py-3 font-semibold text-white disabled:opacity-40"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2F6BFF] to-[#1D4ED8] py-3 font-semibold text-white shadow-[0_10px_22px_-6px_rgba(29,78,216,0.6)] transition hover:brightness-110 disabled:opacity-40"
               >
                 <Sparkles size={18} /> {converting ? "Converting…" : preset ? `Convert ${preset} pts → ${Math.floor(preset / 50)} HST` : "Select an amount"}
               </button>
