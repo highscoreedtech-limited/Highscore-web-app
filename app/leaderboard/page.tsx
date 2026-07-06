@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Share2 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, pointsFromRank, type LeaderboardEntry } from "@/lib/api";
+import Asset3D from "@/components/Asset3D";
 
 const EXAMS = ["All", "JAMB", "WAEC", "NECO", "GCE", "Nursing"];
 
@@ -163,7 +164,7 @@ function LevelStrip({ myPoints }: { myPoints: number }) {
                 boxShadow: isMe ? `0 3px 10px ${t.color}33` : "none",
               }}
             >
-              <span className="text-[22px]">{t.emoji}</span>
+              <Asset3D name={`medal_${t.name.toLowerCase()}`} fallback={t.emoji} size={34} float={false} />
               <span className="mt-1 text-[11px] font-bold" style={{ color: isMe ? t.color : "#042C53" }}>{t.name}</span>
               <span className="mt-0.5 text-[9px]" style={{ color: isPast ? "#059669" : "#8A8A8A" }}>
                 {t.minPts === 0 ? "Starter" : `${t.minPts}+ pts`}

@@ -9,7 +9,7 @@ import {
   GraduationCap, ChevronDown, Bell, Search, PlayCircle, Gamepad2,
   Laptop, LineChart, Medal, Gift, Newspaper, UserPlus, ExternalLink,
   Home, ShoppingCart, CloudDownload, MoreHorizontal, LogOut,
-  User as UserIcon, Shield, HelpCircle, Star, Info, Wallet, ChevronRight, Pencil,
+  User as UserIcon, Shield, HelpCircle, Star, Info, ChevronRight, Pencil,
   ArrowRight, Check,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
@@ -18,6 +18,7 @@ import { tierFor, nextTier, tierProgress } from "@/lib/tiers";
 import { realtime } from "@/lib/realtime/client";
 import { goalsToday, getLastSubject, type DailyGoals } from "@/lib/home-progress";
 import LottieIcon from "@/components/LottieIcon";
+import Asset3D from "@/components/Asset3D";
 import SubscribeTab from "./SubscribeTab";
 import DownloadsTab from "./DownloadsTab";
 import { AVATARS } from "@/lib/avatars";
@@ -278,9 +279,9 @@ function HomeTab({
                   <p className="text-base font-extrabold text-white">Hey, {fullName.split(" ")[0]}! 👋</p>
                   <p className="text-[12px] text-[#B8CCE0]">{myRank > 0 ? `Ranked #${myRank} this week, keep climbing` : "Play today to enter the rankings"}</p>
                 </div>
-                <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-extrabold text-white ring-1 ring-white/30"
+                <span className="flex items-center gap-1.5 rounded-full py-1 pl-1.5 pr-3 text-xs font-extrabold text-white ring-1 ring-white/30"
                   style={{ background: "linear-gradient(90deg, rgba(239,159,39,0.35), rgba(239,159,39,0.15))" }}>
-                  <span className="text-sm">{tier.emoji}</span> {tier.name}
+                  <Asset3D name={`medal_${tier.name.toLowerCase()}`} fallback={tier.emoji} size={22} float={false} /> {tier.name}
                 </span>
               </div>
 
@@ -519,8 +520,8 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
         {/* Wallet */}
         <div className="mt-5 rounded-2xl bg-hs-navy p-4 text-white">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
-              <Wallet size={20} />
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
+              <Asset3D name="hst" fallback="💎" size={30} float={false} />
             </span>
             <div>
               <p className="text-[11px] text-[#B8CCE0]">HST wallet balance</p>
@@ -529,7 +530,7 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="mt-4 flex gap-2.5">
             <button onClick={() => router.push("/rewards")} className="flex-1 rounded-xl bg-white/10 py-2.5 text-sm font-semibold hover:bg-white/15">Convert points</button>
-            <button onClick={() => setRedeemOpen(true)} className="flex-1 rounded-xl bg-hs-amber py-2.5 text-sm font-bold text-hs-amberDark">Redeem</button>
+            <button onClick={() => setRedeemOpen(true)} className="flex-1 rounded-xl bg-gradient-to-r from-[#FFC85C] to-[#EF9F27] py-2.5 text-sm font-bold text-hs-amberDark shadow-[0_8px_18px_-6px_rgba(239,159,39,0.7)]">Redeem</button>
           </div>
         </div>
 
