@@ -265,7 +265,7 @@ function HomeTab({
         <div className="lg:col-span-2">
           {/* Summary card, gamified: level + XP bar + daily quests + streak */}
           <div className="relative mt-3.5 overflow-hidden rounded-3xl p-4 shadow-lg shadow-hs-navy/30 lg:p-5"
-            style={{ background: "linear-gradient(135deg, #0E3D6E 0%, #042C53 55%, #06223E 100%)" }}>
+            style={{ background: "linear-gradient(140deg, #0C7A44 0%, #0B1D3A 55%, #081524 100%)" }}>
             {/* Glow accents, game energy, not banking flatness */}
             <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-hs-amber/25 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-14 -left-10 h-40 w-40 rounded-full bg-[#2E90FA]/25 blur-3xl" />
@@ -295,7 +295,7 @@ function HomeTab({
                 </div>
                 <div className="mt-1.5 h-3 w-full overflow-hidden rounded-full bg-white/12 ring-1 ring-white/10">
                   <div className="h-full rounded-full transition-[width] duration-700"
-                    style={{ width: `${Math.max(4, tierProgress(myPoints) * 100)}%`, background: "linear-gradient(90deg, #EF9F27, #FFC85C)", boxShadow: "0 0 10px rgba(239,159,39,0.7)" }} />
+                    style={{ width: `${Math.max(4, tierProgress(myPoints) * 100)}%`, background: "linear-gradient(90deg, #FFC107, #FFD75E)", boxShadow: "0 0 10px rgba(255,193,7,0.7)" }} />
                 </div>
               </div>
 
@@ -312,7 +312,7 @@ function HomeTab({
                 whileTap={{ scale: 0.97 }}
                 onClick={() => onNav(lastSubject ? `/courses/${encodeURIComponent(lastSubject)}` : "/quiz")}
                 className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-extrabold text-hs-amberDark"
-                style={{ background: "linear-gradient(90deg, #FFC85C, #EF9F27)", boxShadow: "0 6px 20px -4px rgba(239,159,39,0.6)" }}
+                style={{ background: "linear-gradient(90deg, #FFD75E, #FFC107)", boxShadow: "0 6px 20px -4px rgba(255,193,7,0.6)" }}
               >
                 ⚡ {lastSubject ? `Continue ${lastSubject}` : "Play today's quiz"} <ArrowRight size={16} />
               </motion.button>
@@ -574,7 +574,7 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
           </div>
           <div className="mt-4 flex gap-2.5">
             <button onClick={() => router.push("/rewards")} className="flex-1 rounded-xl bg-white/10 py-2.5 text-sm font-semibold hover:bg-white/15">Convert points</button>
-            <button onClick={() => setRedeemOpen(true)} className="flex-1 rounded-xl bg-gradient-to-r from-[#FFC85C] to-[#EF9F27] py-2.5 text-sm font-bold text-hs-amberDark shadow-[0_8px_18px_-6px_rgba(239,159,39,0.7)]">Redeem</button>
+            <button onClick={() => setRedeemOpen(true)} className="flex-1 rounded-xl bg-gradient-to-r from-[#FFD75E] to-[#FFC107] py-2.5 text-sm font-bold text-hs-amberDark shadow-[0_8px_18px_-6px_rgba(255,193,7,0.7)]">Redeem</button>
           </div>
         </div>
 
