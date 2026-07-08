@@ -11,7 +11,7 @@ import LottieIcon from "@/components/LottieIcon";
 import Asset3D from "@/components/Asset3D";
 import { stagger, item } from "@/components/Reveal";
 
-type Social = "youtube" | "instagram" | "whatsapp";
+type Social = "youtube" | "whatsapp" | "tiktok" | "facebook";
 interface EarnItem { icon: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; social?: Social; claim?: "week" | "top10" }
 
 const EARN: EarnItem[] = [
@@ -22,9 +22,11 @@ const EARN: EarnItem[] = [
   { icon: "🏆", title: "Week Streak Milestone", pts: "+70", sub: "7 days in a row, claim your special bonus!", claim: "week" },
   { icon: "📈", title: "Reach Top 10 Leaderboard", pts: "+50", sub: "Land in the top 10 this week to claim", claim: "top10" },
   { icon: "💡", title: "Perfect Score (10/10)", pts: "+100", sub: "Get every question right in a quiz", auto: true },
-  { icon: "", social: "youtube", title: "Subscribe on YouTube", pts: "+50", sub: "Open the channel, subscribe, then claim", url: "https://www.youtube.com/@HighScore" },
-  { icon: "", social: "instagram", title: "Follow on Instagram", pts: "+40", sub: "Follow our page, then claim your points", url: "https://www.instagram.com/highscore" },
-  { icon: "", social: "whatsapp", title: "Join WhatsApp community", pts: "+30", sub: "Join the group, then claim your points", url: "https://chat.whatsapp.com" },
+  { icon: "", social: "youtube", title: "Subscribe on YouTube", pts: "+50", sub: "Open the channel, subscribe, then claim", url: "https://www.youtube.com/@Highscore_Edtech" },
+  { icon: "", social: "whatsapp", title: "Join WhatsApp community", pts: "+30", sub: "Join the group, then claim your points", url: "https://chat.whatsapp.com/EUn3DJhalXTFFHue8FjY9i" },
+  { icon: "", social: "whatsapp", title: "Follow our WhatsApp channel", pts: "+20", sub: "Follow the channel for updates, then claim", url: "https://whatsapp.com/channel/0029Vb7JVKB84OmK6v73rA1f" },
+  { icon: "", social: "tiktok", title: "Follow on TikTok", pts: "+40", sub: "Follow our page, then claim your points", url: "https://www.tiktok.com/@highscoreedtech?_r=1&_t=ZS-97roHdrK3zo" },
+  { icon: "", social: "facebook", title: "Follow on Facebook", pts: "+40", sub: "Like our page, then claim your points", url: "https://www.facebook.com/profile.php?id=61559821777627" },
 ];
 
 // Brand glyphs for the social earn tasks.
@@ -33,9 +35,13 @@ const SOCIAL: Record<Social, { bg: string; svg: React.ReactNode }> = {
     bg: "#FF0000",
     svg: <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z" /></svg>,
   },
-  instagram: {
-    bg: "linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)",
-    svg: <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5.5" /><circle cx="12" cy="12" r="4.2" /><circle cx="17.4" cy="6.6" r="1.2" fill="#fff" stroke="none" /></svg>,
+  tiktok: {
+    bg: "#010101",
+    svg: <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M16.6 5.82a4.28 4.28 0 0 1-1.05-2.82h-3.2v12.86a2.59 2.59 0 0 1-2.59 2.5 2.59 2.59 0 1 1 .8-5.05V9.98a5.86 5.86 0 0 0-.8-.06A5.85 5.85 0 1 0 15.4 15.8V9.4a7.5 7.5 0 0 0 4.36 1.4V7.6a4.28 4.28 0 0 1-3.16-1.78z" /></svg>,
+  },
+  facebook: {
+    bg: "#1877F2",
+    svg: <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.95H15.83c-1.49 0-1.95.93-1.95 1.88v2.25h3.32l-.53 3.49h-2.79V24C19.61 23.1 24 18.1 24 12.07z" /></svg>,
   },
   whatsapp: {
     bg: "#25D366",
