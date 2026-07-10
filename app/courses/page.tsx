@@ -88,7 +88,7 @@ export default function CoursesPage() {
         <div
           className={
             grid
-              ? "mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+              ? "mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               : "mt-4 flex flex-col gap-2.5"
           }
         >

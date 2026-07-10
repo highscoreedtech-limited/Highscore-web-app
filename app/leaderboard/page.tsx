@@ -71,7 +71,7 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen pb-28 text-white" style={{ background: "linear-gradient(180deg,#0A1B33 0%,#0B1E38 40%,#081524 100%)" }}>
-      <div className="mx-auto max-w-2xl px-4 pt-5 lg:px-8">
+      <div className="mx-auto max-w-2xl px-4 pt-5 lg:max-w-5xl lg:px-8">
         {/* Header */}
         <div className="flex items-center gap-3">
           <button onClick={() => router.push("/dashboard")} className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10" aria-label="Back"><ArrowLeft size={16} /></button>
@@ -135,7 +135,7 @@ export default function LeaderboardPage() {
         ) : (
           <>
             {top3.length > 0 && (
-              <div className="mt-6 grid grid-cols-3 items-end gap-2.5">
+              <div className="mt-6 grid grid-cols-3 items-end gap-2.5 lg:mx-auto lg:max-w-2xl lg:gap-4">
                 {[top3[1], top3[0], top3[2]].map((e, idx) => {
                   if (!e) return <div key={idx} />;
                   const place = e.rank; // 1,2,3
@@ -158,8 +158,8 @@ export default function LeaderboardPage() {
               </div>
             )}
 
-            {/* Rows 4+ */}
-            <div className="mt-4 space-y-2">
+            {/* Rows 4+ (two columns on desktop to use the width) */}
+            <div className="mt-4 space-y-2 lg:grid lg:grid-cols-2 lg:gap-x-3 lg:gap-y-2 lg:space-y-0">
               {rest.map((e, i) => {
                 const tier = tierName(e.total_score);
                 return (
@@ -181,7 +181,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Sticky your-position bar */}
-      <div className="fixed bottom-0 left-1/2 w-full max-w-2xl -translate-x-1/2 border-t border-white/10 bg-[#0C2038]/95 px-4 py-3 backdrop-blur lg:px-8">
+      <div className="fixed bottom-0 left-1/2 w-full max-w-2xl -translate-x-1/2 border-t border-white/10 bg-[#0C2038]/95 px-4 py-3 backdrop-blur lg:max-w-5xl lg:px-8">
         <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] px-3 py-2 ring-1 ring-white/10">
           <span className="text-sm font-extrabold text-[#8AB4FF]">{myRank > 0 ? `#${myRank}` : "#—"}</span>
           <Avatar url={user?.avatar_url} color={user?.avatar_color} initials={myInitials} size={36} />
