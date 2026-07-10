@@ -104,7 +104,7 @@ export default function TopicLessons({
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-hs-bg">
       {/* Header */}
       <header className="px-4 pb-6 pt-5 lg:px-8 lg:pt-7" style={{ backgroundColor: color }}>
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-3xl lg:max-w-6xl">
           <div className="flex items-center gap-3">
             <button onClick={onBack} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white" aria-label="Back">
               <ArrowLeft size={16} />
@@ -122,7 +122,10 @@ export default function TopicLessons({
         </div>
       </header>
 
-      <div className="mx-auto max-w-3xl px-4 py-5 lg:px-8">
+      <div className="mx-auto max-w-3xl px-4 py-5 lg:max-w-6xl lg:px-8">
+       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-6">
+        {/* LEFT column: player + lesson details (Udemy-style) */}
+        <div className="min-w-0">
         {/* Video player / featured lesson */}
         {activeLesson?.type === "video" && (activeLesson.videoUrl || activeLesson.youtubeId) ? (
           <div
@@ -185,8 +188,10 @@ export default function TopicLessons({
           </div>
         )}
 
-        {/* Lessons list */}
-        <h2 className="mb-3 mt-6 text-sm font-bold text-hs-navy">Lessons</h2>
+        </div>
+        {/* RIGHT column: curriculum sidebar (Udemy-style) */}
+        <aside className="mt-6 lg:mt-0 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:rounded-2xl lg:border lg:border-hs-border lg:bg-white lg:p-3">
+        <h2 className="mb-3 text-sm font-bold text-hs-navy lg:px-1">Course content</h2>
         <div className="space-y-2.5">
           {lessons.map((l, i) => {
             const Meta = TYPE_META[l.type].icon;
@@ -216,6 +221,8 @@ export default function TopicLessons({
             );
           })}
         </div>
+        </aside>
+       </div>
       </div>
     </div>
   );
