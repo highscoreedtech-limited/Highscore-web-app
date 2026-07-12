@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   ArrowLeft, Clock, Check, X, ChevronLeft, ChevronRight, RotateCcw,
+  Calculator as CalculatorIcon,
 } from "lucide-react";
 import { CBT_BANK, CBT_EXAMS, CbtQuestion, cbtTopics } from "@/lib/cbt-bank";
 import { quizApi } from "@/lib/api";
 import { markGoal } from "@/lib/home-progress";
+import Calculator from "@/components/Calculator";
 
 type Phase = "select" | "exam" | "result";
 
@@ -39,6 +41,7 @@ export default function CbtPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [current, setCurrent] = useState(0);
   const [secsLeft, setSecsLeft] = useState(0);
+  const [calcOpen, setCalcOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const cfg = CBT_EXAMS[exam];
@@ -174,11 +177,22 @@ export default function CbtPage() {
         <header className="sticky top-0 z-10 bg-hs-navy px-4 py-3 lg:px-8">
           <div className="mx-auto flex max-w-2xl items-center justify-between">
             <span className="text-sm font-semibold text-white">{subject} · {exam}</span>
-            <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold ${low ? "bg-red-500 text-white" : "bg-white/15 text-white"}`}>
-              <Clock size={15} /> {mins}:{secs.toString().padStart(2, "0")}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCalcOpen((v) => !v)}
+                aria-label="Calculator"
+                className={`flex h-8 w-8 items-center justify-center rounded-full ${calcOpen ? "bg-hs-amber text-hs-amberDark" : "bg-white/15 text-white"}`}
+              >
+                <CalculatorIcon size={16} />
+              </button>
+              <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold ${low ? "bg-red-500 text-white" : "bg-white/15 text-white"}`}>
+                <Clock size={15} /> {mins}:{secs.toString().padStart(2, "0")}
+              </span>
+            </div>
           </div>
         </header>
+
+        {calcOpen && <Calculator onClose={() => setCalcOpen(false)} />}
 
         <div className="mx-auto max-w-2xl px-4 py-5 lg:px-8">
           {/* Progress */}
