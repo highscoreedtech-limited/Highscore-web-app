@@ -85,6 +85,11 @@ export default function CbtPage() {
     credited.current = true;
     markGoal("cbt");
     quizApi.credit(subject, correctCount * 5).catch(() => {});
+    // Count every question in this CBT toward the weekly goal.
+    if (questions.length > 0) {
+      import("@/lib/api").then(({ api }) =>
+        api("/api/user/goal/progress", { method: "POST", body: { count: questions.length } }).catch(() => {}));
+    }
   }, [phase, correctCount, questions.length, exam, subject]);
 
   const reset = () => { credited.current = false; setPhase("select"); };

@@ -19,6 +19,7 @@ import { realtime } from "@/lib/realtime/client";
 import { goalsToday, getLastSubject, type DailyGoals } from "@/lib/home-progress";
 import LottieIcon from "@/components/LottieIcon";
 import Asset3D from "@/components/Asset3D";
+import WeeklyGoalCard from "@/components/WeeklyGoalCard";
 import SubscribeTab from "./SubscribeTab";
 import DownloadsTab from "./DownloadsTab";
 import { AVATARS } from "@/lib/avatars";
@@ -341,6 +342,9 @@ function HomeTab({
 
           {/* Your Progress rail */}
           <ProgressRail xp={myPoints} goals={goals} />
+
+          {/* Weekly goal */}
+          <WeeklyGoalCard />
         </div>
 
         {/* Leaderboard panel */}
