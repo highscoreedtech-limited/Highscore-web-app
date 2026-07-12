@@ -324,7 +324,8 @@ export const TOPICS: Record<string, TopicInfo[]> = {
       "name": "Scalars & Vectors",
       "lessons": 6,
       "hours": 2,
-      "progress": 1
+      "progress": 1,
+      "videoUrl": "https://res.cloudinary.com/dn7o8lwle/video/upload/samples/cld-sample-video.mp4"
     },
     {
       "name": "Kinematics: Linear Motion",
