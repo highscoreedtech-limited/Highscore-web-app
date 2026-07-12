@@ -22,12 +22,13 @@ export default function SubjectDetailPage() {
   const color = subject?.color || "#185FA5";
   const [openTopic, setOpenTopic] = useState<TopicInfo | null>(null);
 
-  // Per-subject access gate.
+  // Access gate: one subscription unlocks all subjects (all_access). Legacy
+  // per-subject rows are still honoured for grandfathered purchases.
   const [locked, setLocked] = useState(false);
   useEffect(() => {
     if (!name) return;
-    api<{ subjects: { subject: string }[] }>("/api/user/subject-access")
-      .then((d) => setLocked(!(d?.subjects || []).some((s) => s.subject === name)))
+    api<{ all_access: boolean; subjects: { subject: string }[] }>("/api/user/subject-access")
+      .then((d) => setLocked(!d?.all_access && !(d?.subjects || []).some((s) => s.subject === name)))
       .catch(() => setLocked(false)); // fail open, don't block on a network error
   }, [name]);
 
@@ -89,8 +90,8 @@ export default function SubjectDetailPage() {
               <Lock size={16} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-hs-amberDark">{name} is locked</p>
-              <p className="text-[11px] text-hs-amberDark/80">Unlock its lessons, CBT & quiz, tap to choose a plan.</p>
+              <p className="text-sm font-bold text-hs-amberDark">Subjects are locked</p>
+              <p className="text-[11px] text-hs-amberDark/80">One plan unlocks every subject — lessons, CBT & quiz. Tap to subscribe.</p>
             </div>
             <span className="rounded-full bg-hs-amber px-3 py-1.5 text-xs font-bold text-hs-amberDark">Unlock</span>
           </button>
