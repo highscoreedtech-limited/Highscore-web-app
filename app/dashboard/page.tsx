@@ -528,12 +528,16 @@ function Placeholder({ title, subtitle }: { title: string; subtitle: string }) {
   );
 }
 
+interface SubStatus { all_access: boolean; plan: string; total: number; paid: number; outstanding: number }
+
 function MoreTab({ onLogout }: { onLogout: () => void }) {
   const { user, logout, refreshProfile } = useAuth();
   const router = useRouter();
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [rateOpen, setRateOpen] = useState(false);
+  const [sub, setSub] = useState<SubStatus | null>(null);
+  useEffect(() => { api<SubStatus>("/api/user/subject-access").then(setSub).catch(() => {}); }, []);
   const name = user ? `${user.first_name} ${user.last_name}`.trim() : "HighScore User";
   const initials = ((user?.first_name?.[0] ?? "") + (user?.last_name?.[0] ?? "")).toUpperCase() || "?";
   const tier = (user?.subscription_tier ?? "free").toLowerCase();
@@ -565,21 +569,31 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
           </span>
         </div>
 
-        {/* Wallet */}
+        {/* Subscription status */}
         <div className="mt-5 rounded-2xl bg-hs-navy p-4 text-white">
-          <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
-              <Asset3D name="hst" fallback="💎" size={30} float={false} />
+          <div className="flex items-center justify-between">
+            <button onClick={() => router.push("/subscription")} className="flex items-center gap-1 text-sm font-bold">
+              Subscription <ChevronRight size={15} className="text-white/70" />
+            </button>
+            <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-bold capitalize">
+              {sub?.all_access ? `${sub.plan} · active` : "not active"}
             </span>
-            <div>
-              <p className="text-[11px] text-[#B8CCE0]">HST wallet balance</p>
-              <p className="text-2xl font-extrabold text-hs-amber">{user?.hst_balance ?? 0} <span className="text-sm">HST</span></p>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-white/10 p-3">
+              <p className="text-[11px] text-[#B8CCE0]">Subscription balance</p>
+              <p className="mt-0.5 text-xl font-extrabold text-hs-amber">₦{(sub?.paid ?? 0).toLocaleString()}</p>
+              <p className="text-[10px] text-[#B8CCE0]/80">paid{sub?.total ? ` of ₦${sub.total.toLocaleString()}` : ""}</p>
+            </div>
+            <div className="rounded-xl bg-white/10 p-3">
+              <p className="text-[11px] text-[#B8CCE0]">Outstanding balance</p>
+              <p className={`mt-0.5 text-xl font-extrabold ${(sub?.outstanding ?? 0) > 0 ? "text-[#FF9A62]" : "text-white"}`}>₦{(sub?.outstanding ?? 0).toLocaleString()}</p>
+              <p className="text-[10px] text-[#B8CCE0]/80">{(sub?.outstanding ?? 0) > 0 ? "remaining" : "all clear"}</p>
             </div>
           </div>
-          <div className="mt-4 flex gap-2.5">
-            <button onClick={() => router.push("/rewards")} className="flex-1 rounded-xl bg-white/10 py-2.5 text-sm font-semibold hover:bg-white/15">Convert points</button>
-            <button onClick={() => setRedeemOpen(true)} className="flex-1 rounded-xl bg-gradient-to-r from-[#FFC85C] to-[#EF9F27] py-2.5 text-sm font-bold text-hs-amberDark shadow-[0_8px_18px_-6px_rgba(239,159,39,0.7)]">Redeem</button>
-          </div>
+          <button onClick={() => router.push("/dashboard?tab=1")} className="mt-3 w-full rounded-xl bg-gradient-to-r from-[#FFC85C] to-[#EF9F27] py-2.5 text-sm font-bold text-hs-amberDark shadow-[0_8px_18px_-6px_rgba(239,159,39,0.7)]">
+            {!sub?.all_access ? "Subscribe" : (sub.outstanding > 0 ? "Pay outstanding balance" : "Manage subscription")}
+          </button>
         </div>
 
         {/* Menu */}
@@ -611,7 +625,7 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
       </div>
 
       <AvatarPickerModal open={avatarOpen} current={avatarUrl} onClose={() => setAvatarOpen(false)} onSaved={() => refreshProfile().catch(() => {})} />
-      <RedeemModal open={redeemOpen} balance={user?.hst_balance ?? 0} onClose={() => setRedeemOpen(false)} />
+      <RedeemModal open={redeemOpen} balance={user?.hsp_balance ?? 0} onClose={() => setRedeemOpen(false)} />
       <RateModal open={rateOpen} onClose={() => setRateOpen(false)} />
     </div>
   );

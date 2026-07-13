@@ -63,7 +63,7 @@ export default function RewardsPage() {
   const [visited, setVisited] = useState<Record<string, number>>({});
   const [, setTick] = useState(0); // drives the social cooldown countdown
 
-  const hst = user?.hst_balance ?? 0;
+  const hst = user?.hsp_balance ?? 0;
   const streak = user?.streak_count ?? 0;
   const done = streak % 7;
   const COOLDOWN = 15; // seconds, matches the backend claim cooldown
@@ -123,9 +123,9 @@ export default function RewardsPage() {
     if (preset > points) { toast.error("Not enough points."); return; }
     setConverting(true);
     try {
-      // Backend converts points -> HST (50 points = 1 HST), expects { points }.
+      // Backend converts points -> HSP (50 points = 1 HSP), expects { points }.
       await api("/api/user/wallet/convert", { method: "POST", body: { points: preset } });
-      toast.success(`Converted ${preset} points to ${Math.floor(preset / 50)} HST!`);
+      toast.success(`Converted ${preset} points to ${Math.floor(preset / 50)} HSP!`);
       setPreset(null);
       refreshProfile().catch(() => {});
     } catch (e: any) {
@@ -166,8 +166,8 @@ export default function RewardsPage() {
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-4">
               <Asset3D name="hst" fallback="🟢" size={38} float={false} />
               <div>
-                <p className="text-[11px] text-[#B8CCE0]">HST wallet</p>
-                <p className="mt-0.5 text-2xl font-extrabold text-white">{hst.toLocaleString()} HST</p>
+                <p className="text-[11px] text-[#B8CCE0]">HSP wallet</p>
+                <p className="mt-0.5 text-2xl font-extrabold text-white">{hst.toLocaleString()} HSP</p>
               </div>
             </div>
           </motion.div>
@@ -238,9 +238,9 @@ export default function RewardsPage() {
             <div className="rounded-2xl border border-hs-border bg-white p-5">
               <div className="flex items-center gap-2 text-hs-navy">
                 <ArrowRightLeft size={18} className="text-hs-blue" />
-                <p className="text-sm font-bold">Convert points to HST</p>
+                <p className="text-sm font-bold">Convert points to HSP</p>
               </div>
-              <p className="mt-1 text-xs text-hs-muted">Turn your earned points into HST tokens you can redeem.</p>
+              <p className="mt-1 text-xs text-hs-muted">Turn your earned points into HSP you can redeem.</p>
               <div className="mt-4 grid grid-cols-4 gap-2">
                 {PRESETS.map((p) => (
                   <button
@@ -257,7 +257,7 @@ export default function RewardsPage() {
                 onClick={convert}
                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2F6BFF] to-[#1D4ED8] py-3 font-semibold text-white shadow-[0_10px_22px_-6px_rgba(29,78,216,0.6)] transition hover:brightness-110 disabled:opacity-40"
               >
-                <Sparkles size={18} /> {converting ? "Converting…" : preset ? `Convert ${preset} pts → ${Math.floor(preset / 50)} HST` : "Select an amount"}
+                <Sparkles size={18} /> {converting ? "Converting…" : preset ? `Convert ${preset} pts → ${Math.floor(preset / 50)} HSP` : "Select an amount"}
               </button>
             </div>
           </motion.div>
@@ -267,7 +267,7 @@ export default function RewardsPage() {
   );
 }
 
-// Brand-coloured conversion-rate card (50 points = 1 HST).
+// Brand-coloured conversion-rate card (50 points = 1 HSP).
 function ConversionRateCard() {
   return (
     <div className="mb-4 rounded-2xl border border-hs-blue/20 bg-hs-blueTint p-4">
@@ -277,10 +277,10 @@ function ConversionRateCard() {
         </span>
         <div>
           <p className="text-[11px] font-bold uppercase tracking-wide text-hs-blue">Conversion rate</p>
-          <p className="text-lg font-extrabold text-hs-navy">50 points = <span className="text-hs-amberDark">1 HST</span></p>
+          <p className="text-lg font-extrabold text-hs-navy">50 points = <span className="text-hs-amberDark">1 HSP</span></p>
         </div>
       </div>
-      <p className="mt-2 text-xs text-hs-muted">Turn your earned points into HST tokens, then redeem them for airtime, data and more.</p>
+      <p className="mt-2 text-xs text-hs-muted">Turn your earned points into HSP, then redeem them for airtime, data and more.</p>
     </div>
   );
 }

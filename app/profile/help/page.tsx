@@ -6,7 +6,7 @@ import { ArrowLeft, Mail, MessageCircle, Bug, HelpCircle, ChevronDown } from "lu
 
 const FAQS = [
   { q: "I paid but my subscription isn't active. What do I do?", a: "This can happen if you closed the app before the payment was verified. Reopen the app, it automatically verifies on launch. If the issue persists, contact support with your payment reference." },
-  { q: "How are points and HST tokens different?", a: "You earn points by playing quizzes, keeping streaks and referring friends. You can convert points into HST tokens (50 points = 1 HST), which you redeem for real rewards in your wallet." },
+  { q: "How are points and HSP different?", a: "You earn points by playing quizzes, keeping streaks and referring friends. You can convert points into HSP (50 points = 1 HSP), which you redeem for real rewards in your wallet." },
   { q: "Does HighScore work offline?", a: "Your streak and some data is saved on your device, so parts work without internet. However, quiz questions, the leaderboard, and multiplayer battles need an internet connection." },
   { q: "How do I climb the leaderboard?", a: "Play more quizzes and CBT practice, keep your daily streak, and win battles. Points from these actions feed your leaderboard ranking in real time." },
 ];

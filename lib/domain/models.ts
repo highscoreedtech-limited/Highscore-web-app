@@ -12,7 +12,7 @@ export interface User {
   avatar_color: string;
   avatar_url: string;
   streak_count: number;
-  hst_balance: number;
+  hsp_balance: number;
   referral_code?: string | null;
   referral_count: number;
   referral_points: number;
