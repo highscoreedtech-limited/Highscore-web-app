@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Check, Lock, BadgeCheck, CalendarClock, Coins, Zap } from "lucide-react";
+import { Check, BadgeCheck, Lock } from "lucide-react";
 import { api } from "@/lib/api";
 
-const naira = (n: number) => `₦${n.toLocaleString()}`;
+type Plan = "weekly" | "monthly";
+interface PlanInfo { pay: number; full: number; days: number }
+interface Status { all_access: boolean; plan: string; days_remaining: number; plans: Record<Plan, PlanInfo> }
+
+const naira = (n: number) => `₦${(n ?? 0).toLocaleString()}`;
 
 const PERKS = [
   "Every subject unlocked — no picking and choosing",
@@ -14,128 +18,85 @@ const PERKS = [
   "Quiz battles & leaderboards",
 ];
 
-interface Status {
-  all_access: boolean;
-  days_remaining: number;
-  points_balance: number;
-  points_per_day: number;
-  naira_per_month: number;
-  month_days: number;
-  min_naira: number;
-}
-
-const CASH_PRESETS = [600, 1250, 2200, 5000];
-const DAY_BUNDLES = [1, 3, 7, 14];
+// Fallback prices (used until the backend responds).
+const FALLBACK: Record<Plan, PlanInfo> = {
+  weekly: { pay: 700, full: 1250, days: 7 },
+  monthly: { pay: 2500, full: 5000, days: 30 },
+};
 
 export default function SubscribeTab() {
-  const [s, setS] = useState<Status | null>(null);
-  const [amount, setAmount] = useState(2200);
+  const [plan, setPlan] = useState<Plan>("monthly");
+  const [status, setStatus] = useState<Status | null>(null);
   const [loading, setLoading] = useState(false);
-  const [redeeming, setRedeeming] = useState(0);
 
-  const load = () => api<Status>("/api/user/subject-access").then(setS).catch(() => {});
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    api<Status>("/api/user/subject-access").then((d) => setStatus(d)).catch(() => {});
+  }, []);
 
-  const rate = s ? s.naira_per_month / s.month_days : 167;       // ₦/day
-  const ppd = s?.points_per_day ?? 300;                          // points/day
-  const minNaira = s?.min_naira ?? 600;
+  const plans = status?.plans ?? FALLBACK;
+  const cfg = plans[plan] ?? FALLBACK[plan];
 
-  const daysForNaira = (n: number) => Math.floor(n / rate);
-  const clamped = Math.max(minNaira, amount || 0);
-  const daysBuying = daysForNaira(clamped);
-
-  const payCash = async () => {
+  const pay = async () => {
     setLoading(true);
     try {
       const data = await api<{ authorization_url: string; reference: string }>(
-        "/api/payment/initialize", { method: "POST", body: { amount: clamped } });
+        "/api/payment/initialize",
+        { method: "POST", body: { plan } }
+      );
       localStorage.setItem("hs_pay_ref", data.reference);
       window.location.href = data.authorization_url;
-    } catch (e: any) { toast.error(e?.message || "Could not start payment."); setLoading(false); }
+    } catch (e: any) {
+      toast.error(e?.message || "Could not start payment. Please try again.");
+      setLoading(false);
+    }
   };
-
-  const redeem = async (days: number) => {
-    const points = days * ppd;
-    setRedeeming(days);
-    try {
-      await api("/api/payment/topup-points", { method: "POST", body: { points } });
-      toast.success(`${days} day${days === 1 ? "" : "s"} of access added! 🎯`);
-      await load();
-    } catch (e: any) { toast.error(e?.message || "Couldn't redeem points."); } finally { setRedeeming(0); }
-  };
-
-  const maxDaysFromPoints = useMemo(() => (s ? Math.floor(s.points_balance / ppd) : 0), [s, ppd]);
 
   return (
     <div className="pb-28 md:pb-6">
       <header className="bg-hs-navy px-4 pb-6 pt-5 lg:px-8 lg:pt-7">
         <div className="mx-auto max-w-2xl">
           <h1 className="text-xl font-bold text-white">Unlock everything</h1>
-          <p className="mt-1.5 text-sm text-white/70">Pay as you go — top up any amount for <span className="font-semibold text-white">days of full access</span>. No bills, no debt.</p>
+          <p className="mt-1.5 text-sm text-white/70">One plan unlocks <span className="font-semibold text-white">all subjects</span> — lessons, CBT and quiz battles.</p>
         </div>
       </header>
 
       <div className="mx-auto max-w-2xl px-4 pt-5 lg:px-8">
-        {/* Status */}
-        {s?.all_access ? (
+        {status?.all_access && (
           <div className="mb-5 flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 p-4">
             <BadgeCheck size={22} className="shrink-0 text-green-600" />
-            <div><p className="text-sm font-bold text-green-700">Full access active 🎉</p>
-              <p className="text-[12px] text-green-700/80">{s.days_remaining} day{s.days_remaining === 1 ? "" : "s"} of access left — top up anytime to extend.</p></div>
-          </div>
-        ) : (
-          <div className="mb-5 flex items-center gap-3 rounded-2xl border border-hs-border bg-white p-4">
-            <CalendarClock size={22} className="shrink-0 text-hs-muted" />
-            <p className="text-sm font-semibold text-hs-navy">No active access — top up with cash or points to unlock everything.</p>
+            <div>
+              <p className="text-sm font-bold text-green-700">Full access active 🎉</p>
+              <p className="text-[12px] text-green-700/80">{status.days_remaining} day{status.days_remaining === 1 ? "" : "s"} left. Renew below to extend.</p>
+            </div>
           </div>
         )}
 
-        {/* Cash top-up */}
-        <div className="rounded-2xl border border-hs-border bg-white p-5">
-          <div className="flex items-center gap-2"><Zap size={18} className="text-hs-blue" /><p className="text-sm font-bold text-hs-navy">Top up with cash</p></div>
-          <p className="mt-1 text-xs text-hs-muted">≈ {naira(Math.round(rate))} a day · {naira(s?.naira_per_month ?? 5000)} = {s?.month_days ?? 30} days.</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {CASH_PRESETS.map((p) => (
-              <button key={p} onClick={() => setAmount(p)} className={`rounded-full px-3.5 py-1.5 text-sm font-bold ${clamped === p ? "bg-hs-blue text-white" : "border border-hs-border text-hs-navy"}`}>
-                {naira(p)} <span className="opacity-70">· {daysForNaira(p)}d</span>
+        {/* Plan cards */}
+        <div className="grid grid-cols-2 gap-3">
+          {(["weekly", "monthly"] as Plan[]).map((p) => {
+            const info = plans[p] ?? FALLBACK[p];
+            const on = plan === p;
+            const best = p === "monthly";
+            const save = info.full - info.pay;
+            return (
+              <button key={p} onClick={() => setPlan(p)}
+                className={`relative flex flex-col items-start rounded-2xl border-2 bg-white p-4 text-left transition ${on ? "border-hs-blue shadow-[0_8px_24px_-10px_rgba(24,95,165,0.5)]" : "border-hs-border"}`}>
+                {best && <span className="absolute -top-2 right-3 rounded-full bg-hs-amber px-2 py-0.5 text-[10px] font-extrabold text-hs-amberDark">BEST VALUE</span>}
+                <span className="text-xs font-bold uppercase tracking-wide text-hs-muted">{p}</span>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="text-2xl font-extrabold text-hs-navy">{naira(info.pay)}</span>
+                  <span className="text-sm text-hs-muted line-through">{naira(info.full)}</span>
+                </div>
+                <span className="text-[11px] text-hs-muted">for {info.days} days · all subjects</span>
+                {save > 0 && <span className="mt-1.5 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-600">Save {naira(save)}</span>}
+                <span className={`mt-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${on ? "border-hs-blue bg-hs-blue" : "border-gray-300"}`}>{on && <Check size={12} className="text-white" />}</span>
               </button>
-            ))}
-            <div className="flex items-center rounded-full border border-hs-border px-3">
-              <span className="text-sm font-bold text-hs-muted">₦</span>
-              <input type="number" min={minNaira} value={amount || ""} onChange={(e) => setAmount(Number(e.target.value) || 0)} className="w-20 py-1.5 text-sm font-bold text-hs-navy outline-none" />
-            </div>
-          </div>
-          <button onClick={payCash} disabled={loading} className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-hs-blue py-3 text-sm font-bold text-white disabled:opacity-50">
-            {loading ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <><Lock size={15} /> Pay {naira(clamped)} · get {daysBuying} day{daysBuying === 1 ? "" : "s"}</>}
-          </button>
-          <p className="mt-2 text-center text-[11px] text-hs-muted">Powered by Paystack · Secure payment</p>
-        </div>
-
-        {/* Points top-up */}
-        <div className="mt-4 rounded-2xl border border-hs-amber/30 bg-hs-amberBg/40 p-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2"><Coins size={18} className="text-hs-amberDark" /><p className="text-sm font-bold text-hs-navy">Or use your points</p></div>
-            <span className="rounded-full bg-white px-2.5 py-0.5 text-[11px] font-bold text-hs-amberDark">{(s?.points_balance ?? 0).toLocaleString()} pts</span>
-          </div>
-          <p className="mt-1 text-xs text-hs-muted">Turn earned points into access — {ppd} points = 1 day. You can get up to {maxDaysFromPoints} day{maxDaysFromPoints === 1 ? "" : "s"} right now.</p>
-          <div className="mt-3 grid grid-cols-4 gap-2">
-            {DAY_BUNDLES.map((d) => {
-              const cost = d * ppd;
-              const can = (s?.points_balance ?? 0) >= cost;
-              return (
-                <button key={d} disabled={!can || redeeming > 0} onClick={() => redeem(d)}
-                  className={`rounded-xl border-2 p-2.5 text-center ${can ? "border-hs-amber bg-white" : "border-hs-border bg-white opacity-50"}`}>
-                  <p className="text-base font-extrabold text-hs-navy">{d}d</p>
-                  <p className="text-[10px] font-semibold text-hs-amberDark">{redeeming === d ? "…" : `${cost} pts`}</p>
-                </button>
-              );
-            })}
-          </div>
-          {maxDaysFromPoints === 0 && <p className="mt-2 text-[11px] text-hs-muted">Earn more points in quizzes, CBT and battles to redeem access.</p>}
+            );
+          })}
         </div>
 
         {/* Perks */}
-        <div className="mt-4 rounded-2xl border border-hs-border bg-white p-4">
+        <div className="mt-5 rounded-2xl border border-hs-border bg-white p-4">
           <p className="text-sm font-bold text-hs-navy">What you get</p>
           <ul className="mt-3 space-y-2.5">
             {PERKS.map((perk) => (
@@ -143,6 +104,22 @@ export default function SubscribeTab() {
             ))}
           </ul>
         </div>
+      </div>
+
+      {/* Sticky pay bar */}
+      <div className="fixed inset-x-0 bottom-16 z-30 border-t border-hs-border bg-white px-4 py-3 md:static md:mt-6 md:border-0 md:px-8">
+        <div className="mx-auto flex max-w-2xl items-center gap-3">
+          <div className="flex-1">
+            <p className="text-[11px] text-hs-muted capitalize">{plan} · {cfg.days} days</p>
+            <p className="text-lg font-extrabold text-hs-navy">{naira(cfg.pay)}</p>
+          </div>
+          <button onClick={pay} disabled={loading}
+            className="flex h-12 items-center justify-center gap-2 rounded-full bg-hs-blue px-6 text-sm font-bold text-white disabled:opacity-50">
+            {loading ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              : <><Lock size={15} /> {status?.all_access ? "Renew" : "Pay & unlock"}</>}
+          </button>
+        </div>
+        <p className="mx-auto mt-2 max-w-2xl text-center text-[11px] text-hs-muted md:text-left">Powered by Paystack · Secure payment</p>
       </div>
     </div>
   );

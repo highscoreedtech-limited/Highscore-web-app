@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BadgeCheck, CalendarClock, Receipt, CreditCard, Coins } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Clock, Receipt, CreditCard } from "lucide-react";
 import { api } from "@/lib/api";
 
 const naira = (n: number) => `₦${(n ?? 0).toLocaleString()}`;
 const fmtDate = (s?: string) => (s ? new Date(s).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—");
 
-interface Summary { active: boolean; days_remaining: number; expires_at?: string }
-interface Payment { id: number; amount: number; points: number; days: number; kind: string; created_at: string }
+interface Summary { active: boolean; plan: string; days_remaining: number; expires_at?: string }
+interface Payment { id: number; plan: string; amount: number; days: number; created_at: string }
 
 export default function SubscriptionPage() {
   const router = useRouter();
@@ -20,12 +20,11 @@ export default function SubscriptionPage() {
   useEffect(() => {
     api<{ summary: Summary; payments: Payment[] }>("/api/payment/history")
       .then((d) => { setSummary(d?.summary ?? null); setPayments(d?.payments ?? []); })
-      .catch(() => {}).finally(() => setLoaded(true));
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, []);
 
   if (!loaded) return <div className="flex min-h-screen items-center justify-center bg-hs-bg"><span className="h-7 w-7 animate-spin rounded-full border-2 border-hs-blue border-t-transparent" /></div>;
-
-  const days = summary?.days_remaining ?? 0;
 
   return (
     <div className="min-h-screen bg-hs-bg pb-12">
@@ -40,43 +39,40 @@ export default function SubscriptionPage() {
         {/* Summary */}
         <div className="-mt-5 rounded-3xl border border-hs-border bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2">
-            {summary?.active ? <BadgeCheck size={20} className="text-green-600" /> : <CalendarClock size={20} className="text-hs-muted" />}
-            <p className="text-sm font-bold text-hs-navy">{summary?.active ? "Full access active" : "No active access"}</p>
+            <BadgeCheck size={20} className={summary?.active ? "text-green-600" : "text-hs-muted"} />
+            <p className="text-sm font-bold text-hs-navy">{summary?.active ? "Full access active" : "No active subscription"}</p>
+            {summary?.active && summary.plan && <span className="ml-auto rounded-full bg-hs-blueTint px-2.5 py-0.5 text-[11px] font-bold capitalize text-hs-blue">{summary.plan}</span>}
           </div>
-          <div className="mt-4 flex items-end justify-center gap-2 rounded-2xl bg-hs-bg py-6">
-            <span className="text-5xl font-extrabold text-hs-navy">{days}</span>
-            <span className="mb-1.5 text-lg font-bold text-hs-muted">day{days === 1 ? "" : "s"} left</span>
+
+          <div className="mt-4 rounded-2xl bg-hs-bg py-6 text-center">
+            <p className="text-5xl font-extrabold text-hs-navy">{summary?.days_remaining ?? 0}<span className="ml-1 text-lg font-bold text-hs-muted">day{summary?.days_remaining === 1 ? "" : "s"} left</span></p>
+            <p className="mt-1 flex items-center justify-center gap-1 text-xs text-hs-muted"><Clock size={12} /> {summary?.active ? `Access ends ${fmtDate(summary?.expires_at)}` : "Subscribe to unlock every subject"}</p>
           </div>
-          <p className="mt-2 text-center text-[12px] text-hs-muted">{summary?.active ? `Access ends ${fmtDate(summary?.expires_at)}` : "Top up to unlock every subject"}</p>
-          <button onClick={() => router.push("/dashboard?tab=1")} className="mt-4 w-full rounded-full bg-gradient-to-r from-[#FFC85C] to-[#EF9F27] py-3 text-sm font-bold text-hs-amberDark">
-            {summary?.active ? "Top up access" : "Unlock everything"}
+
+          <button onClick={() => router.push("/dashboard?tab=1")} className="mt-4 w-full rounded-full bg-hs-blue py-3 text-sm font-bold text-white">
+            {summary?.active ? "Renew subscription" : "Subscribe"}
           </button>
         </div>
 
         {/* History */}
         <div className="mt-6 flex items-center gap-2">
           <Receipt size={16} className="text-hs-navy" />
-          <h2 className="text-sm font-bold text-hs-navy">Top-up history</h2>
+          <h2 className="text-sm font-bold text-hs-navy">Payment history</h2>
         </div>
         {payments.length === 0 ? (
-          <div className="mt-3 rounded-2xl border border-hs-border bg-white p-6 text-center text-sm text-hs-muted">No top-ups yet.</div>
+          <div className="mt-3 rounded-2xl border border-hs-border bg-white p-6 text-center text-sm text-hs-muted">No payments yet.</div>
         ) : (
           <div className="mt-3 space-y-2">
-            {payments.map((p) => {
-              const points = p.kind === "points";
-              return (
-                <div key={p.id} className="flex items-center gap-3 rounded-2xl border border-hs-border bg-white p-3.5">
-                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${points ? "bg-hs-amberBg text-hs-amberDark" : "bg-hs-blueTint text-hs-blue"}`}>
-                    {points ? <Coins size={16} /> : <CreditCard size={16} />}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-hs-navy">{points ? "Points top-up" : "Cash top-up"} · +{p.days} day{p.days === 1 ? "" : "s"}</p>
-                    <p className="text-[11px] text-hs-muted">{fmtDate(p.created_at)}</p>
-                  </div>
-                  <span className="text-sm font-extrabold text-hs-navy">{points ? `${p.points.toLocaleString()} pts` : naira(p.amount)}</span>
+            {payments.map((p) => (
+              <div key={p.id} className="flex items-center gap-3 rounded-2xl border border-hs-border bg-white p-3.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-hs-blueTint text-hs-blue"><CreditCard size={16} /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-hs-navy capitalize">{p.plan} plan · {p.days} days</p>
+                  <p className="text-[11px] text-hs-muted">{fmtDate(p.created_at)}</p>
                 </div>
-              );
-            })}
+                <span className="text-sm font-extrabold text-hs-navy">{naira(p.amount)}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>

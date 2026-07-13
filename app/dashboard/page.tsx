@@ -528,7 +528,7 @@ function Placeholder({ title, subtitle }: { title: string; subtitle: string }) {
   );
 }
 
-interface SubStatus { all_access: boolean; days_remaining: number; points_balance: number }
+interface SubStatus { all_access: boolean; days_remaining: number }
 
 function MoreTab({ onLogout }: { onLogout: () => void }) {
   const { user, logout, refreshProfile } = useAuth();
@@ -579,20 +579,13 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
               {sub?.all_access ? "active" : "not active"}
             </span>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-white/10 p-3">
-              <p className="text-[11px] text-[#B8CCE0]">Access remaining</p>
-              <p className="mt-0.5 text-xl font-extrabold text-hs-amber">{sub?.all_access ? `${sub.days_remaining} day${sub.days_remaining === 1 ? "" : "s"}` : "—"}</p>
-              <p className="text-[10px] text-[#B8CCE0]/80">{sub?.all_access ? "of full access" : "no active access"}</p>
-            </div>
-            <div className="rounded-xl bg-white/10 p-3">
-              <p className="text-[11px] text-[#B8CCE0]">Points available</p>
-              <p className="mt-0.5 text-xl font-extrabold text-white">{(sub?.points_balance ?? 0).toLocaleString()}</p>
-              <p className="text-[10px] text-[#B8CCE0]/80">redeem for days</p>
-            </div>
+          <div className="mt-3 rounded-xl bg-white/10 p-3">
+            <p className="text-[11px] text-[#B8CCE0]">Access remaining</p>
+            <p className="mt-0.5 text-2xl font-extrabold text-hs-amber">{sub?.all_access ? `${sub.days_remaining} day${sub.days_remaining === 1 ? "" : "s"}` : "—"}</p>
+            <p className="text-[10px] text-[#B8CCE0]/80">{sub?.all_access ? "of full access" : "no active subscription"}</p>
           </div>
           <button onClick={() => router.push("/dashboard?tab=1")} className="mt-3 w-full rounded-xl bg-gradient-to-r from-[#FFC85C] to-[#EF9F27] py-2.5 text-sm font-bold text-hs-amberDark shadow-[0_8px_18px_-6px_rgba(239,159,39,0.7)]">
-            {sub?.all_access ? "Top up access" : "Unlock everything"}
+            {sub?.all_access ? "Renew subscription" : "Subscribe"}
           </button>
         </div>
 
