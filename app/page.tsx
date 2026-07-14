@@ -5,20 +5,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  PlayCircle, Laptop, Gamepad2, Medal, LineChart, Gift,
   ArrowRight, Check, Menu, X, GraduationCap, Play, ChevronLeft, ChevronRight,
   User, Instagram, Twitter, Youtube,
 } from "lucide-react";
 import { Reveal, stagger, item } from "@/components/Reveal";
-import LottieIcon from "@/components/LottieIcon";
 
+// Image-driven feature cards (editorial style). Each image describes the feature.
 const FEATURES = [
-  { icon: PlayCircle, lottie: "/lottie/video-player.json", title: "Video lessons", desc: "Bite-sized lessons for every JAMB, WAEC & NECO topic, taught by top teachers.", color: "#185FA5", bg: "#E6F1FB" },
-  { icon: Laptop, lottie: "/lottie/cbt.json", title: "CBT practice", desc: "Real exam-style computer-based tests with instant scoring and explanations.", color: "#185FA5", bg: "#E6F1FB" },
-  { icon: Gamepad2, lottie: "/lottie/quiz-games.json", title: "Quiz battles", desc: "Challenge friends in live 1-v-1 quiz games and climb the ranks.", color: "#854F0B", bg: "#FAEEDA" },
-  { icon: Medal, lottie: "/lottie/chart-growup.json", title: "Leaderboards", desc: "Compete with students across Nigeria and earn your spot at the top.", color: "#854F0B", bg: "#FAEEDA" },
-  { icon: LineChart, lottie: "/lottie/graph.json", title: "Analytics", desc: "Track your progress, spot weak topics and study smarter, not harder.", color: "#185FA5", bg: "#E6F1FB" },
-  { icon: Gift, lottie: "/lottie/reward.json", title: "Rewards", desc: "Earn points and streaks as you learn, and turn them into real rewards.", color: "#854F0B", bg: "#FAEEDA" },
+  { tag: "Learn", title: "Video lessons", desc: "Bite-sized lessons for every JAMB, WAEC & NECO topic, taught by top teachers.", img: "/tutorials.jpg" },
+  { tag: "Practice", title: "CBT practice", desc: "Real exam-style computer-based tests with instant scoring and explanations.", img: "/cbt.jpg" },
+  { tag: "Compete", title: "Quiz battles", desc: "Challenge friends in live 1-v-1 quiz games and climb the ranks.", img: "/quiz.jpg" },
+  { tag: "Rank", title: "Leaderboards", desc: "Compete with students across Nigeria and earn your spot at the top.", img: "/leaderboard.png" },
+  { tag: "Track", title: "Analytics", desc: "Track your progress, spot weak topics and study smarter, not harder.", img: "/ai.jpg" },
+  { tag: "Earn", title: "Rewards", desc: "Earn points and streaks as you learn, and turn them into real rewards.", img: "/rewards.png" },
 ];
 
 const PLANS = [
