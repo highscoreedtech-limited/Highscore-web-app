@@ -14,7 +14,7 @@ import { Reveal, stagger, item } from "@/components/Reveal";
 const FEATURES = [
   { tag: "Learn", title: "Video lessons", desc: "Bite-sized lessons for every JAMB, WAEC & NECO topic, taught by top teachers.", img: "/tutorials.jpg" },
   { tag: "Practice", title: "CBT practice", desc: "Real exam-style computer-based tests with instant scoring and explanations.", img: "/cbt.jpg" },
-  { tag: "Compete", title: "Quiz battles", desc: "Challenge friends in live 1-v-1 quiz games and climb the ranks.", img: "/quiz-battle.png" },
+  { tag: "Compete", title: "Quiz battles", desc: "Challenge friends in live 1-v-1 quiz games and climb the ranks.", img: "/quiz-battle.webp" },
   { tag: "Rank", title: "Leaderboards", desc: "Compete with students across Nigeria and earn your spot at the top.", img: "/leaderboard.png" },
   { tag: "Track", title: "Analytics", desc: "Track your progress, spot weak topics and study smarter, not harder.", img: "/ai.jpg" },
   { tag: "Earn", title: "Rewards", desc: "Earn points and streaks as you learn, and turn them into real rewards.", img: "/rewards.png" },
