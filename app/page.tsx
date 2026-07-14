@@ -21,9 +21,8 @@ const FEATURES = [
 ];
 
 const PLANS = [
-  { label: "Free Trial", price: "₦0", per: "", note: "2 days of full access", cta: "Start free trial", popular: false },
-  { label: "Weekly", price: "₦650", per: "/wk", note: "₦93/day · manual or auto-renew", cta: "Choose weekly", popular: false },
-  { label: "Monthly", price: "₦2,100", per: "/mo", note: "₦70/day · save ₦712 vs weekly", cta: "Choose monthly", popular: true },
+  { label: "Weekly", price: "₦700", was: "₦1,250", per: "/wk", note: "7 days of full access · 44% off", cta: "Choose weekly", popular: false },
+  { label: "Monthly", price: "₦2,500", was: "₦5,000", per: "/mo", note: "30 days of full access · 50% off", cta: "Choose monthly", popular: true },
 ];
 
 const PLAN_FEATURES = [
@@ -253,35 +252,33 @@ export default function MarketingPage() {
           <h2 className="text-3xl font-extrabold text-hs-navy lg:text-4xl">Everything you need to ace it</h2>
           <p className="mt-3 text-hs-muted">One app for lessons, practice, competition and tracking, built for Nigerian students.</p>
         </Reveal>
+        {/* Editorial feature cards — image-led, magazine style */}
         <motion.div
-          className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           variants={stagger}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
         >
-          {FEATURES.map((f) => {
-            const Icon = f.icon;
-            return (
-              <motion.div
-                key={f.title}
-                variants={item}
-                whileHover={{ y: -8 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="rounded-2xl border border-hs-border bg-white p-6 shadow-[0_10px_30px_-8px_rgba(4,44,83,0.16)] hover:shadow-[0_22px_44px_-12px_rgba(4,44,83,0.28)]"
-              >
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl" style={{ backgroundColor: f.bg }}>
-                  <LottieIcon
-                    src={f.lottie}
-                    className="h-11 w-11"
-                    fallback={<Icon size={24} style={{ color: f.color }} />}
-                  />
-                </span>
-                <h3 className="mt-4 text-lg font-bold text-hs-navy">{f.title}</h3>
-                <p className="mt-1.5 text-sm text-hs-muted">{f.desc}</p>
-              </motion.div>
-            );
-          })}
+          {FEATURES.map((f) => (
+            <motion.article
+              key={f.title}
+              variants={item}
+              whileHover={{ y: -8 }}
+              transition={{ type: "spring", stiffness: 300, damping: 22 }}
+              className="group overflow-hidden rounded-2xl border border-hs-border bg-white shadow-[0_10px_30px_-8px_rgba(4,44,83,0.16)] hover:shadow-[0_22px_44px_-12px_rgba(4,44,83,0.28)]"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden">
+                <Image src={f.img} alt={f.title} fill className="object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-hs-navy/45 via-transparent to-transparent" />
+                <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-hs-blue">{f.tag}</span>
+              </div>
+              <div className="p-5">
+                <h3 className="text-lg font-bold text-hs-navy">{f.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-hs-muted">{f.desc}</p>
+              </div>
+            </motion.article>
+          ))}
         </motion.div>
       </section>
 
@@ -359,7 +356,7 @@ export default function MarketingPage() {
           <p className="mt-3 text-hs-muted">Same full experience on every plan, no hidden locks. Start with a free trial.</p>
         </Reveal>
 
-        <div className="mx-auto mt-12 grid max-w-5xl items-stretch gap-6 sm:grid-cols-3">
+        <div className="mx-auto mt-12 grid max-w-3xl items-stretch gap-6 sm:grid-cols-2">
           {PLANS.map((p, i) => (
             <Reveal key={p.label} delay={i * 0.08} className="h-full">
               <div className={`relative flex h-full flex-col rounded-2xl bg-white p-7 ${p.popular ? "border-2 border-hs-blue shadow-[0_18px_40px_-12px_rgba(24,95,165,0.35)]" : "border border-hs-border shadow-[0_8px_24px_-10px_rgba(4,44,83,0.12)]"}`}>
@@ -367,7 +364,10 @@ export default function MarketingPage() {
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-hs-blue px-3 py-1 text-xs font-bold text-white">Best value</span>
                 )}
                 <p className="text-sm font-semibold uppercase tracking-wide text-hs-blue">{p.label}</p>
-                <p className="mt-2 text-3xl font-extrabold text-hs-navy">{p.price}<span className="text-base font-medium text-hs-muted">{p.per}</span></p>
+                <p className="mt-2 text-3xl font-extrabold text-hs-navy">
+                  <span className="mr-2 align-middle text-base font-semibold text-hs-muted line-through">{p.was}</span>
+                  {p.price}<span className="text-base font-medium text-hs-muted">{p.per}</span>
+                </p>
                 <p className="mt-1 text-xs text-hs-muted">{p.note}</p>
                 <Link href="/signup" className={`mt-6 block rounded-full py-3 text-center font-semibold ${p.popular ? "bg-hs-blue text-white hover:bg-hs-blueDeep" : "border border-hs-border text-hs-navy hover:bg-hs-bg"}`}>{p.cta}</Link>
               </div>
