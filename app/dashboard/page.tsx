@@ -20,6 +20,7 @@ import { goalsToday, getLastSubject, type DailyGoals } from "@/lib/home-progress
 import LottieIcon from "@/components/LottieIcon";
 import Asset3D from "@/components/Asset3D";
 import WeeklyGoalCard from "@/components/WeeklyGoalCard";
+import BlogSlider from "@/components/BlogSlider";
 import SubscribeTab from "./SubscribeTab";
 import DownloadsTab from "./DownloadsTab";
 import { AVATARS } from "@/lib/avatars";
@@ -345,6 +346,9 @@ function HomeTab({
 
           {/* Weekly goal */}
           <WeeklyGoalCard />
+
+          {/* Blog / news slider */}
+          <BlogSlider />
         </div>
 
         {/* Leaderboard panel */}
@@ -461,7 +465,7 @@ const CATEGORIES: Cat[] = [
   { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, lottie: "/lottie/graph.json", href: "/analytics" },
   { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal, href: "/leaderboard" },
   { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, gift: true, href: "/rewards" },
-  { name: "Blog", subtitle: "Tips & guides", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, href: "/blog" },
+  { name: "News", subtitle: "From our blog", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, href: "/blog" },
   { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json", href: "/referral", big: true },
 ];
 
