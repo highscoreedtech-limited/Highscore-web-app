@@ -425,6 +425,27 @@ export default function MarketingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Floating WhatsApp support chat */}
+      <motion.a
+        href="https://wa.me/2348169133552?text=Hello%20HighScore%20support%2C%20I%20need%20help%20with..."
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with HighScore support on WhatsApp"
+        className="group fixed bottom-5 right-5 z-[70] flex items-center gap-2 rounded-full bg-[#25D366] py-3 pl-3 pr-3 text-white shadow-[0_10px_30px_-6px_rgba(37,211,102,0.65)] sm:bottom-6 sm:right-6 sm:pr-5"
+        initial={{ opacity: 0, scale: 0.6, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ delay: 1.2, type: "spring", stiffness: 260, damping: 18 }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        {/* Pulse ring */}
+        <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-[#25D366]/40" style={{ animationDuration: "2.5s" }} />
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+          <path d="M12 .5A11.5 11.5 0 0 0 2.1 17.7L.5 23.5l6-1.6A11.5 11.5 0 1 0 12 .5zm0 21a9.4 9.4 0 0 1-4.8-1.3l-.34-.2-3.55.93.95-3.46-.22-.36A9.5 9.5 0 1 1 12 21.5zm5.2-7.1c-.28-.14-1.68-.83-1.94-.92s-.45-.14-.64.14-.73.92-.9 1.1-.33.21-.61.07a7.8 7.8 0 0 1-2.29-1.41 8.6 8.6 0 0 1-1.59-1.98c-.17-.28 0-.43.12-.57s.28-.33.42-.49a1.9 1.9 0 0 0 .28-.47.52.52 0 0 0 0-.49c-.07-.14-.64-1.54-.88-2.11s-.46-.48-.64-.49h-.55a1.05 1.05 0 0 0-.76.36 3.2 3.2 0 0 0-1 2.37 5.5 5.5 0 0 0 1.17 2.95 12.7 12.7 0 0 0 4.87 4.3c.68.29 1.21.47 1.62.6a3.9 3.9 0 0 0 1.79.11 2.93 2.93 0 0 0 1.92-1.35 2.38 2.38 0 0 0 .17-1.36c-.07-.12-.26-.19-.54-.33z" />
+        </svg>
+        <span className="hidden text-sm font-bold sm:block">Chat with us</span>
+      </motion.a>
     </div>
   );
 }
