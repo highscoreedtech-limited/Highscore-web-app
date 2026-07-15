@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { Reveal, stagger, item } from "@/components/Reveal";
+import { session } from "@/lib/api/session";
 
 const POSTS = [
   { title: "JAMB 2026: 7 study habits that actually move your score", tag: "JAMB", date: "Jun 20, 2026", img: "/study-background.jpg", excerpt: "The difference between a 200 and a 300 isn't talent — it's these repeatable habits you can start today." },
@@ -23,20 +25,30 @@ const CATEGORIES = [
 ];
 
 export default function BlogPage() {
+  // Auth-aware chrome: logged-in readers navigate back to the dashboard and
+  // never see "Get started". SSR-safe (session reads localStorage on mount).
+  const [loggedIn, setLoggedIn] = useState(false);
+  useEffect(() => { setLoggedIn(!!session.access); }, []);
+  const target = loggedIn ? "/dashboard" : "/signup";
+
   const [featured, ...rest] = POSTS;
   const picks = rest.slice(0, 3);
   const latest = rest;
 
   return (
     <div className="min-h-screen bg-white font-sans text-hs-body">
-      {/* Nav */}
+      {/* Nav — logged-in readers go back to their dashboard, visitors to the landing page */}
       <header className="sticky top-0 z-50 border-b border-hs-border bg-white/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 text-hs-navy">
+          <Link href={loggedIn ? "/dashboard" : "/"} className="flex items-center gap-2 text-hs-navy">
             <ArrowLeft size={18} />
             <Image src="/highscore-logo-final.png" alt="HighScore" width={200} height={52} className="h-11 w-auto object-contain lg:h-12" priority />
           </Link>
-          <Link href="/signup" className="rounded-full bg-hs-blue px-5 py-2 text-sm font-semibold text-white hover:bg-hs-blueDeep">Get started</Link>
+          {loggedIn ? (
+            <Link href="/dashboard" className="rounded-full bg-hs-blue px-5 py-2 text-sm font-semibold text-white hover:bg-hs-blueDeep">My Dashboard</Link>
+          ) : (
+            <Link href="/signup" className="rounded-full bg-hs-blue px-5 py-2 text-sm font-semibold text-white hover:bg-hs-blueDeep">Get started</Link>
+          )}
         </div>
       </header>
 
@@ -60,7 +72,7 @@ export default function BlogPage() {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Featured */}
           <Reveal className="lg:col-span-2">
-            <Link href="/signup" className="group block">
+            <Link href={target} className="group block">
               <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
                 <Image src={featured.img} alt={featured.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" priority />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
@@ -79,7 +91,7 @@ export default function BlogPage() {
           <div className="flex flex-col divide-y divide-hs-border">
             {picks.map((p, i) => (
               <Reveal key={p.title} delay={i * 0.08}>
-                <Link href="/signup" className="group flex gap-4 py-4 first:pt-0">
+                <Link href={target} className="group flex gap-4 py-4 first:pt-0">
                   <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-xl">
                     <Image src={p.img} alt={p.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   </div>
@@ -103,7 +115,7 @@ export default function BlogPage() {
         <motion.div className="grid grid-cols-2 gap-4 lg:grid-cols-4" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}>
           {CATEGORIES.map((c) => (
             <motion.div key={c.label} variants={item}>
-              <Link href="/signup" className="group relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl">
+              <Link href={target} className="group relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl">
                 <Image src={c.img} alt={c.label} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-hs-navy/55 transition-colors group-hover:bg-hs-navy/45" />
                 <span className="relative rounded-md border border-white/70 px-4 py-2 text-center text-sm font-bold uppercase tracking-wide text-white">{c.label}</span>
@@ -136,12 +148,22 @@ export default function BlogPage() {
         </motion.div>
       </section>
 
-      {/* Subscribe band */}
+      {/* CTA band — signup pitch for visitors, back-to-study for members */}
       <section className="mt-16 bg-hs-navy">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-14 text-center lg:px-8">
-          <h2 className="max-w-2xl text-3xl font-extrabold text-white lg:text-4xl">Get the study edge in your inbox</h2>
-          <p className="max-w-lg text-[#B8CCE0]">New guides, past-question breakdowns and streak stories — no spam, just wins.</p>
-          <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-7 py-3.5 font-semibold text-hs-amberDark">Get started free <ArrowRight size={18} /></Link>
+          {loggedIn ? (
+            <>
+              <h2 className="max-w-2xl text-3xl font-extrabold text-white lg:text-4xl">Ready to put it into practice?</h2>
+              <p className="max-w-lg text-[#B8CCE0]">Jump back into your lessons, CBT practice and quiz battles.</p>
+              <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-7 py-3.5 font-semibold text-hs-amberDark">Back to my dashboard <ArrowRight size={18} /></Link>
+            </>
+          ) : (
+            <>
+              <h2 className="max-w-2xl text-3xl font-extrabold text-white lg:text-4xl">Get the study edge in your inbox</h2>
+              <p className="max-w-lg text-[#B8CCE0]">New guides, past-question breakdowns and streak stories — no spam, just wins.</p>
+              <Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-hs-amber px-7 py-3.5 font-semibold text-hs-amberDark">Get started free <ArrowRight size={18} /></Link>
+            </>
+          )}
         </div>
       </section>
 
