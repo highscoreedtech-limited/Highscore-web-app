@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, PlayCircle, BookOpen, Check, Clock, FileText, ListChecks, Maximize } from "lucide-react";
+import { ArrowLeft, PlayCircle, BookOpen, Check, Clock, FileText, ListChecks, Maximize, RotateCcw, X } from "lucide-react";
 import type { TopicInfo } from "@/lib/topics";
+import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
+import { api } from "@/lib/api";
 
 type LessonType = "video" | "reading" | "practice";
 interface Lesson { name: string; type: LessonType; minutes: number; youtubeId?: string; videoUrl?: string; portrait?: boolean; summary: string; }
@@ -153,6 +155,12 @@ export default function TopicLessons({
               )}
             </div>
           </div>
+        ) : activeLesson?.type === "practice" ? (
+          <PracticeQuiz
+            subjectName={subjectName}
+            color={color}
+            onFinished={() => { if (active >= 0 && !done.has(active)) toggleDone(active); }}
+          />
         ) : (
           <div className="flex aspect-video w-full flex-col items-center justify-center rounded-2xl border border-hs-border bg-white text-center">
             <PlayCircle size={40} style={{ color }} />
@@ -217,6 +225,105 @@ export default function TopicLessons({
           })}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Practice quiz (end of study session) ─────────────────────────────────────
+// 5 quick questions from the subject bank with instant feedback. Finishing
+// marks the lesson complete and counts toward the weekly goal.
+function PracticeQuiz({ subjectName, color, onFinished }: {
+  subjectName: string; color: string; onFinished: () => void;
+}) {
+  const questions = useMemo<QuizQuestion[]>(() => {
+    const bank = QUIZ_BANK[subjectName] ?? [];
+    return [...bank].sort(() => Math.random() - 0.5).slice(0, 5);
+  }, [subjectName]);
+
+  const [qi, setQi] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const reported = useRef(false);
+
+  useEffect(() => {
+    if (!finished || reported.current) return;
+    reported.current = true;
+    onFinished();
+    api("/api/user/goal/progress", { method: "POST", body: { count: questions.length } }).catch(() => {});
+  }, [finished]); // eslint-disable-line
+
+  const restart = () => { setQi(0); setPicked(null); setScore(0); setFinished(false); reported.current = false; };
+
+  if (questions.length === 0) {
+    return (
+      <div className="flex aspect-video w-full items-center justify-center rounded-2xl border border-hs-border bg-white text-sm text-hs-muted">
+        Practice questions for this subject are coming soon.
+      </div>
+    );
+  }
+
+  if (finished) {
+    const pct = Math.round((score / questions.length) * 100);
+    return (
+      <div className="flex w-full flex-col items-center rounded-2xl border border-hs-border bg-white p-8 text-center">
+        <span className="text-5xl">{pct >= 80 ? "🏆" : pct >= 50 ? "💪" : "📚"}</span>
+        <p className="mt-3 text-2xl font-extrabold text-hs-navy">{score} / {questions.length}</p>
+        <p className="mt-1 text-sm text-hs-muted">
+          {pct >= 80 ? "Excellent! You've mastered this topic." : pct >= 50 ? "Good work — one more review and you've got it." : "Rewatch the lesson and try again, you'll get there."}
+        </p>
+        <button onClick={restart} className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-hs-border px-5 py-2.5 text-sm font-semibold text-hs-navy hover:bg-hs-bg">
+          <RotateCcw size={15} /> Try again
+        </button>
+      </div>
+    );
+  }
+
+  const q = questions[qi];
+  return (
+    <div className="rounded-2xl border border-hs-border bg-white p-5">
+      <div className="flex items-center justify-between text-xs text-hs-muted">
+        <span className="font-bold uppercase tracking-wide" style={{ color }}>Practice quiz</span>
+        <span>Question {qi + 1} of {questions.length}</span>
+      </div>
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-hs-border">
+        <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((qi + (picked !== null ? 1 : 0)) / questions.length) * 100}%`, backgroundColor: color }} />
+      </div>
+
+      <p className="mt-4 text-base font-semibold text-hs-navy">{q.q}</p>
+      <div className="mt-4 space-y-2.5">
+        {q.opts.map((opt, i) => {
+          const show = picked !== null;
+          const isRight = i === q.ans;
+          const isPicked = i === picked;
+          let cls = "border-hs-border bg-white text-hs-navy hover:bg-hs-bg";
+          if (show && isRight) cls = "border-green-500 bg-green-50 text-green-700";
+          else if (show && isPicked && !isRight) cls = "border-red-400 bg-red-50 text-red-600";
+          return (
+            <button
+              key={i}
+              disabled={show}
+              onClick={() => { setPicked(i); if (i === q.ans) setScore((s) => s + 1); }}
+              className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors disabled:cursor-default ${cls}`}
+            >
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold">
+                {show && isRight ? <Check size={13} /> : show && isPicked ? <X size={13} /> : String.fromCharCode(65 + i)}
+              </span>
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+
+      {picked !== null && (
+        <button
+          onClick={() => { if (qi + 1 >= questions.length) setFinished(true); else { setQi(qi + 1); setPicked(null); } }}
+          className="mt-4 w-full rounded-full py-3 text-sm font-bold text-white"
+          style={{ backgroundColor: color }}
+        >
+          {qi + 1 >= questions.length ? "See my score" : "Next question"}
+        </button>
+      )}
     </div>
   );
 }

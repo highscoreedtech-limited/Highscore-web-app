@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
-import { quizApi } from "@/lib/api";
+import { api, quizApi } from "@/lib/api";
 import { realtime } from "@/lib/realtime/client";
 import { markGoal } from "@/lib/home-progress";
 import { useAuth } from "../hooks/useAuth";
@@ -51,7 +51,7 @@ export default function QuizPage() {
   const router = useRouter();
   const { user } = useAuth();
   const myName = user?.first_name ? `${user.first_name}${user.last_name ? " " + user.last_name[0] : ""}` : "You";
-  const [oppName, setOppName] = useState("CPU");
+  const [oppName, setOppName] = useState("HighScore");
 
   const [phase, setPhase] = useState<Phase>("lobby");
   const [subject, setSubject] = useState(SUBJECTS[0]);
@@ -92,8 +92,13 @@ export default function QuizPage() {
   };
   useEffect(() => () => { clearTimers(); closeRoom(); }, []);
 
-  // Mark the daily "play a quiz" goal once the battle reaches its result.
-  useEffect(() => { if (phase === "result") markGoal("quiz"); }, [phase]);
+  // Mark the daily "play a quiz" goal + weekly-goal progress once the battle
+  // reaches its result (10 questions answered).
+  useEffect(() => {
+    if (phase !== "result") return;
+    markGoal("quiz");
+    api("/api/user/goal/progress", { method: "POST", body: { count: 10 } }).catch(() => {});
+  }, [phase]);
 
   // ── Start / countdown ───────────────────────────────────────────────────────
   const resetGame = () => {
@@ -105,7 +110,7 @@ export default function QuizPage() {
 
   const startSolo = () => {
     isPvpRef.current = false; closeRoom();
-    setOppName("CPU");
+    setOppName("HighScore");
     setQuestions(shuffle(QUIZ_BANK[subject]).slice(0, 10));
     resetGame();
   };

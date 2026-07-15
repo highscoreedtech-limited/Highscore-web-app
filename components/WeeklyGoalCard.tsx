@@ -13,10 +13,16 @@ export default function WeeklyGoalCard() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    api<{ goal: number; answered: number }>("/api/user/weekly-goal")
-      .then((d) => { setGoal(d?.goal ?? 0); setAnswered(d?.answered ?? 0); })
-      .catch(() => {})
-      .finally(() => setLoaded(true));
+    const load = () =>
+      api<{ goal: number; answered: number }>("/api/user/weekly-goal")
+        .then((d) => { setGoal(d?.goal ?? 0); setAnswered(d?.answered ?? 0); })
+        .catch(() => {})
+        .finally(() => setLoaded(true));
+    load();
+    // Refresh when the user returns from a quiz/CBT session.
+    window.addEventListener("focus", load);
+    document.addEventListener("visibilitychange", load);
+    return () => { window.removeEventListener("focus", load); document.removeEventListener("visibilitychange", load); };
   }, []);
 
   if (!loaded) return null;
