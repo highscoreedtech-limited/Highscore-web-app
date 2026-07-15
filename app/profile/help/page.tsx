@@ -30,10 +30,10 @@ export default function HelpPage() {
           <p className="text-base font-bold text-hs-navy">Need help?</p>
           <p className="text-sm text-hs-muted">Our team usually replies within 24 hours.</p>
           <div className="mt-4 flex gap-2.5">
-            <a href="mailto:support@highscore.ng" className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-hs-blue py-3 text-sm font-semibold text-white">
+            <a href="mailto:highscoreedtech@gmail.com" className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-hs-blue py-3 text-sm font-semibold text-white">
               <Mail size={16} /> Email us
             </a>
-            <a href="https://wa.me/2348000000000" target="_blank" rel="noreferrer" className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-hs-border py-3 text-sm font-semibold text-hs-navy">
+            <a href="https://wa.me/2348169133552" target="_blank" rel="noreferrer" className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-hs-border py-3 text-sm font-semibold text-hs-navy">
               <MessageCircle size={16} /> WhatsApp
             </a>
           </div>
@@ -41,11 +41,11 @@ export default function HelpPage() {
 
         {/* Quick actions */}
         <div className="mt-3 divide-y divide-hs-border overflow-hidden rounded-2xl border border-hs-border bg-white">
-          <a href="mailto:support@highscore.ng?subject=Bug%20report" className="flex items-center gap-3 px-4 py-3.5 hover:bg-hs-bg">
+          <a href="mailto:highscoreedtech@gmail.com?subject=Bug%20report" className="flex items-center gap-3 px-4 py-3.5 hover:bg-hs-bg">
             <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-red-50 text-red-500"><Bug size={18} /></span>
             <span className="flex-1"><span className="block text-sm font-semibold text-hs-navy">Report a bug</span><span className="block text-[11px] text-hs-muted">App crash, wrong answer, or broken feature</span></span>
           </a>
-          <a href="mailto:support@highscore.ng?subject=Question" className="flex items-center gap-3 px-4 py-3.5 hover:bg-hs-bg">
+          <a href="mailto:highscoreedtech@gmail.com?subject=Question" className="flex items-center gap-3 px-4 py-3.5 hover:bg-hs-bg">
             <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-hs-blueTint text-hs-blue"><HelpCircle size={18} /></span>
             <span className="flex-1"><span className="block text-sm font-semibold text-hs-navy">Ask a question</span><span className="block text-[11px] text-hs-muted">Anything we didn&apos;t cover below</span></span>
           </a>
@@ -65,7 +65,7 @@ export default function HelpPage() {
           ))}
         </div>
 
-        <p className="mt-6 text-center text-[11px] text-hs-muted">HighScore v1.0.0 · support@highscore.ng</p>
+        <p className="mt-6 text-center text-[11px] text-hs-muted">HighScore v1.0.0 · highscoreedtech@gmail.com</p>
       </div>
     </div>
   );

@@ -13,11 +13,11 @@ import { Reveal, stagger, item } from "@/components/Reveal";
 // Image-driven feature cards (editorial style). Each image describes the feature.
 const FEATURES = [
   { tag: "Learn", title: "Video lessons", desc: "Bite-sized lessons for every JAMB, WAEC & NECO topic, taught by top teachers.", img: "/tutorials.jpg" },
-  { tag: "Practice", title: "CBT practice", desc: "Real exam-style computer-based tests with instant scoring and explanations.", img: "/cbt.jpg" },
+  { tag: "Practice", title: "CBT practice", desc: "Real exam-style computer-based tests with instant scoring and explanations.", img: "/cbt-practice-card.webp" },
   { tag: "Compete", title: "Quiz battles", desc: "Challenge friends in live 1-v-1 quiz games and climb the ranks.", img: "/quiz-battle.webp" },
   { tag: "Rank", title: "Leaderboards", desc: "Compete with students across Nigeria and earn your spot at the top.", img: "/leaderboard-podium.webp" },
   { tag: "Track", title: "Analytics", desc: "Track your progress, spot weak topics and study smarter, not harder.", img: "/analytics.webp" },
-  { tag: "Earn", title: "Rewards", desc: "Earn points and streaks as you learn, and turn them into real rewards.", img: "/rewards.png" },
+  { tag: "Earn", title: "Rewards", desc: "Earn points and streaks as you learn, and turn them into real rewards.", img: "/rewards-card.webp" },
 ];
 
 const PLANS = [
@@ -416,7 +416,15 @@ export default function MarketingPage() {
 
             <FooterCol title="Product" links={[["Features", "#features"], ["Video library", "#library"], ["Pricing", "#pricing"], ["Blog", "/blog"]]} />
             <FooterCol title="Subjects" links={[["English", "/signup"], ["Mathematics", "/signup"], ["Physics", "/signup"], ["Chemistry", "/signup"], ["Biology", "/signup"]]} />
-            <FooterCol title="Company" links={[["Log in", "/login"], ["Sign up", "/signup"], ["Contact", "#"], ["Privacy", "#"]]} />
+            <div>
+              <p className="text-sm font-bold text-white">Contact us</p>
+              <ul className="mt-4 space-y-2.5 text-sm">
+                <li><a href="mailto:highscoreedtech@gmail.com" className="hover:text-white">highscoreedtech@gmail.com</a></li>
+                <li><a href="https://wa.me/2348169133552" target="_blank" rel="noopener noreferrer" className="hover:text-white">WhatsApp: 0816 913 3552</a></li>
+                <li><Link href="/login" className="hover:text-white">Log in</Link></li>
+                <li><Link href="/signup" className="hover:text-white">Sign up</Link></li>
+              </ul>
+            </div>
           </div>
 
           <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">

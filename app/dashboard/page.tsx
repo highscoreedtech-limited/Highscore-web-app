@@ -767,7 +767,7 @@ function RateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
               <a href={PLAY} target="_blank" rel="noreferrer" onClick={() => { toast.success("Thank you! 🎉"); onClose(); }}
                 className="mt-6 block rounded-full bg-hs-blue py-3 font-semibold text-white">Rate us on Google Play</a>
             ) : (
-              <a href="mailto:support@highscore.ng?subject=HighScore%20feedback" onClick={() => { toast.info("Thanks, we'd love to hear how to improve!"); onClose(); }}
+              <a href="mailto:highscoreedtech@gmail.com?subject=HighScore%20feedback" onClick={() => { toast.info("Thanks, we'd love to hear how to improve!"); onClose(); }}
                 className="mt-6 block rounded-full bg-hs-navy py-3 font-semibold text-white">Tell us how to improve</a>
             )}
           </motion.div>

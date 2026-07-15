@@ -30,9 +30,12 @@ export default function NewsPage() {
             <button onClick={() => router.push("/dashboard")} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white" aria-label="Back">
               <ArrowLeft size={16} />
             </button>
-            <h1 className="text-lg font-bold text-white">News & Updates</h1>
+            <h1 className="flex-1 text-lg font-bold text-white">News & Updates</h1>
+            <button onClick={() => router.push("/blog")} className="flex items-center gap-1.5 rounded-full bg-hs-amber px-3.5 py-1.5 text-xs font-bold text-hs-amberDark">
+              📖 Our Blog
+            </button>
           </div>
-          <p className="mt-1.5 text-sm text-white/70">Exam news, tips and announcements</p>
+          <p className="mt-1.5 text-sm text-white/70">Exam news, tips and announcements — deeper guides live on the blog</p>
         </div>
       </header>
 
