@@ -295,13 +295,13 @@ export default function QuizPage() {
     <div className="min-h-screen" style={{ backgroundColor: C.bg, color: C.text, fontFamily: "var(--font-poppins), Poppins, sans-serif" }}>
       <div className="mx-auto max-w-xl">
         {phase === "lobby" && (
-          <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onFind={() => setPhase("find")} onGroup={() => router.push("/arena")} onBack={() => router.push("/dashboard")} />
+          <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onFind={() => setPhase("find")} onGroup={() => router.push("/arena")} onBack={() => router.push("/dashboard")} myAvatar={user?.avatar_url || ""} />
         )}
         {phase === "find" && (
           <FindPlayers subject={subject} onBack={() => setPhase("lobby")} />
         )}
         {phase === "countdown" && (
-          <Countdown count={count} myName={myName} oppName={oppName} subject={subject} />
+          <Countdown count={count} myName={myName} oppName={oppName} subject={subject} myAvatar={user?.avatar_url || ""} />
         )}
         {phase === "battle" && questions[currentQ] && (
           <Battle
@@ -310,6 +310,7 @@ export default function QuizPage() {
             oppAnswered={oppAnswered} oppCorrect={oppCorrect} streak={streak}
             myName={myName} oppName={oppName} subject={subject} flash={flash} onPick={pick}
             onQuit={() => { clearTimers(); if (window.confirm("Quit the battle? No points will be awarded.")) router.push("/dashboard"); }}
+            myAvatar={user?.avatar_url || ""}
           />
         )}
         {phase === "result" && (
@@ -351,7 +352,7 @@ export default function QuizPage() {
 }
 
 // ── Lobby ─────────────────────────────────────────────────────────────────────
-function Lobby({ subject, setSubject, myName, onSolo, onFind, onGroup, onBack }: { subject: string; setSubject: (s: string) => void; myName: string; onSolo: () => void; onFind: () => void; onGroup: () => void; onBack: () => void; }) {
+function Lobby({ subject, setSubject, myName, onSolo, onFind, onGroup, onBack, myAvatar }: { subject: string; setSubject: (s: string) => void; myName: string; onSolo: () => void; onFind: () => void; onGroup: () => void; onBack: () => void; myAvatar?: string; }) {
   return (
     <div className="px-4 pb-6 pt-4">
       {/* Nav row */}
@@ -374,7 +375,7 @@ function Lobby({ subject, setSubject, myName, onSolo, onFind, onGroup, onBack }:
       <div className="relative mt-5 rounded-3xl p-[18px]" style={{ backgroundColor: C.surf, border: `1px solid ${C.brand}26` }}>
         <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[28px] font-black tracking-[4px]" style={{ color: `${C.brand}1F` }}>VS</span>
         <div className="relative flex items-center justify-between">
-          <VsPlayer init={initials(myName)} name={myName} sub="⚔️ Ready to battle" you />
+          <VsPlayer init={initials(myName)} name={myName} sub="⚔️ Ready to battle" you avatarUrl={myAvatar || ""} />
           <div className="w-14" />
           <div className="flex flex-col items-center">
             <div className="flex h-[60px] w-[60px] items-center justify-center rounded-[18px]" style={{ backgroundColor: C.surf2, border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -428,12 +429,12 @@ function Lobby({ subject, setSubject, myName, onSolo, onFind, onGroup, onBack }:
   );
 }
 
-function VsPlayer({ init, name, sub, you }: { init: string; name: string; sub: string; you?: boolean }) {
+function VsPlayer({ init, name, sub, you, avatarUrl }: { init: string; name: string; sub: string; you?: boolean; avatarUrl?: string }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="flex h-[60px] w-[60px] items-center justify-center rounded-[18px] text-lg font-black text-white"
+      <div className="flex h-[60px] w-[60px] items-center justify-center overflow-hidden rounded-[18px] text-lg font-black text-white"
         style={you ? { background: `linear-gradient(135deg,${C.brandDark},${C.brand})` } : { backgroundColor: C.surf2, border: "1px solid rgba(255,255,255,0.08)" }}>
-        {init}
+        {avatarUrl ? <img src={avatarUrl} alt={name} className="h-full w-full object-cover" /> : init}
       </div>
       <p className="mt-2 text-[13px] font-bold" style={{ color: C.text }}>{name}</p>
       <p className="text-[11px]" style={{ color: C.text2 }}>{sub}</p>
@@ -450,11 +451,11 @@ function InfoBox({ val, lbl, gold }: { val: string; lbl: string; gold?: boolean 
 }
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
-function Countdown({ count, myName, oppName, subject }: { count: number; myName: string; oppName: string; subject: string; }) {
+function Countdown({ count, myName, oppName, subject, myAvatar }: { count: number; myName: string; oppName: string; subject: string; myAvatar?: string }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <div className="flex items-center justify-center">
-        <MiniAva init={initials(myName)} name={myName} you />
+        <MiniAva init={initials(myName)} name={myName} you avatarUrl={myAvatar} />
         <span className="px-4 text-xl font-black" style={{ color: `${C.brand}80` }}>VS</span>
         <MiniAva init={initials(oppName)} name={oppName} />
       </div>
@@ -469,12 +470,12 @@ function Countdown({ count, myName, oppName, subject }: { count: number; myName:
     </div>
   );
 }
-function MiniAva({ init, name, you }: { init: string; name: string; you?: boolean }) {
+function MiniAva({ init, name, you, avatarUrl }: { init: string; name: string; you?: boolean; avatarUrl?: string }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-[14px] text-base font-black"
+      <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[14px] text-base font-black"
         style={you ? { background: `linear-gradient(135deg,${C.brandDark},${C.brand})`, color: "#fff" } : { backgroundColor: C.surf2, border: "1px solid rgba(255,255,255,0.08)", color: C.text2 }}>
-        {init}
+        {avatarUrl ? <img src={avatarUrl} alt={name} className="h-full w-full object-cover" /> : init}
       </div>
       <p className="mt-1.5 text-[11px] font-bold" style={{ color: C.text2 }}>{name}</p>
     </div>
@@ -482,9 +483,9 @@ function MiniAva({ init, name, you }: { init: string; name: string; you?: boolea
 }
 
 // ── Battle ────────────────────────────────────────────────────────────────────
-function Battle({ q, currentQ, myScore, oppScore, timeLeft, answered, selectedIdx, oppAnswered, oppCorrect, streak, myName, oppName, subject, flash, onPick, onQuit }: {
+function Battle({ q, currentQ, myScore, oppScore, timeLeft, answered, selectedIdx, oppAnswered, oppCorrect, streak, myName, oppName, subject, flash, onPick, onQuit, myAvatar }: {
   q: QuizQuestion; currentQ: number; myScore: number; oppScore: number; timeLeft: number; answered: boolean; selectedIdx: number | null;
-  oppAnswered: boolean; oppCorrect: boolean; streak: number; myName: string; oppName: string; subject: string; flash: "my" | "opp" | null; onPick: (i: number) => void; onQuit: () => void;
+  oppAnswered: boolean; oppCorrect: boolean; streak: number; myName: string; oppName: string; subject: string; flash: "my" | "opp" | null; onPick: (i: number) => void; onQuit: () => void; myAvatar?: string;
 }) {
   const correctIdx = q.ans;
   const circ = 2 * Math.PI * 24;
@@ -500,7 +501,7 @@ function Battle({ q, currentQ, myScore, oppScore, timeLeft, answered, selectedId
         <div className="flex items-center">
           {/* My score */}
           <div className="flex flex-1 items-center gap-2.5">
-            <div className="flex h-[42px] w-[42px] items-center justify-center rounded-[14px] text-[13px] font-black text-white" style={{ background: `linear-gradient(135deg,${C.brandDark},${C.brand})` }}>{initials(myName)}</div>
+            <div className="flex h-[42px] w-[42px] items-center justify-center overflow-hidden rounded-[14px] text-[13px] font-black text-white" style={{ background: `linear-gradient(135deg,${C.brandDark},${C.brand})` }}>{myAvatar ? <img src={myAvatar} alt={myName} className="h-full w-full object-cover" /> : initials(myName)}</div>
             <div>
               <p className="text-[11px] font-bold" style={{ color: C.text2 }}>{myName}</p>
               <p className="text-[28px] font-black leading-none" style={{ color: flash === "my" ? C.green : C.text }}>{myScore}</p>
