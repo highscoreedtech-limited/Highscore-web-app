@@ -33,7 +33,22 @@ export default function CbtPage() {
   const [exam, setExam] = useState("JAMB");
   const [topics, setTopics] = useState<string[]>([]); // empty = all topics
 
-  const subjectTopics = cbtTopics(subject);
+  // Real JAMB past questions (1983–2004) by topic; replaces the demo bank.
+  const [chemBank, setChemBank] = useState<CbtQuestion[] | null>(null);
+  useEffect(() => {
+    fetch("/data/chemistry_questions.json")
+      .then((r) => r.json())
+      .then((list: CbtQuestion[]) => setChemBank(list))
+      .catch(() => {}); // demo bank remains the fallback
+  }, []);
+
+  const bankFor = (s: string): CbtQuestion[] =>
+    s === "Chemistry" && chemBank ? chemBank : CBT_BANK[s] ?? [];
+
+  const subjectTopics =
+    subject === "Chemistry" && chemBank
+      ? [...new Set(chemBank.map((q) => q.topic))]
+      : cbtTopics(subject);
   const toggleTopic = (t: string) =>
     setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
 
@@ -55,14 +70,18 @@ export default function CbtPage() {
   useEffect(() => () => stopTimer(), []);
 
   const start = () => {
-    const pool = topics.length
-      ? CBT_BANK[subject].filter((q) => topics.includes(q.topic))
-      : CBT_BANK[subject];
-    const qs = shuffle(pool).slice(0, cfg.qs);
+    const bank = bankFor(subject);
+    const pool = topics.length ? bank.filter((q) => topics.includes(q.topic)) : bank;
+    // Chemistry uses the real past-question bank: 40 shuffled questions per
+    // session (or every question when the topic has fewer), 1 min each.
+    const realBank = subject === "Chemistry" && chemBank;
+    const nQs = realBank ? 40 : cfg.qs;
+    const mins = realBank ? 40 : cfg.mins;
+    const qs = shuffle(pool).slice(0, nQs);
     setQuestions(qs);
     setAnswers({});
     setCurrent(0);
-    setSecsLeft(cfg.mins * 60);
+    setSecsLeft(mins * 60);
     setPhase("exam");
     stopTimer();
     timer.current = setInterval(() => {
