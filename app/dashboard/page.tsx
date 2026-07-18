@@ -609,7 +609,7 @@ function MoreTab({ onLogout }: { onLogout: () => void }) {
           </MenuSection>
           <MenuSection>
             <button
-              onClick={() => { logout(); onLogout(); }}
+              onClick={() => { if (window.confirm("Log out? You will need to sign in again to keep learning.")) { logout(); onLogout(); } }}
               className="flex w-full items-center gap-3 px-4 py-3 text-left"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-red-50">
@@ -836,7 +836,7 @@ function SideNav({ tab, setTab }: { tab: number; setTab: (i: number) => void }) 
         })}
       </nav>
       <button
-        onClick={() => { logout(); router.push("/login"); }}
+        onClick={() => { if (window.confirm("Log out? You will need to sign in again to keep learning.")) { logout(); router.push("/login"); } }}
         className="mt-auto flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-hs-muted hover:bg-hs-bg"
       >
         <LogOut size={20} />
