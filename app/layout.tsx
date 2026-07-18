@@ -24,7 +24,11 @@ export const metadata: Metadata = {
     title: "HighScore",
   },
   icons: {
-    icon: "/icon-192.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    shortcut: "/favicon.ico",
     apple: "/icon-192.png",
   },
 }
