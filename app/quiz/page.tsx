@@ -45,7 +45,7 @@ function seededShuffle<T>(a: T[], seed: number): T[] {
   return r;
 }
 
-type Phase = "lobby" | "find" | "spin" | "countdown" | "battle" | "result";
+type Phase = "splash" | "lobby" | "find" | "spin" | "countdown" | "battle" | "result";
 
 // Opponent name pool — MUST match the mobile app (quiz_constants.dart
 // kOpponentNames) so both platforms show the same roster of "players".
@@ -61,7 +61,7 @@ export default function QuizPage() {
   const myName = user?.first_name ? `${user.first_name}${user.last_name ? " " + user.last_name[0] : ""}` : "You";
   const [oppName, setOppName] = useState("HighScore");
 
-  const [phase, setPhase] = useState<Phase>("lobby");
+  const [phase, setPhase] = useState<Phase>("splash");
   const [subject, setSubject] = useState(SUBJECTS[0]);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
@@ -309,6 +309,7 @@ export default function QuizPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: C.bg, color: C.text, fontFamily: "var(--font-poppins), Poppins, sans-serif" }}>
       <div className="mx-auto max-w-xl">
+        {phase === "splash" && <QuizSplash onDone={() => setPhase("lobby")} />}
         {phase === "lobby" && (
           <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onFind={() => setPhase("find")} onGroup={() => router.push("/arena")} onBack={() => router.push("/dashboard")} myAvatar={user?.avatar_url || ""} />
         )}
@@ -473,6 +474,79 @@ function InfoBox({ val, lbl, gold }: { val: string; lbl: string; gold?: boolean 
 }
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
+// ── Quiz Battle intro splash ─────────────────────────────────────────────────
+// Charged bolt badge scales in with pulsing energy rings, staggered title,
+// sweeping underline. Runs once (~2.4s) then hands off to the lobby.
+// Mirrors mobile QuizSplashView.
+function QuizSplash({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+      {/* Radial brand glow */}
+      <div className="pointer-events-none absolute inset-0"
+        style={{ background: `radial-gradient(circle at center, ${C.brand}29 0%, transparent 62%)` }} />
+
+      {/* Badge + energy rings */}
+      <div className="relative flex h-[200px] w-[200px] items-center justify-center">
+        <span className="absolute rounded-full" style={{ animation: "hsq-ring 2s ease-out infinite", border: `2px solid ${C.brand}99` }} />
+        <span className="absolute rounded-full" style={{ animation: "hsq-ring 2s ease-out infinite", animationDelay: "1s", border: `2px solid ${C.brand}99` }} />
+        <motion.div
+          initial={{ scale: 0, rotate: -28 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 220, damping: 12 }}
+          className="flex h-[104px] w-[104px] items-center justify-center rounded-full"
+          style={{
+            background: `linear-gradient(135deg, ${C.brandLight}, ${C.brand}, ${C.brandDark})`,
+            boxShadow: `0 0 34px 2px ${C.brand}8C`,
+          }}
+        >
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="#fff"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" /></svg>
+        </motion.div>
+      </div>
+
+      {/* Title */}
+      <motion.div
+        initial={{ opacity: 0, y: 26 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55, duration: 0.5, ease: "easeOut" }}
+        className="mt-3 flex flex-col items-center leading-[0.98]"
+      >
+        <span className="text-[40px] font-black tracking-[2px]" style={{ color: C.text }}>QUIZ</span>
+        <span className="bg-clip-text text-[40px] font-black tracking-[2px] text-transparent"
+          style={{ backgroundImage: `linear-gradient(90deg, ${C.brandLight}, ${C.gold})` }}>BATTLE</span>
+      </motion.div>
+
+      {/* Sweeping underline */}
+      <motion.div
+        initial={{ width: 0 }} animate={{ width: 140 }}
+        transition={{ delay: 0.85, duration: 0.5, ease: "easeInOut" }}
+        className="mt-3 h-[3px] rounded-full"
+        style={{ background: `linear-gradient(90deg, ${C.brand}, ${C.gold})` }}
+      />
+
+      {/* Tagline */}
+      <motion.p
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        transition={{ delay: 1.1, duration: 0.4 }}
+        className="mt-4 text-[11px] font-bold tracking-[3px]" style={{ color: C.text2 }}
+      >
+        PVP KNOWLEDGE ARENA
+      </motion.p>
+
+      <style jsx>{`
+        @keyframes hsq-ring {
+          0%   { width: 110px; height: 110px; opacity: 0.5; }
+          100% { width: 200px; height: 200px; opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 // ── Solo opponent roulette ──────────────────────────────────────────────────
 // Cycles through student names, slows down, and lands on one — that name
 // becomes the (behind-the-scenes computer) opponent. Mirrors mobile SpinView.
