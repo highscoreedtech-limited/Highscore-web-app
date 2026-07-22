@@ -27,7 +27,7 @@ type Filter = "all" | "science" | "arts";
 export default function CoursesPage() {
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
-  const [grid, setGrid] = useState(true);
+  const [grid, setGrid] = useState(false); // default: list view
 
   const items = SUBJECTS.filter((s) => filter === "all" || s.category === filter);
 
