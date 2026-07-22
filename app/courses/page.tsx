@@ -4,22 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Bell, LayoutGrid, List as ListIcon, TrendingUp,
-  BookOpenText, Calculator, Atom, FlaskConical, Leaf, BookText,
-  LineChart, Landmark, Sprout, Sigma,
+  BookOpenText,
 } from "lucide-react";
 import { SUBJECTS, SubjectInfo } from "@/lib/subjects";
 
-const ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
-  "English Language": BookOpenText,
-  Mathematics: Calculator,
-  Physics: Atom,
-  Chemistry: FlaskConical,
-  Biology: Leaf,
-  "Literature in English": BookText,
-  Economics: LineChart,
-  Government: Landmark,
-  "Agricultural Science": Sprout,
-  "Further Mathematics": Sigma,
+// Subject artwork icons (public/subject-icons). Falls back to a book glyph.
+const ICON_FILES: Record<string, string> = {
+  "English Language": "english.png",
+  Mathematics: "maths.png",
+  Physics: "physics.png",
+  Chemistry: "chemistry.png",
+  Biology: "biology.png",
+  "Literature in English": "literature.png",
+  Economics: "economics.png",
+  Government: "gov.png",
+  "Agricultural Science": "agriculture.png",
+  "Further Mathematics": "fmaths.png",
 };
 
 type Filter = "all" | "science" | "arts";
@@ -132,13 +132,20 @@ function Chip({ label, value, active, onTap }: { label: string; value: Filter; a
 }
 
 function SubjectIcon({ s, size = 22 }: { s: SubjectInfo; size?: number }) {
-  const Icon = ICONS[s.name] ?? BookOpenText;
+  const file = ICON_FILES[s.name];
+  const box = size + 18;
   return (
     <span
-      className="flex items-center justify-center rounded-xl"
-      style={{ backgroundColor: `${s.color}1F`, width: size + 18, height: size + 18 }}
+      className="flex items-center justify-center overflow-hidden rounded-xl"
+      style={{ backgroundColor: `${s.color}1F`, width: box, height: box }}
     >
-      <Icon size={size} style={{ color: s.color }} />
+      {file ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={`/subject-icons/${file}`} alt={s.name} width={size + 6} height={size + 6}
+          style={{ objectFit: "contain" }} />
+      ) : (
+        <BookOpenText size={size} style={{ color: s.color }} />
+      )}
     </span>
   );
 }
