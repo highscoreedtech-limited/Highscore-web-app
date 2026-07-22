@@ -37,6 +37,23 @@ export const QUIZ_BANK: Record<string, QuizQuestion[]> = {
     {'q': 'What is the functional group in alcohols?',                        'opts': ['-COOH', '-OH', '-CHO', '-NH₂'],                                      'ans': 1},
     {'q': 'Which acid is found in the stomach?',                              'opts': ['H₂SO₄', 'HNO₃', 'HCl', 'H₃PO₄'],                                    'ans': 2},
     {'q': 'A liquid turning to vapour at its surface is:',                   'opts': ['Boiling', 'Evaporation', 'Sublimation', 'Condensation'],              'ans': 1},
+    // Real JAMB past questions (simple picks) — MUST stay in sync with the
+    // mobile bank (quiz_constants.dart) for cross-platform seeded battles.
+    {'q': 'Which of the following substances is a mixture?',                  'opts': ['Granulated sugar', 'Sea-water', 'Sodium chloride', 'Iron filings'],  'ans': 1},
+    {'q': 'Sieving separates mixtures containing solid particles of:',        'opts': ['small sizes', 'large sizes', 'different sizes', 'the same size'],    'ans': 2},
+    {'q': 'A pure solid usually melts:',                                      'opts': ['over a wide range', 'over a narrow range', 'below the impure one', 'same as the impure one'], 'ans': 1},
+    {'q': 'The principal constituent of natural gas is:',                     'opts': ['Methane', 'Ethane', 'Propane', 'Butane'],                            'ans': 0},
+    {'q': 'Sucrose is made up of:',                                           'opts': ['glucose only', 'glucose and fructose', 'fructose only', 'galactose and glucose'], 'ans': 1},
+    {'q': 'The repeating unit in natural rubber is:',                         'opts': ['Alkyne', 'Isoprene', 'n-propane', 'Neoprene'],                       'ans': 1},
+    {'q': 'Polyvinyl chloride (PVC) is used to produce:',                     'opts': ['Bread', 'Pencils', 'Ink', 'Pipes'],                                  'ans': 3},
+    {'q': 'A trihydric alkanol is:',                                          'opts': ['Phenol', 'Glycol', 'Glycerol', 'Ethanol'],                           'ans': 2},
+    {'q': 'Hydrogen is readily released when dilute HCl reacts with:',        'opts': ['Silver', 'Gold', 'Copper', 'Sodium'],                                'ans': 3},
+    {'q': 'Steam turns anhydrous cobalt(II) chloride from:',                  'opts': ['blue to white', 'white to green', 'blue to pink', 'white to red'],   'ans': 2},
+    {'q': 'Chlorine gas turns damp starch-iodide paper:',                     'opts': ['Pink', 'Colourless', 'Red', 'Dark blue'],                            'ans': 3},
+    {'q': 'The most important use of hydrogen is the manufacture of:',        'opts': ['Methanol', 'Ethanol', 'Margarine', 'Ammonia'],                       'ans': 3},
+    {'q': 'Ethene reacts with hydrogen bromide to give:',                     'opts': ['CH₂Br₂', 'CH₃CH₂Br', 'C₂H₂Br₂', 'CHBr₃'],                           'ans': 1},
+    {'q': 'Carbohydrates contain C, H and O in the ratio:',                   'opts': ['3:1:1', '2:1:1', '1:2:1', '1:1:1'],                                  'ans': 2},
+    {'q': 'Fermentation converts sugar in the presence of yeast to:',         'opts': ['Starch', 'Alcohol', 'Vinegar', 'Glucose'],                           'ans': 1},
   ],
   'Biology': [
     {'q': 'The powerhouse of the cell is the:',                               'opts': ['Nucleus', 'Ribosome', 'Mitochondria', 'Chloroplast'],                'ans': 2},

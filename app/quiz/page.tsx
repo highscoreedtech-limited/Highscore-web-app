@@ -45,7 +45,15 @@ function seededShuffle<T>(a: T[], seed: number): T[] {
   return r;
 }
 
-type Phase = "lobby" | "find" | "countdown" | "battle" | "result";
+type Phase = "lobby" | "find" | "spin" | "countdown" | "battle" | "result";
+
+// Opponent name pool — MUST match the mobile app (quiz_constants.dart
+// kOpponentNames) so both platforms show the same roster of "players".
+const OPPONENT_NAMES = [
+  "Emeka", "Ngozi", "Tunde", "Aisha", "Chioma", "Ibrahim", "Yemi", "Fatima",
+  "Kelechi", "Bola", "Uche", "Zainab", "Segun", "Amara", "Musa", "Adaeze",
+  "Femi", "Halima", "Obinna", "Nneka",
+];
 
 export default function QuizPage() {
   const router = useRouter();
@@ -108,9 +116,16 @@ export default function QuizPage() {
     setCount(5); setPhase("countdown");
   };
 
+  // Solo: show the opponent roulette first. The name it lands on is the
+  // computer behind the scenes; beginSolo() runs the actual match.
   const startSolo = () => {
     isPvpRef.current = false; closeRoom();
-    setOppName("HighScore");
+    setPhase("spin");
+  };
+
+  const beginSolo = (opponent: string) => {
+    isPvpRef.current = false;
+    setOppName(opponent);
     setQuestions(shuffle(QUIZ_BANK[subject]).slice(0, 10));
     resetGame();
   };
@@ -300,6 +315,13 @@ export default function QuizPage() {
         {phase === "find" && (
           <FindPlayers subject={subject} onBack={() => setPhase("lobby")} />
         )}
+        {phase === "spin" && (
+          <SoloSpin
+            myName={myName} myAvatar={user?.avatar_url || ""} subject={subject}
+            onDone={(name) => beginSolo(name)}
+            onBack={() => setPhase("lobby")}
+          />
+        )}
         {phase === "countdown" && (
           <Countdown count={count} myName={myName} oppName={oppName} subject={subject} myAvatar={user?.avatar_url || ""} />
         )}
@@ -451,6 +473,91 @@ function InfoBox({ val, lbl, gold }: { val: string; lbl: string; gold?: boolean 
 }
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
+// ── Solo opponent roulette ──────────────────────────────────────────────────
+// Cycles through student names, slows down, and lands on one — that name
+// becomes the (behind-the-scenes computer) opponent. Mirrors mobile SpinView.
+function SoloSpin({ myName, myAvatar, subject, onDone, onBack }: {
+  myName: string; myAvatar?: string; subject: string;
+  onDone: (name: string) => void; onBack: () => void;
+}) {
+  const TOTAL = 24;
+  const namesRef = useRef<string[]>([...OPPONENT_NAMES].sort(() => Math.random() - 0.5));
+  const winnerRef = useRef<string>(namesRef.current[Math.floor(Math.random() * namesRef.current.length)]);
+  const [idx, setIdx] = useState(0);
+  const [landed, setLanded] = useState(false);
+
+  useEffect(() => {
+    let tick = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const step = () => {
+      const progress = tick / TOTAL;
+      const delay = 60 + Math.round(progress * progress * 340); // 60ms → ~400ms
+      timer = setTimeout(() => {
+        tick++;
+        if (tick >= TOTAL) {
+          setIdx(namesRef.current.indexOf(winnerRef.current));
+          setLanded(true);
+          timer = setTimeout(() => onDone(winnerRef.current), 900);
+          return;
+        }
+        setIdx((i) => (i + 1) % namesRef.current.length);
+        step();
+      }, delay);
+    };
+    step();
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const oppName = namesRef.current[idx];
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <div className="flex items-center px-4 pt-4">
+        <button onClick={onBack} className="flex h-[34px] w-[34px] items-center justify-center rounded-full"
+          style={{ backgroundColor: C.surf2, border: "1px solid rgba(255,255,255,0.08)" }}>
+          <span style={{ color: C.text }}>‹</span>
+        </button>
+        <span className="ml-3 text-lg font-extrabold" style={{ color: C.text }}>Finding opponent</span>
+      </div>
+
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="flex items-center justify-center">
+          {/* Me */}
+          <div className="flex flex-col items-center">
+            <div className="flex h-[84px] w-[84px] items-center justify-center overflow-hidden rounded-full text-2xl font-black text-white"
+              style={{ background: `linear-gradient(135deg,${C.brandDark},${C.brand})` }}>
+              {myAvatar ? <img src={myAvatar} alt={myName} className="h-full w-full object-cover" /> : initials(myName)}
+            </div>
+            <p className="mt-2.5 text-sm font-bold" style={{ color: C.text }}>{myName}</p>
+          </div>
+
+          <span className="px-6 text-2xl font-black" style={{ color: `${C.brand}99` }}>VS</span>
+
+          {/* Roulette */}
+          <div className="flex flex-col items-center">
+            <div className="flex h-[84px] w-[84px] items-center justify-center rounded-full text-2xl font-black transition-all duration-200"
+              style={{
+                backgroundColor: C.surf2,
+                border: `${landed ? 3 : 2}px solid ${landed ? C.gold : `${C.brand}66`}`,
+                boxShadow: landed ? `0 0 20px ${C.gold}66` : "none",
+                color: landed ? C.gold : C.text,
+              }}>
+              {oppName.slice(0, 2).toUpperCase()}
+            </div>
+            <p className="mt-2.5 text-sm font-bold" style={{ color: landed ? C.gold : C.text2 }}>{oppName}</p>
+          </div>
+        </div>
+
+        <p className="mt-8 text-[13px]" style={{ color: C.text2 }}>
+          {landed ? `Matched with ${winnerRef.current}! Get ready…` : "Matching you with a player…"}
+        </p>
+        <p className="mt-2 text-xs font-bold tracking-[1px]" style={{ color: C.text2 }}>{subject.toUpperCase()}</p>
+      </div>
+    </div>
+  );
+}
+
 function Countdown({ count, myName, oppName, subject, myAvatar }: { count: number; myName: string; oppName: string; subject: string; myAvatar?: string }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
