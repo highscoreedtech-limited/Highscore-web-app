@@ -283,7 +283,8 @@ function HomeTab({
                 </div>
                 <span className="flex items-center gap-1.5 rounded-full py-1 pl-1.5 pr-3 text-xs font-extrabold text-white ring-1 ring-white/30"
                   style={{ background: "linear-gradient(90deg, rgba(239,159,39,0.35), rgba(239,159,39,0.15))" }}>
-                  <Asset3D name={`medal_${tier.name.toLowerCase()}`} fallback={tier.emoji} size={22} float={false} /> {tier.name}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={tier.icon} alt={tier.name} className="h-[22px] w-[22px] object-contain" /> {tier.name}
                 </span>
               </div>
 
@@ -456,17 +457,17 @@ function ProgressRail({ xp, goals }: { xp: number; goals: DailyGoals }) {
 interface Cat {
   name: string; subtitle: string; bg: string; fg: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
-  lottie?: string; href?: string; big?: boolean; gift?: boolean;
+  lottie?: string; img?: string; href?: string; big?: boolean; gift?: boolean;
 }
 const CATEGORIES: Cat[] = [
-  { name: "My Courses", subtitle: "6 active", bg: "#E6F1FB", fg: "#185FA5", icon: PlayCircle, lottie: "/lottie/video-player.json", href: "/courses" },
-  { name: "Quiz games", subtitle: "3 live now", bg: "#FAEEDA", fg: "#854F0B", icon: Gamepad2, lottie: "/lottie/quiz-games.json", href: "/quiz" },
-  { name: "CBT practice", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: Laptop, lottie: "/lottie/cbt.json", href: "/cbt" },
-  { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, lottie: "/lottie/graph.json", href: "/analytics" },
-  { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal, href: "/leaderboard" },
-  { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, gift: true, href: "/rewards" },
-  { name: "News", subtitle: "From our blog", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, href: "/blog" },
-  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, lottie: "/lottie/refer-and-earn.json", href: "/referral", big: true },
+  { name: "My Courses", subtitle: "6 active", bg: "#E6F1FB", fg: "#185FA5", icon: PlayCircle, img: "/ui/my-courses.png", href: "/courses" },
+  { name: "Quiz games", subtitle: "3 live now", bg: "#FAEEDA", fg: "#854F0B", icon: Gamepad2, img: "/ui/quiz-game-new.png", href: "/quiz" },
+  { name: "CBT practice", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: Laptop, img: "/ui/cbt-practise.png", href: "/cbt" },
+  { name: "Analytics", subtitle: "JAMB, WAEC", bg: "#E6F1FB", fg: "#185FA5", icon: LineChart, img: "/ui/perfomance-analytics.png", href: "/analytics" },
+  { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal, img: "/ui/leaderboard-new.png", href: "/leaderboard" },
+  { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, img: "/ui/rewards-new.png", href: "/rewards" },
+  { name: "News", subtitle: "From our blog", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, img: "/ui/News-update.png", href: "/blog" },
+  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, img: "/ui/friends.png", href: "/referral", big: true },
 ];
 
 function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
@@ -477,7 +478,10 @@ function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
       className="relative flex aspect-[0.92] flex-col items-start overflow-hidden rounded-2xl p-2.5 text-left shadow-[0_4px_12px_rgba(0,0,0,0.13)] transition-transform hover:-translate-y-0.5 active:scale-95"
       style={{ backgroundColor: cat.bg }}
     >
-      {cat.gift ? (
+      {cat.img ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={cat.img} alt={cat.name} className="h-11 w-11 object-contain" />
+      ) : cat.gift ? (
         <Asset3D name="gift" fallback="🎁" size={40} float={false} />
       ) : cat.lottie ? (
         <LottieIcon
