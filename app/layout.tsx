@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import { Poppins } from 'next/font/google';
 import { AuthProvider } from "@/lib/providers/AuthProvider";
 import PwaRegister from "@/components/PwaRegister";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 // HighScore brand font (matches the mobile app)
 const poppins = Poppins({
@@ -54,6 +55,7 @@ export default function RootLayout({
         </AuthProvider>
         <Toaster richColors position="top-right" />
         <PwaRegister />
+        <PwaInstallPrompt />
       </body>
     </html>
   )

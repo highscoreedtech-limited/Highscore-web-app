@@ -8,7 +8,6 @@ import { ArrowLeft, Copy, Check, Share2, Users, Coins, Lock, ChevronRight } from
 import { useAuth } from "../hooks/useAuth";
 import { referralApi } from "@/lib/api";
 import type { TopReferrer } from "@/lib/services/referral.service";
-import Asset3D from "@/components/Asset3D";
 
 const STEPS = [
   { n: 1, title: "Share your code", desc: "Send your code to friends via WhatsApp, social media, or wherever." },
@@ -37,7 +36,8 @@ function MilestoneRail({ referrals }: { referrals: number }) {
               : "All milestones unlocked. Legend! 👑"}
           </p>
         </div>
-        <Asset3D name="gift_purple" fallback="🎁" size={56} float={false} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/ui/rewards-new.png" alt="Rewards" className="h-14 w-14 object-contain" />
       </div>
 
       <div className="mt-4 flex items-start">
@@ -137,8 +137,9 @@ export default function ReferralPage() {
                 <span className="font-bold text-hs-amber">100 pts</span>.
               </p>
             </div>
-            {/* 3D hero — drops in /public/3d/gift.png when available. */}
-            <Asset3D name="gift" fallback="🎁" size={112} />
+            {/* Reward artwork hero. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/ui/rewards-new.png" alt="Rewards" className="h-28 w-28 object-contain" />
           </div>
         </div>
       </header>

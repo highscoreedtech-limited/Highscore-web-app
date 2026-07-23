@@ -146,7 +146,8 @@ export default function RewardsPage() {
             </button>
             <h1 className="text-lg font-bold text-white">Rewards</h1>
             <div className="ml-auto">
-              <Asset3D name="gift" fallback="🎁" size={64} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/ui/rewards-new.png" alt="Rewards" className="h-16 w-16 object-contain" />
             </div>
           </div>
 

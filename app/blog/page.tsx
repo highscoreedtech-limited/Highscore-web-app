@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { Reveal, stagger, item } from "@/components/Reveal";
 import { session } from "@/lib/api/session";
+import BlogSplash from "@/components/BlogSplash";
 
 const POSTS = [
   { title: "JAMB 2026: 7 study habits that actually move your score", tag: "JAMB", date: "Jun 20, 2026", img: "/study-background.jpg", excerpt: "The difference between a 200 and a 300 isn't talent — it's these repeatable habits you can start today." },
@@ -37,6 +38,7 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-hs-body">
+      <BlogSplash />
       {/* Nav — logged-in readers go back to their dashboard, visitors to the landing page */}
       <header className="sticky top-0 z-50 border-b border-hs-border bg-white/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-8">
