@@ -7,27 +7,14 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Share2, Users, Globe, Zap } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { dashApi, pointsFromRank, type LeaderboardEntry } from "@/lib/api";
-import Asset3D from "@/components/Asset3D";
+import { TIERS, tierFor } from "@/lib/tiers";
 
 const EXAMS = ["All", "JAMB", "WAEC", "NECO", "GCE", "Post UTME"];
-
-// Rank tiers (matches the app's tier system).
-const TIERS = [
-  { name: "Wood", emoji: "🪵", color: "#B08968", minPts: 0, starter: true },
-  { name: "Bronze", emoji: "🥉", color: "#CD7F32", minPts: 500 },
-  { name: "Silver", emoji: "🥈", color: "#C0C0C0", minPts: 1500 },
-  { name: "Gold", emoji: "🥇", color: "#FFD34E", minPts: 3000 },
-  { name: "Diamond", emoji: "💎", color: "#5AC8FA", minPts: 6000 },
-];
 
 function fullName(e: LeaderboardEntry) {
   return `${e.first_name} ${e.last_name}`.trim() || "Anonymous";
 }
-function tierName(pts: number) {
-  let t = TIERS[0];
-  for (const x of TIERS) if (pts >= x.minPts) t = x;
-  return t;
-}
+const tierName = tierFor;
 
 export default function LeaderboardPage() {
   const router = useRouter();
@@ -119,9 +106,10 @@ export default function LeaderboardPage() {
             return (
               <div key={t.name} className="flex w-[86px] shrink-0 flex-col items-center rounded-2xl py-3"
                 style={{ background: isMe ? "rgba(255,176,32,0.12)" : "rgba(255,255,255,0.04)", border: `1.5px solid ${isMe ? "#FFB020" : "rgba(255,255,255,0.08)"}` }}>
-                <Asset3D name={`medal_${t.name.toLowerCase()}`} fallback={t.emoji} size={38} float={false} />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={t.icon} alt={t.name} className="h-[38px] w-[38px] object-contain" />
                 <span className="mt-1 text-[12px] font-bold">{t.name}</span>
-                <span className="text-[9px] text-white/50">{t.starter ? "Starter" : `${t.minPts}+ pts`}</span>
+                <span className="text-[9px] text-white/50">{t.minPts === 0 ? "Starter" : `${t.minPts}+ pts`}</span>
               </div>
             );
           })}
