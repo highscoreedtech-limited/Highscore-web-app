@@ -94,13 +94,13 @@ export default function IncomingChallengeWatcher() {
               <span className="text-[#FF9A62]">{inc.from_name}</span> challenged you
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-              <span className="rounded-full bg-[#FF6624]/20 px-3 py-1 text-xs font-bold text-[#FF9A62]">⚔️ 1v1 Duel</span>
+              <span className="rounded-full bg-[#FF6624]/20 px-3 py-1 text-xs font-bold text-[#FF9A62]">1v1 Duel</span>
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white">{inc.subject}</span>
             </div>
             <p className="mt-3 text-xs text-[#A08070]">Head-to-head, fastest correct answer advances.</p>
             <div className="mt-6 flex gap-3">
               <button onClick={decline} className="flex-1 rounded-full bg-white/10 py-3 text-sm font-bold text-[#A08070]">Decline</button>
-              <button onClick={accept} className="flex-1 rounded-full py-3 text-sm font-extrabold text-white" style={{ background: "linear-gradient(135deg,#FF6624,#C03D27)" }}>Accept ⚔️</button>
+              <button onClick={accept} className="flex-1 rounded-full py-3 text-sm font-extrabold text-white" style={{ background: "linear-gradient(135deg,#FF6624,#C03D27)" }}>Accept</button>
             </div>
           </motion.div>
         </motion.div>

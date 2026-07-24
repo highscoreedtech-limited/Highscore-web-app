@@ -7,6 +7,7 @@ import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
 import { api, quizApi } from "@/lib/api";
 import { realtime } from "@/lib/realtime/client";
 import { markGoal } from "@/lib/home-progress";
+import { playSfx, unlockSfx } from "@/lib/sfx";
 import { useAuth } from "../hooks/useAuth";
 import FindPlayers from "./FindPlayers";
 
@@ -119,6 +120,7 @@ export default function QuizPage() {
   // Solo: show the opponent roulette first. The name it lands on is the
   // computer behind the scenes; beginSolo() runs the actual match.
   const startSolo = () => {
+    unlockSfx(); // first user gesture — prime audio so battle sounds can play
     isPvpRef.current = false; closeRoom();
     setPhase("spin");
   };
@@ -210,6 +212,9 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (phase !== "countdown") return;
+    // Countdown beeps (both solo and PvP): tick on 3/2/1, "go" on 0.
+    if (count >= 1) playSfx("countdown_tick");
+    else if (count === 0) playSfx("countdown_go");
     if (isPvpRef.current) return; // server drives the PvP countdown over the room WS
     if (count <= -1) { setPhase("battle"); return; }
     const t = setTimeout(() => setCount((c) => c - 1), 850);
@@ -277,10 +282,13 @@ export default function QuizPage() {
       bonus = timeLeft >= 10 ? 50 : timeLeft >= 5 ? 25 : 0;
       earned = 100 + bonus;
       setMyScore((s) => s + earned);
-      setStreak((st) => { const ns = st + 1; setMaxCombo((m) => Math.max(m, ns)); return ns; });
+      const ns = streak + 1;
+      setStreak(() => { setMaxCombo((m) => Math.max(m, ns)); return ns; });
       setFlash("my"); setTimeout(() => setFlash(null), 450);
+      playSfx(ns >= 2 ? "combo" : "correct");
     } else {
       setStreak(0);
+      playSfx("wrong");
     }
     setAnswered(true); setSelectedIdx(idx);
     correctArr.current.push(ok); ptsArr.current.push(earned); timesArr.current.push(elapsed);
@@ -298,6 +306,7 @@ export default function QuizPage() {
     clearTimers();
     setAnswered(true); setSelectedIdx(null); setStreak(0);
     correctArr.current.push(false); ptsArr.current.push(0); timesArr.current.push(15);
+    playSfx("timeout");
     showFeedback("⏱️", "Time's up!", "");
     if (isPvpRef.current) {
       try { wsRef.current?.send(JSON.stringify({ type: "answer", qi: currentQ, correct: false, pts: 0 })); } catch { /* ignore */ }
@@ -311,7 +320,7 @@ export default function QuizPage() {
       <div className="mx-auto max-w-xl">
         {phase === "splash" && <QuizSplash onDone={() => setPhase("lobby")} />}
         {phase === "lobby" && (
-          <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onFind={() => setPhase("find")} onGroup={() => router.push("/arena")} onBack={() => router.push("/dashboard")} myAvatar={user?.avatar_url || ""} />
+          <Lobby subject={subject} setSubject={setSubject} myName={myName} onSolo={startSolo} onFind={() => { unlockSfx(); setPhase("find"); }} onGroup={() => router.push("/arena")} onBack={() => router.push("/dashboard")} myAvatar={user?.avatar_url || ""} />
         )}
         {phase === "find" && (
           <FindPlayers subject={subject} onBack={() => setPhase("lobby")} />
@@ -384,15 +393,10 @@ function Lobby({ subject, setSubject, myName, onSolo, onFind, onGroup, onBack, m
           <span style={{ color: C.text }}>‹</span>
         </button>
         <span className="ml-3 text-xl font-extrabold" style={{ color: C.text }}>Quiz Battle</span>
-        <span className="ml-auto flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{ backgroundColor: `${C.gold}1F`, border: `1px solid ${C.gold}4D` }}>
-          <motion.span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: C.gold }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.4, repeat: Infinity }} />
-          <span className="text-[10px] font-bold" style={{ color: C.gold }}>142 ONLINE</span>
-        </span>
       </div>
 
       {/* Header */}
       <h1 className="mt-5 text-[38px] font-black leading-[1.05]" style={{ color: C.text }}>Quiz<br />Battle</h1>
-      <p className="mt-1 text-[13px] font-medium" style={{ color: C.text2 }}>PVP Knowledge Arena</p>
 
       {/* VS card */}
       <div className="relative mt-5 rounded-3xl p-[18px]" style={{ backgroundColor: C.surf, border: `1px solid ${C.brand}26` }}>
@@ -405,7 +409,6 @@ function Lobby({ subject, setSubject, myName, onSolo, onFind, onGroup, onBack, m
               <span className="h-6 w-6 animate-spin rounded-full border-[2.5px] border-t-transparent" style={{ borderColor: `${C.brand} transparent ${C.brand} ${C.brand}` }} />
             </div>
             <p className="mt-2 text-[13px] font-bold" style={{ color: C.text2 }}>Searching...</p>
-            <p className="text-[11px]" style={{ color: C.text2 }}>±50 range</p>
           </div>
         </div>
       </div>
@@ -640,7 +643,7 @@ function Countdown({ count, myName, oppName, subject, myAvatar }: { count: numbe
         <span className="px-4 text-xl font-black" style={{ color: `${C.brand}80` }}>VS</span>
         <MiniAva init={initials(oppName)} name={oppName} />
       </div>
-      <p className="mt-2 text-[11px] font-bold tracking-[0.5px]" style={{ color: C.text2 }}>{subject}  ·  AI Match  ·  SS3</p>
+      <p className="mt-2 text-[11px] font-bold tracking-[0.5px]" style={{ color: C.text2 }}>{subject}</p>
       <AnimatePresence mode="popLayout">
         <motion.div key={count} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 1.5, opacity: 0 }} transition={{ duration: 0.4 }}
           className="mt-12 text-[120px] font-black leading-none" style={{ color: C.brand }}>
