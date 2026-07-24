@@ -2,7 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, ArrowRight } from "lucide-react";
-import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/blog-posts";
+import { BLOG_CATEGORIES } from "@/lib/blog-posts";
+import { getPosts, getCategories } from "@/lib/blog-api";
+
+export const revalidate = 300;
+export const dynamicParams = true;
 
 const catSlug = (c: string) => c.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
@@ -10,15 +14,18 @@ export function generateStaticParams() {
   return BLOG_CATEGORIES.map((c) => ({ slug: catSlug(c) }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const category = BLOG_CATEGORIES.find((c) => catSlug(c) === params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const cats = await getCategories();
+  const category = cats.find((c) => catSlug(c) === params.slug);
   return { title: `${category ?? "Articles"} — HighScore EdTech Blog` };
 }
 
-export default function BlogCategory({ params }: { params: { slug: string } }) {
-  const category = BLOG_CATEGORIES.find((c) => catSlug(c) === params.slug);
+export default async function BlogCategory({ params }: { params: { slug: string } }) {
+  const cats = await getCategories();
+  const category = cats.find((c) => catSlug(c) === params.slug);
   if (!category) notFound();
-  const posts = BLOG_POSTS.filter((p) => p.category === category);
+  const all = await getPosts();
+  const posts = all.filter((p) => p.category === category);
 
   return (
     <div className="min-h-screen bg-white font-sans text-hs-body">
