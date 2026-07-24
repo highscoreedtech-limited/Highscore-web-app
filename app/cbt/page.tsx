@@ -14,7 +14,19 @@ import Calculator from "@/components/Calculator";
 
 type Phase = "select" | "exam" | "result";
 
-const SUBJECTS = Object.keys(CBT_BANK);
+// Real exam-question banks bundled as /public/data assets. A subject listed
+// here loads its real bank instead of the small built-in demo bank.
+const REAL_BANK_FILES: Record<string, string> = {
+  Chemistry: "/data/chemistry_questions.json",
+  English: "/data/english_questions.json",
+  Literature: "/data/literature_questions.json",
+  Government: "/data/government_questions.json",
+};
+
+const SUBJECTS = [
+  ...Object.keys(CBT_BANK),
+  ...Object.keys(REAL_BANK_FILES).filter((s) => !CBT_BANK[s]),
+];
 const EXAMS = Object.keys(CBT_EXAMS);
 
 function shuffle<T>(arr: T[]): T[] {
@@ -33,22 +45,31 @@ export default function CbtPage() {
   const [exam, setExam] = useState("JAMB");
   const [topics, setTopics] = useState<string[]>([]); // empty = all topics
 
-  // Real JAMB past questions (1983–2004) by topic; replaces the demo bank.
-  const [chemBank, setChemBank] = useState<CbtQuestion[] | null>(null);
+  // Real exam-question banks (chemistry past questions, JAMB/WAEC English,
+  // Literature, Government). Loaded once; replace the demo bank per subject.
+  const [realBanks, setRealBanks] = useState<Record<string, CbtQuestion[]>>({});
   useEffect(() => {
-    fetch("/data/chemistry_questions.json")
-      .then((r) => r.json())
-      .then((list: CbtQuestion[]) => setChemBank(list))
-      .catch(() => {}); // demo bank remains the fallback
+    let active = true;
+    Promise.all(
+      Object.entries(REAL_BANK_FILES).map(([s, url]) =>
+        fetch(url).then((r) => r.json()).then((list: CbtQuestion[]) => [s, list] as const).catch(() => null)
+      )
+    ).then((results) => {
+      if (!active) return;
+      const map: Record<string, CbtQuestion[]> = {};
+      for (const r of results) if (r && r[1]?.length) map[r[0]] = r[1];
+      setRealBanks(map);
+    });
+    return () => { active = false; };
   }, []);
 
+  const hasRealBank = (s: string) => (realBanks[s]?.length ?? 0) > 0;
   const bankFor = (s: string): CbtQuestion[] =>
-    s === "Chemistry" && chemBank ? chemBank : CBT_BANK[s] ?? [];
+    hasRealBank(s) ? realBanks[s] : CBT_BANK[s] ?? [];
 
-  const subjectTopics =
-    subject === "Chemistry" && chemBank
-      ? [...new Set(chemBank.map((q) => q.topic))]
-      : cbtTopics(subject);
+  const subjectTopics = hasRealBank(subject)
+    ? [...new Set(realBanks[subject].map((q) => q.topic))]
+    : cbtTopics(subject);
   const toggleTopic = (t: string) =>
     setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
 
@@ -74,7 +95,7 @@ export default function CbtPage() {
     const pool = topics.length ? bank.filter((q) => topics.includes(q.topic)) : bank;
     // Chemistry uses the real past-question bank: 40 shuffled questions per
     // session (or every question when the topic has fewer), 1 min each.
-    const realBank = subject === "Chemistry" && chemBank;
+    const realBank = hasRealBank(subject);
     const nQs = realBank ? 40 : cfg.qs;
     const mins = realBank ? 40 : cfg.mins;
     const qs = shuffle(pool).slice(0, nQs);
