@@ -8,22 +8,12 @@ import { ArrowLeft, ArrowRight, CalendarDays } from "lucide-react";
 import { Reveal, stagger, item } from "@/components/Reveal";
 import { session } from "@/lib/api/session";
 import BlogSplash from "@/components/BlogSplash";
+import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/blog-posts";
 
-const POSTS = [
-  { title: "JAMB 2026: 7 study habits that actually move your score", tag: "JAMB", date: "Jun 20, 2026", img: "/study-background.jpg", excerpt: "The difference between a 200 and a 300 isn't talent — it's these repeatable habits you can start today." },
-  { title: "How to master CBT practice before exam day", tag: "CBT", date: "Jun 14, 2026", img: "/cbt-banner.jpg", excerpt: "Timed practice, error logs and spaced repetition — a simple system for walking into the hall calm and ready." },
-  { title: "WAEC vs NECO: what really changes in your prep", tag: "WAEC", date: "Jun 8, 2026", img: "/english.jpg", excerpt: "Same syllabus, different examiners. Here's how to tune your revision for each board." },
-  { title: "Beat exam anxiety with quiz battles", tag: "Wellbeing", date: "Jun 1, 2026", img: "/quiz.jpg", excerpt: "Turning revision into a game lowers stress and boosts recall. The science, and how to use it." },
-  { title: "The maths topics that show up every single year", tag: "Mathematics", date: "May 25, 2026", img: "/maths.jpg", excerpt: "Focus your energy where it counts. These high-frequency topics deserve the most practice." },
-  { title: "From the bottom to top 10: a HighScore streak story", tag: "Story", date: "May 18, 2026", img: "/physics.jpg", excerpt: "How a 7-day streak turned into a habit — and a leaderboard climb that changed one student's results." },
-];
-
-const CATEGORIES = [
-  { label: "JAMB", img: "/study-background.jpg" },
-  { label: "WAEC & NECO", img: "/english.jpg" },
-  { label: "CBT Practice", img: "/cbt.jpg" },
-  { label: "Success Stories", img: "/physics.jpg" },
-];
+const POSTS = BLOG_POSTS;
+// Browse-by-topic tiles: real categories, each fronted by a post's image.
+const CAT_IMAGES = ["/study-background.jpg", "/english.jpg", "/cbt.jpg", "/physics.jpg", "/quiz.jpg", "/maths.jpg", "/cbt-banner.jpg"];
+const CATEGORIES = BLOG_CATEGORIES.map((label, i) => ({ label, img: CAT_IMAGES[i % CAT_IMAGES.length] }));
 
 export default function BlogPage() {
   // Auth-aware chrome: logged-in readers navigate back to the dashboard and
@@ -34,7 +24,7 @@ export default function BlogPage() {
 
   const [featured, ...rest] = POSTS;
   const picks = rest.slice(0, 3);
-  const latest = rest;
+  const latest = rest.slice(3);
 
   return (
     <div className="min-h-screen bg-white font-sans text-hs-body">
@@ -74,7 +64,7 @@ export default function BlogPage() {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Featured */}
           <Reveal className="lg:col-span-2">
-            <Link href={target} className="group block">
+            <Link href={`/blog/${featured.slug}`} className="group block">
               <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
                 <Image src={featured.img} alt={featured.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" priority />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
@@ -92,8 +82,8 @@ export default function BlogPage() {
           {/* Side list */}
           <div className="flex flex-col divide-y divide-hs-border">
             {picks.map((p, i) => (
-              <Reveal key={p.title} delay={i * 0.08}>
-                <Link href={target} className="group flex gap-4 py-4 first:pt-0">
+              <Reveal key={p.slug} delay={i * 0.08}>
+                <Link href={`/blog/${p.slug}`} className="group flex gap-4 py-4 first:pt-0">
                   <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-xl">
                     <Image src={p.img} alt={p.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
                   </div>
@@ -117,7 +107,7 @@ export default function BlogPage() {
         <motion.div className="grid grid-cols-2 gap-4 lg:grid-cols-4" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}>
           {CATEGORIES.map((c) => (
             <motion.div key={c.label} variants={item}>
-              <Link href={target} className="group relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl">
+              <Link href={`/blog/category/${c.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`} className="group relative flex aspect-[4/5] items-center justify-center overflow-hidden rounded-2xl">
                 <Image src={c.img} alt={c.label} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-hs-navy/55 transition-colors group-hover:bg-hs-navy/45" />
                 <span className="relative rounded-md border border-white/70 px-4 py-2 text-center text-sm font-bold uppercase tracking-wide text-white">{c.label}</span>
@@ -134,17 +124,19 @@ export default function BlogPage() {
         </div>
         <motion.div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}>
           {latest.map((p) => (
-            <motion.article key={p.title} variants={item} whileHover={{ y: -8 }} className="group flex flex-col overflow-hidden rounded-2xl border border-hs-border bg-white shadow-[0_10px_30px_-8px_rgba(4,44,83,0.16)] hover:shadow-[0_22px_44px_-12px_rgba(4,44,83,0.28)]">
-              <div className="relative aspect-video overflow-hidden">
-                <Image src={p.img} alt={p.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-hs-blue">{p.tag}</span>
-              </div>
-              <div className="flex flex-1 flex-col p-5">
-                <p className="flex items-center gap-1.5 text-[11px] text-hs-muted"><CalendarDays size={13} /> {p.date}</p>
-                <h3 className="mt-2 text-lg font-bold leading-snug text-hs-navy">{p.title}</h3>
-                <p className="mt-2 line-clamp-2 text-sm text-hs-muted">{p.excerpt}</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-hs-blue">Read more <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" /></span>
-              </div>
+            <motion.article key={p.slug} variants={item} whileHover={{ y: -8 }} className="group flex flex-col overflow-hidden rounded-2xl border border-hs-border bg-white shadow-[0_10px_30px_-8px_rgba(4,44,83,0.16)] hover:shadow-[0_22px_44px_-12px_rgba(4,44,83,0.28)]">
+              <Link href={`/blog/${p.slug}`} className="flex flex-1 flex-col">
+                <div className="relative aspect-video overflow-hidden">
+                  <Image src={p.img} alt={p.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-hs-blue">{p.tag}</span>
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <p className="flex items-center gap-1.5 text-[11px] text-hs-muted"><CalendarDays size={13} /> {p.date}</p>
+                  <h3 className="mt-2 text-lg font-bold leading-snug text-hs-navy">{p.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm text-hs-muted">{p.excerpt}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-hs-blue">Read more <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" /></span>
+                </div>
+              </Link>
             </motion.article>
           ))}
         </motion.div>
