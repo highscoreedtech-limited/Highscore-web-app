@@ -70,8 +70,6 @@ export default function CbtPage() {
   const subjectTopics = hasRealBank(subject)
     ? [...new Set(realBanks[subject].map((q) => q.topic))]
     : cbtTopics(subject);
-  const toggleTopic = (t: string) =>
-    setTopics((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
 
   const [questions, setQuestions] = useState<CbtQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -138,63 +136,39 @@ export default function CbtPage() {
     return (
       <Shell onBack={() => router.push("/dashboard")} title="CBT Practice">
         <div className="mx-auto max-w-2xl px-4 py-6 lg:px-8">
-          <h2 className="text-sm font-bold text-hs-navy">Choose a subject</h2>
-          <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            {SUBJECTS.map((s) => (
-              <button
-                key={s}
-                onClick={() => { setSubject(s); setTopics([]); }}
-                className={`rounded-xl border px-3 py-3 text-sm font-semibold ${
-                  subject === s ? "border-hs-blue bg-hs-blueTint text-hs-blue" : "border-hs-border bg-white text-hs-navy"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
+          <label className="block text-sm font-bold text-hs-navy">Subject</label>
+          <select
+            value={subject}
+            onChange={(e) => { setSubject(e.target.value); setTopics([]); }}
+            className="mt-2 w-full rounded-xl border border-hs-border bg-white px-4 py-3 text-sm font-semibold text-hs-navy focus:border-hs-blue focus:outline-none"
+          >
+            {SUBJECTS.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
 
-          {/* Topics, multi-select, "All topics" = whole subject */}
-          <h2 className="mt-6 text-sm font-bold text-hs-navy">Choose topics</h2>
-          <p className="mt-0.5 text-xs text-hs-muted">Leave on “All topics”, or pick the ones you want to be tested on.</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              onClick={() => setTopics([])}
-              className={`rounded-full border px-3.5 py-2 text-xs font-semibold ${
-                topics.length === 0 ? "border-hs-blue bg-hs-blue text-white" : "border-hs-border bg-white text-hs-navy"
-              }`}
-            >
-              All topics
-            </button>
-            {subjectTopics.map((t) => {
-              const sel = topics.includes(t);
-              return (
-                <button
-                  key={t}
-                  onClick={() => toggleTopic(t)}
-                  className={`rounded-full border px-3.5 py-2 text-xs font-semibold ${
-                    sel ? "border-hs-blue bg-hs-blueTint text-hs-blue" : "border-hs-border bg-white text-hs-navy"
-                  }`}
-                >
-                  {t}
-                </button>
-              );
-            })}
-          </div>
+          {/* Topic — single select; "All topics" pulls from the whole subject */}
+          <label className="mt-6 block text-sm font-bold text-hs-navy">Topic</label>
+          <select
+            value={topics.length === 0 ? "__all__" : topics[0]}
+            onChange={(e) => setTopics(e.target.value === "__all__" ? [] : [e.target.value])}
+            className="mt-2 w-full rounded-xl border border-hs-border bg-white px-4 py-3 text-sm font-semibold text-hs-navy focus:border-hs-blue focus:outline-none"
+          >
+            <option value="__all__">All topics</option>
+            {subjectTopics.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <p className="mt-1.5 text-xs text-hs-muted">
+            {topics.length === 0
+              ? "Questions will be drawn from every topic in this subject."
+              : `Only "${topics[0]}" questions will appear.`}
+          </p>
 
-          <h2 className="mt-6 text-sm font-bold text-hs-navy">Choose exam type</h2>
-          <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            {EXAMS.map((e) => (
-              <button
-                key={e}
-                onClick={() => setExam(e)}
-                className={`rounded-xl border px-3 py-3 text-sm font-semibold ${
-                  exam === e ? "border-hs-blue bg-hs-blueTint text-hs-blue" : "border-hs-border bg-white text-hs-navy"
-                }`}
-              >
-                {e}
-              </button>
-            ))}
-          </div>
+          <label className="mt-6 block text-sm font-bold text-hs-navy">Exam type</label>
+          <select
+            value={exam}
+            onChange={(e) => setExam(e.target.value)}
+            className="mt-2 w-full rounded-xl border border-hs-border bg-white px-4 py-3 text-sm font-semibold text-hs-navy focus:border-hs-blue focus:outline-none"
+          >
+            {EXAMS.map((e) => <option key={e} value={e}>{e}</option>)}
+          </select>
 
           <div className="mt-6 rounded-xl border border-hs-border bg-white p-4 text-sm text-hs-muted">
             <p><span className="font-bold text-hs-navy">{cfg.qs}</span> questions · <span className="font-bold text-hs-navy">{cfg.mins}</span> minutes · 5 points per correct answer</p>
