@@ -69,7 +69,7 @@ export default async function BlogArticle({ params }: { params: { slug: string }
         {/* Body */}
         <div className="prose-hs mt-8 space-y-5">
           {post.body.map((para, i) => (
-            <p key={i} className="text-[17px] leading-[1.75] text-hs-body">{para}</p>
+            <p key={i} className="text-justify text-[17px] leading-[1.75] text-hs-body [hyphens:auto]">{para}</p>
           ))}
         </div>
 

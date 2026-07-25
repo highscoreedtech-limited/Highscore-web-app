@@ -57,20 +57,19 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   return (await getPosts()).filter((p) => !isHerr(p));
 }
 
-// HERR feed: the bundled research paper(s) merged with any admin-added HERR
-// articles from the API (API wins on slug clash). Bundling guarantees the
-// research content shows even before the backend has seeded it.
+// HERR feed: the curated bundled paper(s) are authoritative (kept correct in
+// code); any admin-added HERR articles from the API are added alongside.
 export async function getHerrPosts(): Promise<BlogPost[]> {
-  const fromApi = (await getPosts()).filter(isHerr);
-  const apiSlugs = new Set(fromApi.map((p) => p.slug));
-  const bundled = HERR_ARTICLES.filter((p) => !apiSlugs.has(p.slug));
-  return [...fromApi, ...bundled];
+  const bundledSlugs = new Set(HERR_ARTICLES.map((p) => p.slug));
+  const fromApi = (await getPosts()).filter((p) => isHerr(p) && !bundledSlugs.has(p.slug));
+  return [...HERR_ARTICLES, ...fromApi];
 }
 
 export async function getHerrPost(slug: string): Promise<BlogPost | null> {
+  const bundled = HERR_ARTICLES.find((a) => a.slug === slug);
+  if (bundled) return bundled;
   const p = await getPost(slug);
-  if (p && isHerr(p)) return p;
-  return HERR_ARTICLES.find((a) => a.slug === slug) || null;
+  return p && isHerr(p) ? p : null;
 }
 
 export async function getCategories(): Promise<string[]> {

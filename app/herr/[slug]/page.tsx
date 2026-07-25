@@ -69,7 +69,7 @@ export default async function HerrArticle({ params }: { params: { slug: string }
                 {block.slice(3)}
               </h2>
             ) : (
-              <p key={i} className="mb-4 text-[17px] leading-[1.8] text-hs-body">{block}</p>
+              <p key={i} className="mb-4 text-justify text-[17px] leading-[1.8] text-hs-body [hyphens:auto]">{block}</p>
             )
           )}
         </div>
@@ -93,9 +93,9 @@ export default async function HerrArticle({ params }: { params: { slug: string }
 
         {/* Citation */}
         {post.source && (
-          <p className="mt-8 rounded-xl bg-hs-bg p-4 text-sm leading-relaxed text-hs-muted">
-            <span className="font-semibold text-hs-navy">Citation:</span> <Linkified text={post.source} />
-          </p>
+          <div className="mt-8 rounded-xl bg-hs-bg p-4 text-sm leading-relaxed text-hs-muted">
+            <p className="whitespace-pre-line"><Linkified text={post.source} /></p>
+          </div>
         )}
       </article>
     </div>

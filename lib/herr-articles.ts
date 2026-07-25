@@ -54,7 +54,7 @@ export const HERR_ARTICLES: BlogPost[] = [
       "## Conclusion",
       "A 10 second feedback delay did not improve learning in a gamified logical reasoning quiz. Gamification itself boosted accuracy by a wide margin. Engagement did not differ between groups but still correlated with success. These findings refine feedback timing theories. They also show how powerful gamification can be as a standalone tool. Future work should test longer delays and factual materials. Neuroimaging studies can uncover the brain mechanisms behind these effects."
     ],
-    "source": "Author: Ijeoma Tochukwu Charles · Institute for Cognitive Neuroscience, HSE University & HighScore EdTech Limited. Published in HighScore EdTech Research Review (HERR), Vol 1, Issue 1, 2026.",
+    "source": "© 2026 Ijeoma Tochukwu Charles. All rights reserved.\nThis work is based on the master's thesis The Temporal Dynamics of Feedback in Gamified Learning completed at the Institute for Cognitive Neuroscience, National Research University Higher School of Economics (HSE University), Moscow.\nPublished in HighScore EdTech Research Review, Volume 1, Issue 1, 2026.\n\nHow to cite this work: Ijeoma, T. C. (2026). Playing to learn: How gamification, not feedback delay, improves quiz performance. HighScore EdTech Research Review, 1(1). https://highscoreedtech.com/herr/playing-to-learn-gamification-quiz-performance",
     "img": "/quiz.jpg",
     "author": "Ijeoma Tochukwu Charles",
     "downloadUrl": "https://drive.google.com/file/d/1Fdc4Pr4L4bG7no_OUuwVl_Y05c4FO",
