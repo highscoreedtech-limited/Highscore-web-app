@@ -12,16 +12,15 @@ import Asset3D from "@/components/Asset3D";
 import { stagger, item } from "@/components/Reveal";
 
 type Social = "youtube" | "whatsapp" | "tiktok" | "facebook";
-interface EarnItem { icon: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; social?: Social; claim?: "week" | "top10" }
+interface EarnItem { icon: string; img?: string; title: string; pts: string; sub: string; auto?: boolean; url?: string; social?: Social; claim?: "week" | "top10" }
 
 const EARN: EarnItem[] = [
-  { icon: "⚔️", title: "Win a PVP Battle", pts: "+200", sub: "Beat an opponent, credited automatically when the match ends", auto: true },
-  { icon: "🎯", title: "Solo Quiz", pts: "+10", sub: "Each correct answer adds 10 pts automatically", auto: true },
-  { icon: "📚", title: "CBT Practice", pts: "+5", sub: "Per correct answer, claim from the result screen", auto: true },
-  { icon: "🔥", title: "Daily Streak", pts: "+10", sub: "Come back every day to keep your streak alive", auto: true },
-  { icon: "🏆", title: "Week Streak Milestone", pts: "+70", sub: "7 days in a row, claim your special bonus!", claim: "week" },
-  { icon: "📈", title: "Reach Top 10 Leaderboard", pts: "+50", sub: "Land in the top 10 this week to claim", claim: "top10" },
-  { icon: "💡", title: "Perfect Score (10/10)", pts: "+100", sub: "Get every question right in a quiz", auto: true },
+  { icon: "⚔️", img: "/ui/pvp-battle.png", title: "Solo Battle", pts: "+200", sub: "Win a quiz battle, credited automatically when the match ends", auto: true },
+  { icon: "📚", img: "/ui/cbt-reward.png", title: "CBT Practice", pts: "+5", sub: "Earn 5 points for each correct CBT answer", auto: true },
+  { icon: "🔥", img: "/ui/dailystreak.png", title: "Daily Streak", pts: "+10", sub: "Come back every day to keep your streak alive", auto: true },
+  { icon: "💯", img: "/ui/perfect-score.png", title: "Perfect Score", pts: "+100", sub: "Get every question right in a quiz", auto: true },
+  { icon: "📈", img: "/ui/leaderboard-new.png", title: "Leaderboard", pts: "+50", sub: "Reach the top 10 this week to claim", claim: "top10" },
+  { icon: "🏁", img: "/ui/milestone.png", title: "Milestone", pts: "+70", sub: "7 day streak, claim your special bonus!", claim: "week" },
   { icon: "", social: "youtube", title: "Subscribe on YouTube", pts: "+50", sub: "Open the channel, subscribe, then claim", url: "https://www.youtube.com/@Highscore_Edtech" },
   { icon: "", social: "whatsapp", title: "Join WhatsApp community", pts: "+30", sub: "Join the group, then claim your points", url: "https://chat.whatsapp.com/EUn3DJhalXTFFHue8FjY9i" },
   { icon: "", social: "whatsapp", title: "Follow our WhatsApp channel", pts: "+20", sub: "Follow the channel for updates, then claim", url: "https://whatsapp.com/channel/0029Vb7JVKB84OmK6v73rA1f" },
@@ -208,6 +207,9 @@ export default function RewardsPage() {
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl" style={{ background: SOCIAL[e.social].bg }}>
                     {SOCIAL[e.social].svg}
                   </span>
+                ) : e.img ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={e.img} alt={e.title} className="h-11 w-11 shrink-0 object-contain" />
                 ) : (
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-hs-bg text-xl">{e.icon}</span>
                 )}
