@@ -2,8 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, ArrowRight } from "lucide-react";
+import { redirect } from "next/navigation";
 import { BLOG_POSTS } from "@/lib/blog-posts";
-import { getPost, getPosts } from "@/lib/blog-api";
+import { getPost, getBlogPosts, HERR_CATEGORY } from "@/lib/blog-api";
 
 // Revalidate so newly-published articles appear without a redeploy.
 export const revalidate = 300;
@@ -27,8 +28,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function BlogArticle({ params }: { params: { slug: string } }) {
   const post = await getPost(params.slug);
   if (!post) notFound();
+  // HERR research articles live only under /herr — never in the blog.
+  if (post.category === HERR_CATEGORY || /research review/i.test(post.category)) {
+    redirect(`/herr/${post.slug}`);
+  }
 
-  const all = await getPosts();
+  const all = await getBlogPosts();
   const related = all
     .filter((p) => p.slug !== post.slug && p.category === post.category)
     .slice(0, 3);

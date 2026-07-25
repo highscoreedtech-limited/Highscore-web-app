@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, ArrowRight } from "lucide-react";
 import { BLOG_CATEGORIES } from "@/lib/blog-posts";
-import { getPosts, getCategories } from "@/lib/blog-api";
+import { getBlogPosts, getCategories } from "@/lib/blog-api";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -24,7 +24,7 @@ export default async function BlogCategory({ params }: { params: { slug: string 
   const cats = await getCategories();
   const category = cats.find((c) => catSlug(c) === params.slug);
   if (!category) notFound();
-  const all = await getPosts();
+  const all = await getBlogPosts();
   const posts = all.filter((p) => p.category === category);
 
   return (
