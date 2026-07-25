@@ -467,7 +467,8 @@ const CATEGORIES: Cat[] = [
   { name: "Leaderboard", subtitle: "JAMB, WAEC", bg: "#FAEEDA", fg: "#854F0B", icon: Medal, img: "/ui/leaderboard-new.png", href: "/leaderboard" },
   { name: "Rewards", subtitle: "Claim points", bg: "#FAEEDA", fg: "#854F0B", icon: Gift, img: "/ui/rewards-new.png", href: "/rewards" },
   { name: "News", subtitle: "From our blog", bg: "#EEF4FF", fg: "#3B5BDB", icon: Newspaper, img: "/ui/News-update.png", href: "/blog" },
-  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, img: "/ui/friends.png", href: "/referral", big: true },
+  { name: "Academic Papers", subtitle: "Research review", bg: "#EAF1F0", fg: "#0D6E6E", icon: Newspaper, img: "/HERR.png", href: "/herr" },
+  { name: "Refer & Earn", subtitle: "Get 100 pts", bg: "#F0FDF4", fg: "#16A34A", icon: UserPlus, img: "/ui/refer-and-earn.png", href: "/referral", big: true },
 ];
 
 function CategoryCard({ cat, onClick }: { cat: Cat; onClick: () => void }) {
