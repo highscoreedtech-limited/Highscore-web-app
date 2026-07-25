@@ -1,4 +1,5 @@
 import { BLOG_POSTS, BLOG_CATEGORIES, type BlogPost } from "./blog-posts";
+import { HERR_ARTICLES } from "./herr-articles";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "https://highscore-mobile-production.up.railway.app";
 
@@ -56,14 +57,20 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
   return (await getPosts()).filter((p) => !isHerr(p));
 }
 
-// HERR feed: only the research-review academic articles.
+// HERR feed: the bundled research paper(s) merged with any admin-added HERR
+// articles from the API (API wins on slug clash). Bundling guarantees the
+// research content shows even before the backend has seeded it.
 export async function getHerrPosts(): Promise<BlogPost[]> {
-  return (await getPosts()).filter(isHerr);
+  const fromApi = (await getPosts()).filter(isHerr);
+  const apiSlugs = new Set(fromApi.map((p) => p.slug));
+  const bundled = HERR_ARTICLES.filter((p) => !apiSlugs.has(p.slug));
+  return [...fromApi, ...bundled];
 }
 
 export async function getHerrPost(slug: string): Promise<BlogPost | null> {
   const p = await getPost(slug);
-  return p && isHerr(p) ? p : null;
+  if (p && isHerr(p)) return p;
+  return HERR_ARTICLES.find((a) => a.slug === slug) || null;
 }
 
 export async function getCategories(): Promise<string[]> {
