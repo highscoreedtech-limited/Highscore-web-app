@@ -2,6 +2,7 @@
 export interface BlogPost {
   slug: string; title: string; category: string; subcategory: string;
   tag: string; tags: string[]; excerpt: string; body: string[]; source: string; img: string; date: string;
+  author?: string; downloadUrl?: string;
 }
 
 export const BLOG_POSTS: BlogPost[] = [

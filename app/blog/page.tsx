@@ -1,5 +1,5 @@
 import BlogClient from "./BlogClient";
-import { getPosts, getCategories } from "@/lib/blog-api";
+import { getBlogPosts, getCategories } from "@/lib/blog-api";
 
 // Revalidate every 5 minutes so admin-published posts appear without a redeploy.
 export const revalidate = 300;
@@ -10,6 +10,6 @@ export const metadata = {
 };
 
 export default async function BlogPage() {
-  const [posts, categories] = await Promise.all([getPosts(), getCategories()]);
+  const [posts, categories] = await Promise.all([getBlogPosts(), getCategories()]);
   return <BlogClient posts={posts} categories={categories} />;
 }

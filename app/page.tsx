@@ -79,6 +79,7 @@ export default function MarketingPage() {
             <a href="#library" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Video library</a>
             <a href="#pricing" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Pricing</a>
             <Link href="/blog" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Blog</Link>
+            <Link href="/herr" className="text-sm font-medium text-hs-navy hover:text-hs-blue">Research (HERR)</Link>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
             <Link href="/login" className="rounded-full px-4 py-2 text-sm font-semibold text-hs-navy hover:bg-hs-bg">Log in</Link>
@@ -118,6 +119,7 @@ export default function MarketingPage() {
                 { label: "Video library", href: "#library" },
                 { label: "Pricing", href: "#pricing" },
                 { label: "Blog", href: "/blog" },
+                { label: "Research (HERR)", href: "/herr" },
                 { label: "Log in", href: "/login" },
                 { label: "Get started", href: "/signup" },
               ].map((l, i) => (

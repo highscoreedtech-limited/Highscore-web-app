@@ -1,23 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, CalendarDays, ArrowRight, FileText } from "lucide-react";
-import { getPosts } from "@/lib/blog-api";
+import { ArrowLeft, CalendarDays, ArrowRight, FileText, User } from "lucide-react";
+import { getHerrPosts } from "@/lib/blog-api";
 
 export const revalidate = 300;
 
 export const metadata = {
   title: "HERR — HighScore EdTech Research Review",
-  description: "Research, data and evidence-based insights on exams, study methods and student outcomes in Nigeria.",
+  description: "Peer-style academic research on exams, gamification, study methods and student outcomes — from the HighScore EdTech research desk.",
 };
 
-// Research pieces are blog posts filed under this category (set in the admin editor).
-const HERR_CATEGORY = "HighScore EdTech Research Review";
-
 export default async function HerrPage() {
-  const all = await getPosts();
-  const papers = all.filter(
-    (p) => p.category === HERR_CATEGORY || /research/i.test(p.category)
-  );
+  const papers = await getHerrPosts();
 
   return (
     <div className="min-h-screen bg-white font-sans text-hs-body">
@@ -65,22 +59,24 @@ export default async function HerrPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-5">
             {papers.map((p) => (
-              <article key={p.slug} className="group flex flex-col overflow-hidden rounded-2xl border border-hs-border bg-white shadow-[0_10px_30px_-8px_rgba(4,44,83,0.16)] hover:shadow-[0_22px_44px_-12px_rgba(4,44,83,0.28)]">
-                <Link href={`/blog/${p.slug}`} className="flex flex-1 flex-col">
-                  <div className="relative aspect-video overflow-hidden">
-                    <Image src={p.img} alt={p.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <span className="absolute left-3 top-3 rounded-full bg-hs-navy/90 px-2.5 py-1 text-[11px] font-bold text-white">Research</span>
-                  </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <p className="flex items-center gap-1.5 text-[11px] text-hs-muted"><CalendarDays size={13} /> {p.date}</p>
-                    <h3 className="mt-2 text-lg font-bold leading-snug text-hs-navy">{p.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm text-hs-muted">{p.excerpt}</p>
-                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-hs-blue">Read <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" /></span>
-                  </div>
-                </Link>
-              </article>
+              <Link key={p.slug} href={`/herr/${p.slug}`}
+                className="group block rounded-2xl border border-hs-border bg-white p-6 shadow-[0_10px_30px_-10px_rgba(4,44,83,0.14)] transition-shadow hover:shadow-[0_22px_44px_-14px_rgba(4,44,83,0.26)]">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-hs-blue">
+                  <span className="rounded bg-hs-blueTint px-2 py-0.5">Research Article</span>
+                  {p.subcategory && <span className="text-hs-muted">{p.subcategory}</span>}
+                </div>
+                <h3 className="mt-3 text-xl font-extrabold leading-snug text-hs-navy group-hover:text-hs-blue lg:text-2xl">{p.title}</h3>
+                {p.author && (
+                  <p className="mt-2 flex items-center gap-1.5 text-sm text-hs-muted"><User size={14} /> {p.author}</p>
+                )}
+                <p className="mt-3 line-clamp-3 text-[15px] leading-relaxed text-hs-body">{p.excerpt}</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-[12px] text-hs-muted"><CalendarDays size={13} /> {p.date}</span>
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-hs-blue">Read paper <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" /></span>
+                </div>
+              </Link>
             ))}
           </div>
         )}
