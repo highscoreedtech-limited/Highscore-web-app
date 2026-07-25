@@ -292,9 +292,17 @@ function HomeTab({
               <div className="mt-4">
                 <div className="flex items-end justify-between text-[11px]">
                   <span className="font-extrabold text-hs-amber">⭐ {myPoints.toLocaleString()} XP</span>
-                  <span className="font-semibold text-[#B8CCE0]">
-                    {(() => { const n = nextTier(myPoints); return n ? `${(n.minPts - myPoints).toLocaleString()} XP to ${n.emoji} ${n.name}` : "👑 Max level!"; })()}
-                  </span>
+                  {(() => {
+                    const n = nextTier(myPoints);
+                    if (!n) return <span className="font-semibold text-[#B8CCE0]">👑 Max level!</span>;
+                    return (
+                      <span className="flex items-center gap-1 font-semibold text-[#B8CCE0]">
+                        {(n.minPts - myPoints).toLocaleString()} XP to
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={n.icon} alt={n.name} className="h-4 w-4 object-contain" /> {n.name}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <div className="mt-1.5 h-3 w-full overflow-hidden rounded-full bg-white/12 ring-1 ring-white/10">
                   <div className="h-full rounded-full transition-[width] duration-700"

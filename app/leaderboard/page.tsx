@@ -98,7 +98,7 @@ export default function LeaderboardPage() {
         {/* Rank levels */}
         <div className="mt-5 flex items-center justify-between">
           <span className="text-sm font-bold">Rank Levels</span>
-          <span className="text-[11px] font-semibold text-[#FFB020]">You are: {myTier.emoji} {myTier.name}</span>
+          <span className="flex items-center gap-1 text-[11px] font-semibold text-[#FFB020]">You are: {/* eslint-disable-next-line @next/next/no-img-element */}<img src={myTier.icon} alt={myTier.name} className="h-4 w-4 object-contain" /> {myTier.name}</span>
         </div>
         <div className="mt-2.5 flex gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TIERS.map((t) => {
@@ -138,7 +138,7 @@ export default function LeaderboardPage() {
                       <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold ring-1 ring-white/20">{place}</span>
                       <Avatar url={e.avatar_url} color={e.avatar_color} initials={e.initials || fullName(e)[0]} size={center ? 64 : 48} />
                       <p className={`mt-2 w-full truncate text-center font-bold ${center ? "text-sm" : "text-[13px]"}`}>{e.first_name?.trim() || "Anonymous"}</p>
-                      <p className="text-[10px]" style={{ color: tier.color }}>{tier.emoji} {tier.name}</p>
+                      <p className="flex items-center justify-center gap-1 text-[10px]" style={{ color: tier.color }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={tier.icon} alt={tier.name} className="h-3.5 w-3.5 object-contain" /> {tier.name}</p>
                       <p className={`mt-0.5 font-extrabold ${center ? "text-hs-amber" : "text-white/90"}`}>{e.total_score.toLocaleString()} <span className="text-[10px] font-medium text-white/50">pts</span></p>
                     </div>
                   );
@@ -157,7 +157,7 @@ export default function LeaderboardPage() {
                     <Avatar url={e.avatar_url} color={e.avatar_color} initials={e.initials || fullName(e)[0]} size={36} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold">{e.first_name?.trim() || "Anonymous"}</p>
-                      <p className="text-[11px]" style={{ color: tier.color }}>{tier.emoji} {tier.name}</p>
+                      <p className="flex items-center gap-1 text-[11px]" style={{ color: tier.color }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={tier.icon} alt={tier.name} className="h-3.5 w-3.5 object-contain" /> {tier.name}</p>
                     </div>
                     <span className="text-sm font-bold">{e.total_score.toLocaleString()} <span className="text-[10px] font-medium text-white/40">pts</span></span>
                   </motion.div>
@@ -175,7 +175,7 @@ export default function LeaderboardPage() {
           <Avatar url={user?.avatar_url} color={user?.avatar_color} initials={myInitials} size={36} />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-bold">{myName} <span className="rounded bg-[#2F6BFF] px-1.5 py-0.5 text-[9px] font-extrabold">YOU</span></p>
-            <p className="text-[11px]" style={{ color: myTier.color }}>{myTier.emoji} {myTier.name}</p>
+            <p className="flex items-center gap-1 text-[11px]" style={{ color: myTier.color }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={myTier.icon} alt={myTier.name} className="h-3.5 w-3.5 object-contain" /> {myTier.name}</p>
           </div>
           <span className="text-sm font-extrabold text-[#8AB4FF]">{myPoints.toLocaleString()} <span className="text-[10px] font-medium text-white/40">pts</span></span>
         </div>
