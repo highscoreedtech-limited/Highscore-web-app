@@ -165,7 +165,8 @@ export default function RewardsPage() {
               </div>
             </div>
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-4">
-              <Asset3D name="hst" fallback="🟢" size={38} float={false} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/ui/hsp.png" alt="HSP" className="h-[38px] w-[38px] object-contain" />
               <div>
                 <p className="text-[11px] text-[#B8CCE0]">HSP wallet</p>
                 <p className="mt-0.5 text-2xl font-extrabold text-white">{hst.toLocaleString()} HSP</p>
