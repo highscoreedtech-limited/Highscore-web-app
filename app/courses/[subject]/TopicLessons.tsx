@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, PlayCircle, BookOpen, Check, Clock, FileText, ListChecks, Maximize, RotateCcw, X } from "lucide-react";
+import { ArrowLeft, PlayCircle, BookOpen, Check, Clock, FileText, ListChecks, Maximize, RotateCcw, X, Bookmark, MoreVertical, BarChart3, Users, Play, Edit3, FolderOpen } from "lucide-react";
 import type { TopicInfo } from "@/lib/topics";
 import { QUIZ_BANK, QuizQuestion } from "@/lib/quiz-bank";
 import { api } from "@/lib/api";
@@ -56,6 +56,8 @@ export default function TopicLessons({
 
   const [done, setDone] = useState<Set<number>>(new Set());
   const [active, setActive] = useState<number>(() => lessons.findIndex((l) => l.type === "video" && (l.youtubeId || l.videoUrl)));
+  const [tab, setTab] = useState(0); // 0 Overview · 1 Notes · 2 Resources
+  const [saved, setSaved] = useState(false);
 
   // Restore completion.
   useEffect(() => {
@@ -102,115 +104,117 @@ export default function TopicLessons({
   const totalMin = lessons.reduce((s, l) => s + l.minutes, 0);
   const pct = lessons.length ? Math.round((done.size / lessons.length) * 100) : 0;
 
+  const activeNo = active >= 0 ? active + 1 : 1;
+  const isVideo = activeLesson?.type === "video" && (activeLesson.videoUrl || activeLesson.youtubeId);
+
   return (
-    <div className="fixed inset-0 z-[70] overflow-y-auto bg-hs-bg">
-      {/* Header */}
-      <header className="px-4 pb-6 pt-5 lg:px-8 lg:pt-7" style={{ backgroundColor: color }}>
-        <div className="mx-auto max-w-3xl">
-          <div className="flex items-center gap-3">
-            <button onClick={onBack} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/25 text-white" aria-label="Back">
-              <ArrowLeft size={16} />
+    <div className="fixed inset-0 z-[70] flex flex-col overflow-y-auto bg-white">
+      {/* ── Dark top block: header + video + tabs + tab body ────────────────── */}
+      <div className="rounded-b-3xl" style={{ backgroundColor: "#141B2B" }}>
+        <div className="mx-auto max-w-3xl px-4 pb-5 pt-5 lg:px-8">
+          {/* Header */}
+          <div className="flex items-center gap-2">
+            <button onClick={onBack} className="flex h-9 w-9 items-center justify-center rounded-full" style={{ backgroundColor: "#1E273A" }} aria-label="Back">
+              <ArrowLeft size={17} className="text-[#ECEFF5]" />
             </button>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-white/70">{subjectName}</p>
-              <h1 className="truncate text-lg font-bold text-white">{topic.name}</h1>
-            </div>
+            <p className="flex-1 text-center text-[15px] font-bold text-[#ECEFF5]">
+              Lesson <span className="text-hs-amber">{activeNo}</span> of {lessons.length}
+            </p>
+            <button onClick={() => setSaved((s) => !s)} className="flex h-9 w-9 items-center justify-center rounded-full" style={{ backgroundColor: "#1E273A" }} aria-label="Save">
+              <Bookmark size={17} className={saved ? "fill-hs-amber text-hs-amber" : "text-[#ECEFF5]"} />
+            </button>
+            <button className="flex h-9 w-9 items-center justify-center rounded-full" style={{ backgroundColor: "#1E273A" }} aria-label="More">
+              <MoreVertical size={17} className="text-[#ECEFF5]" />
+            </button>
           </div>
-          <div className="mt-4 flex items-center gap-5 text-white">
-            <span className="flex items-center gap-1.5 text-sm"><BookOpen size={15} /> {lessons.length} lessons</span>
-            <span className="flex items-center gap-1.5 text-sm"><Clock size={15} /> {totalMin} min</span>
-            <span className="text-sm font-semibold">{pct}% done</span>
+
+          {/* Video / featured lesson */}
+          <div className="mt-4">
+            {isVideo ? (
+              <div ref={playerRef} className={`group relative mx-auto overflow-hidden rounded-2xl bg-black ${activeLesson!.portrait ? "max-w-[300px] sm:max-w-[340px]" : ""}`}>
+                <div className="relative w-full" style={{ paddingTop: activeLesson!.portrait ? "177.78%" : "56.25%" }}>
+                  {activeLesson!.videoUrl ? (
+                    <video key={activeLesson!.videoUrl} className="absolute inset-0 h-full w-full bg-black" src={activeLesson!.videoUrl} controls playsInline controlsList="nodownload" />
+                  ) : (
+                    <iframe key={activeLesson!.youtubeId} className="absolute inset-0 h-full w-full"
+                      src={`https://www.youtube-nocookie.com/embed/${activeLesson!.youtubeId}?rel=0&modestbranding=1&playsinline=1&fs=1`}
+                      title={activeLesson!.name}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share" allowFullScreen />
+                  )}
+                </div>
+              </div>
+            ) : activeLesson?.type === "practice" ? (
+              <PracticeQuiz subjectName={subjectName} color={color} onFinished={() => { if (active >= 0 && !done.has(active)) toggleDone(active); }} />
+            ) : (
+              <div className="flex aspect-video w-full flex-col items-center justify-center rounded-2xl text-center" style={{ backgroundColor: "#1E273A" }}>
+                <PlayCircle size={40} className="text-[#6BA8E0]" />
+                <p className="mt-2 text-sm font-semibold text-[#ECEFF5]">{activeLesson?.name ?? "Select a lesson"}</p>
+                <p className="mt-0.5 text-xs text-[#9AA6BD]">Video for this lesson is coming soon.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div className="mt-5 flex border-b" style={{ borderColor: "#2C3852" }}>
+            {["Overview", "Notes", "Resources"].map((t, i) => (
+              <button key={t} onClick={() => setTab(i)}
+                className={`flex-1 border-b-2 py-3 text-[13.5px] ${tab === i ? "font-bold text-[#ECEFF5]" : "font-medium text-[#9AA6BD]"}`}
+                style={{ borderColor: tab === i ? color : "transparent" }}>
+                {t}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab body */}
+          <div className="py-5">
+            {tab === 0 && activeLesson && (
+              <>
+                <span className="inline-block rounded px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide" style={{ backgroundColor: `${color}33`, color: "#6BA8E0" }}>
+                  {TYPE_META[activeLesson.type].label}
+                </span>
+                <h1 className="mt-3 text-2xl font-extrabold leading-tight text-[#ECEFF5]">{activeLesson.name}</h1>
+                <p className="mt-1.5 text-sm leading-relaxed text-[#9AA6BD]">{activeLesson.summary}</p>
+                <div className="mt-4 grid grid-cols-3 gap-2.5">
+                  <StatChip icon={<Clock size={15} />} value={`${activeLesson.minutes} min`} label="Duration" />
+                  <StatChip icon={<BarChart3 size={15} />} value="Beginner" label="Level" />
+                  <StatChip icon={<Users size={15} />} value="2.4k" label="Students" />
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button onClick={() => active >= 0 && toggleDone(active)}
+                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold"
+                    style={done.has(active) ? { backgroundColor: color, color: "#fff" } : { border: `1px solid ${color}`, color: "#6BA8E0" }}>
+                    <Check size={15} /> {done.has(active) ? "Completed" : "Mark complete"}
+                  </button>
+                  {isVideo && (
+                    <button onClick={goFullscreen} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-[#ECEFF5]" style={{ border: "1px solid #2C3852" }}>
+                      <Maximize size={15} /> Fullscreen
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+            {tab === 1 && <EmptyTab icon={<Edit3 size={30} />} title="Your notes" sub="Notes you take while watching will appear here." />}
+            {tab === 2 && <EmptyTab icon={<FolderOpen size={30} />} title="Resources" sub="Downloadable materials for this lesson will show up here." />}
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="mx-auto max-w-3xl px-4 py-5 lg:px-8">
-        {/* Video player / featured lesson */}
-        {activeLesson?.type === "video" && (activeLesson.videoUrl || activeLesson.youtubeId) ? (
-          <div
-            ref={playerRef}
-            className={`group relative mx-auto overflow-hidden rounded-2xl border border-hs-border bg-black ${activeLesson.portrait ? "max-w-[300px] sm:max-w-[340px]" : ""}`}
-          >
-            <div className="relative w-full" style={{ paddingTop: activeLesson.portrait ? "177.78%" : "56.25%" }}>
-              {activeLesson.videoUrl ? (
-                // Self-hosted video, no related/other videos, full control.
-                <video
-                  key={activeLesson.videoUrl}
-                  className="absolute inset-0 h-full w-full bg-black"
-                  src={activeLesson.videoUrl}
-                  controls
-                  playsInline
-                  controlsList="nodownload"
-                />
-              ) : (
-                // YouTube fallback, hardened (privacy domain, fewer related videos).
-                <iframe
-                  key={activeLesson.youtubeId}
-                  className="absolute inset-0 h-full w-full"
-                  src={`https://www.youtube-nocookie.com/embed/${activeLesson.youtubeId}?rel=0&modestbranding=1&playsinline=1&fs=1`}
-                  title={activeLesson.name}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; web-share"
-                  allowFullScreen
-                />
-              )}
-            </div>
-          </div>
-        ) : activeLesson?.type === "practice" ? (
-          <PracticeQuiz
-            subjectName={subjectName}
-            color={color}
-            onFinished={() => { if (active >= 0 && !done.has(active)) toggleDone(active); }}
-          />
-        ) : (
-          <div className="flex aspect-video w-full flex-col items-center justify-center rounded-2xl border border-hs-border bg-white text-center">
-            <PlayCircle size={40} style={{ color }} />
-            <p className="mt-2 text-sm font-semibold text-hs-navy">{activeLesson?.name ?? "Select a lesson"}</p>
-            <p className="mt-0.5 text-xs text-hs-muted">Video for this lesson is coming soon.</p>
-          </div>
-        )}
-
-        {activeLesson && (
-          <div className="mt-3 rounded-xl border border-hs-border bg-white p-4">
-            <p className="text-sm font-bold text-hs-navy">{activeLesson.name}</p>
-            <p className="mt-1 text-sm text-hs-muted">{activeLesson.summary}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <button
-                onClick={() => active >= 0 && toggleDone(active)}
-                className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-white"
-                style={{ backgroundColor: color }}
-              >
-                <Check size={15} /> {done.has(active) ? "Completed" : "Mark complete"}
-              </button>
-              {activeLesson.type === "video" && (activeLesson.videoUrl || activeLesson.youtubeId) && (
-                <button
-                  onClick={goFullscreen}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-hs-border bg-white px-4 py-2 text-sm font-semibold text-hs-navy"
-                >
-                  <Maximize size={15} /> Fullscreen
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Lessons list */}
-        <h2 className="mb-3 mt-6 text-sm font-bold text-hs-navy">Lessons</h2>
+      {/* ── White "Lessons in this course" section ───────────────────────────── */}
+      <div className="mx-auto w-full max-w-3xl flex-1 px-4 pb-28 pt-5 lg:px-8">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-extrabold text-hs-navy">Lessons in this course</h2>
+          <span className="text-xs font-semibold text-hs-blue">{lessons.length} lessons</span>
+        </div>
         <div className="space-y-2.5">
           {lessons.map((l, i) => {
             const Meta = TYPE_META[l.type].icon;
             const isActive = i === active;
             const isDone = done.has(i);
             return (
-              <button
-                key={i}
-                onClick={() => setActive(i)}
+              <button key={i} onClick={() => setActive(i)}
                 className={`flex w-full items-center gap-3 rounded-2xl border bg-white p-3.5 text-left transition-colors ${isActive ? "" : "hover:bg-hs-bg"}`}
-                style={isActive ? { borderColor: color, backgroundColor: `${color}0D` } : { borderColor: "var(--hs-border, #EAEAEA)" }}
-              >
-                <span
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: isDone ? color : `${color}1A`, color: isDone ? "#fff" : color }}
-                >
+                style={isActive ? { borderColor: color, backgroundColor: `${color}0D` } : { borderColor: "var(--hs-border, #EAEAEA)" }}>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ backgroundColor: isDone ? color : `${color}1A`, color: isDone ? "#fff" : color }}>
                   {isDone ? <Check size={18} /> : <Meta size={18} />}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -225,6 +229,42 @@ export default function TopicLessons({
           })}
         </div>
       </div>
+
+      {/* ── Bottom bar ───────────────────────────────────────────────────────── */}
+      <div className="fixed inset-x-0 bottom-0 border-t border-hs-border bg-white px-4 py-3 lg:px-8">
+        <div className="mx-auto flex max-w-3xl items-center gap-3">
+          <button onClick={() => active >= 0 && setActive(active)}
+            className="flex flex-1 items-center justify-center gap-2 rounded-full py-3.5 text-sm font-bold text-white" style={{ backgroundColor: color }}>
+            <Play size={18} /> Continue Learning
+          </button>
+          <button onClick={() => setSaved((s) => !s)} className="flex flex-col items-center rounded-full border border-hs-border px-5 py-2.5">
+            <Bookmark size={18} className={saved ? "fill-hs-blue text-hs-blue" : "text-hs-navy"} />
+            <span className="text-[10px] font-semibold text-hs-navy">Save</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatChip({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+  return (
+    <div className="flex items-center gap-2 rounded-2xl p-3" style={{ backgroundColor: "#1E273A" }}>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#6BA8E0]" style={{ backgroundColor: "#185FA533" }}>{icon}</span>
+      <div className="min-w-0">
+        <p className="truncate text-[13px] font-extrabold text-[#ECEFF5]">{value}</p>
+        <p className="text-[10px] text-[#9AA6BD]">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function EmptyTab({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
+  return (
+    <div className="flex flex-col items-center rounded-2xl px-4 py-7 text-center" style={{ backgroundColor: "#1E273A" }}>
+      <span className="text-[#9AA6BD]">{icon}</span>
+      <p className="mt-2.5 text-sm font-bold text-[#ECEFF5]">{title}</p>
+      <p className="mt-1 text-xs text-[#9AA6BD]">{sub}</p>
     </div>
   );
 }
