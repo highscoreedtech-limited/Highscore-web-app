@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, ArrowRight } from "lucide-react";
 import { redirect } from "next/navigation";
+import Linkified from "@/components/Linkified";
 import { BLOG_POSTS } from "@/lib/blog-posts";
 import { getPost, getBlogPosts, HERR_CATEGORY } from "@/lib/blog-api";
 
@@ -84,7 +85,7 @@ export default async function BlogArticle({ params }: { params: { slug: string }
         {/* Source */}
         {post.source && (
           <p className="mt-6 border-t border-hs-border pt-5 text-sm text-hs-muted">
-            <span className="font-semibold text-hs-navy">Source:</span> {post.source}
+            <span className="font-semibold text-hs-navy">Source:</span> <Linkified text={post.source} />
           </p>
         )}
       </article>

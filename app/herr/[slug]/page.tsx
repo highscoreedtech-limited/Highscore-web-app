@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, User, CalendarDays, Download, FileText } from "lucide-react";
+import Linkified from "@/components/Linkified";
 import { getHerrPost, getHerrPosts } from "@/lib/blog-api";
 
 export const revalidate = 300;
@@ -93,7 +94,7 @@ export default async function HerrArticle({ params }: { params: { slug: string }
         {/* Citation */}
         {post.source && (
           <p className="mt-8 rounded-xl bg-hs-bg p-4 text-sm leading-relaxed text-hs-muted">
-            <span className="font-semibold text-hs-navy">Citation:</span> {post.source}
+            <span className="font-semibold text-hs-navy">Citation:</span> <Linkified text={post.source} />
           </p>
         )}
       </article>
