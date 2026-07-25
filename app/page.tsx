@@ -405,8 +405,8 @@ export default function MarketingPage() {
         <div className="mx-auto max-w-6xl px-4 py-14 lg:px-8">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <div className="sm:col-span-2 lg:col-span-1">
-              <Image src="/highscore-logo-final.png" alt="HighScore" width={260} height={66} className="h-14 w-auto object-contain brightness-0 invert" />
-              <p className="mt-4 max-w-xs text-sm">Nigeria&apos;s smartest exam-prep app, lessons, CBT, quiz battles and rewards in one place.</p>
+              <Image src="/highscore-logo-final.png" alt="HighScore" width={260} height={66} className="h-16 w-auto object-contain" />
+              <p className="mt-4 max-w-sm text-sm">Nigeria&apos;s smartest education technology. It combines gamified quizzes, computer-based tests, video tutorials, messaging, competitions, rewards and many more features. All to help students stay motivated, focused and reach their full potential.</p>
               <div className="mt-5 flex gap-3">
                 {[Instagram, Twitter, Youtube].map((Icon, i) => (
                   <a key={i} href="#" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Social link">

@@ -7,7 +7,7 @@ export const revalidate = 300;
 
 export const metadata = {
   title: "HERR — HighScore EdTech Research Review",
-  description: "Peer-style academic research on exams, gamification, study methods and student outcomes — from the HighScore EdTech research desk.",
+  description: "Scientific papers from Nigeria, Africa, and all over the world.",
 };
 
 export default async function HerrPage() {
@@ -34,8 +34,7 @@ export default async function HerrPage() {
             HighScore EdTech <span className="text-hs-amber">Research Review</span>
           </h1>
           <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#B8CCE0] lg:text-lg">
-            Evidence-based research, data and academic insight on exams, study methods and student
-            outcomes across Nigeria — from the HighScore EdTech research desk.
+            Scientific papers from Nigeria, Africa, and all over the world.
           </p>
         </div>
       </section>
